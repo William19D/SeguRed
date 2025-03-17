@@ -25,6 +25,8 @@
   
   .icon-left {
     margin-right: 10px;
+    width: 24px; /* Ajusta el tamaño del ícono si es necesario */
+    height: 24px; /* Ajusta el tamaño del ícono si es necesario */
   }
   
   button {

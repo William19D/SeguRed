@@ -1,14 +1,39 @@
-<div class="topbar">
-    <div class="left-section">
-      <i class="icon-left">icono</i>
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center" routerLink="/">
+            <img src="assets/Logo.svg" alt="SeguRed" width="30" height="30" class="d-inline-block align-text-top me-2">
+            <span>SeguRed</span>
+        </a>
+
+        <!-- Botón de menú para móviles -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <!-- Menú de navegación centrado -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/comunidad">Comunidad</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/contacto">Contacto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/faq">FAQ</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Botones de usuario a la derecha -->
+        <div class="d-flex align-items-center">
+            <a routerLink="/login" class="text-success me-3 text-decoration-none">Iniciar Sesión</a>
+            <a routerLink="/registro" class="btn btn-success">Registrarse</a>
+        </div>
     </div>
-    <div class="middle-section">
-      <button>Botón 1</button>
-      <button>Botón 2</button>
-      <button>Botón 3</button>
-    </div>
-    <div class="right-section">
-      <button>Botón 4</button>
-      <button>Botón 5</button>
-    </div>
-  </div>
+</nav>
