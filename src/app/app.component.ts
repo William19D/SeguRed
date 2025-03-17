@@ -1,12 +1,14 @@
+// filepath: d:\Segured\SeguRed\SeguRed\src\app\app.component.ts
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { TopbarComponent } from './topbar/topbar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css'],
+  standalone: true,
+  imports: [TopbarComponent] // Importa el componente aquí
 })
 export class AppComponent {
-  title = 'SeguRed';
+  title = 'seguRed';
 }

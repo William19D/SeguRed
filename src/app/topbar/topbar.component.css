@@ -1,0 +1,32 @@
+/* filepath: d:\Segured\SeguRed\SeguRed\src\app\topbar\topbar.component.css */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  .left-section, .middle-section, .right-section {
+    display: flex;
+    align-items: center;
+  }
+  
+  .middle-section {
+    flex-grow: 1;
+    justify-content: center;
+  }
+  
+  .icon-left {
+    margin-right: 10px;
+  }
+  
+  button {
+    margin: 0 5px;
+  }
