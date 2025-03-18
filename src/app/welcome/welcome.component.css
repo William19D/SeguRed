@@ -48,13 +48,16 @@
 }
 /* Botón */
 .welcome .btn-success {
-    width: 146px;
-    height: 52px;
-    border-radius: 4px;
-    padding: 14px 32px; /* Padding simplificado */
-    gap: 10px;
-    background-color: #4CAF50; /* Cambia el color del botón */
-    border: none; /* Elimina el borde si no lo quieres */
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.welcome .btn-success:hover {
+    background-color: #218838;
 }
 
 /* Asegura que el texto mantenga su color original */

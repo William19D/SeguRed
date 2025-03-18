@@ -29,6 +29,12 @@
   max-width: 1110px;
 }
 
+.long-logo {
+  max-width: 300px;
+  height: 300px;
+  margin: 0 30px;
+}
+
 .logo-list-title {
   align-self: stretch;
   color: #4D4D4D;

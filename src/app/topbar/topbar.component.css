@@ -29,6 +29,19 @@
     height: 24px; /* Ajusta el tamaño del ícono si es necesario */
   }
   
-  button {
-    margin: 0 5px;
-  }
+  .button {
+    background-color: #28a745;
+    color: white;
+    width: 112;
+    height: 40;
+    gap: 10px;
+    border-radius: 6px;
+    padding-top: 10px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+    padding-left: 20px;    
+}
+
+.button:hover {
+    background-color: #218838;
+}
