@@ -1,0 +1,75 @@
+/* Estilos generales para el componente de bienvenida */
+.welcome {
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  padding: 96px 144px; /* Padding: 96px top and bottom, 144px left and right */
+}
+
+/* Sección de texto */
+.frame {
+  margin-bottom: 20px;
+}
+
+.frame .text {
+  font-size: 32px; /* Increase the font size */
+  font-weight: bold;
+  color: #4CAF4F; /* Apply the green color */
+}
+
+.frame .slogan {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.frame .subtext {
+  font-size: 16px;
+  font-weight: normal;
+  color: #555;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.subtext {
+  font-size: 18px;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+/* Contenedor de la ilustración */
+.illustration {
+  position: relative;       /* Permite posicionar las capas de forma absoluta */
+  width: 500px;             /* Ajusta este valor al ancho deseado */
+  height: 300px;            /* Define un alto adecuado para tu ilustración */
+  margin-left: 20px;        /* Add margin to the left */
+  margin: 0 auto;           /* Centra el contenedor en la página */
+}
+
+/* Todas las capas de la ilustración se posicionan en la esquina superior izquierda del contenedor */
+.illustration .layer {
+  position: absolute;
+  top: 0;
+  left: 10;
+}
+
+/* Opcional: controla el orden de apilamiento (z-index) si es necesario */
+.freepik--shadow--inject-10_9-624 { z-index: 1; }
+.freepik--shadow--inject-10_9-625 { z-index: 2; }
+/* Agrega reglas de z-index para cada capa según la prioridad visual */
+
+.text {
+    font-family: Inter;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 76px;
+  color: black; /* Default color */
+}
+
+.highlight {
+  color: #4CAF4F; /* Green color */
+}
