@@ -1,75 +1,72 @@
-/* Estilos generales para el componente de bienvenida */
+/* Estilos generales */
 .welcome {
-  font-family: 'Inter', sans-serif;
-  text-align: left;
-  padding: 96px 144px; /* Padding: 96px top and bottom, 144px left and right */
+    width: 100vw; /* Ocupar todo el ancho de la pantalla */
+    min-height: 300px; /* Altura mínima */
+    display: flex;
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra horizontalmente */
+    background-color: #F5F7FA; /* Color de fondo */
+    padding: 50px 20px; /* Espaciado interno */
+}
+
+/* Contenedor interno para limitar el ancho del contenido */
+.welcome .content {
+    max-width: 1200px; /* Evita que se expanda demasiado en pantallas grandes */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Separa el texto y la imagen */
 }
 
 /* Sección de texto */
-.frame {
-  margin-bottom: 20px;
+.welcome .text-section {
+    max-width: 657px; /* Tamaño fijo */
 }
 
-.frame .text {
-  font-size: 32px; /* Increase the font size */
-  font-weight: bold;
-  color: #4CAF4F; /* Apply the green color */
-}
-
-.frame .slogan {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.frame .subtext {
-  font-size: 16px;
-  font-weight: normal;
-  color: #555;
-}
-
-.title {
-  font-size: 36px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.subtext {
-  font-size: 18px;
-  color: #777;
-  margin-bottom: 20px;
-}
-
-/* Contenedor de la ilustración */
-.illustration {
-  position: relative;       /* Permite posicionar las capas de forma absoluta */
-  width: 500px;             /* Ajusta este valor al ancho deseado */
-  height: 300px;            /* Define un alto adecuado para tu ilustración */
-  margin-left: 20px;        /* Add margin to the left */
-  margin: 0 auto;           /* Centra el contenedor en la página */
-}
-
-/* Todas las capas de la ilustración se posicionan en la esquina superior izquierda del contenedor */
-.illustration .layer {
-  position: absolute;
-  top: 0;
-  left: 10;
-}
-
-/* Opcional: controla el orden de apilamiento (z-index) si es necesario */
-.freepik--shadow--inject-10_9-624 { z-index: 1; }
-.freepik--shadow--inject-10_9-625 { z-index: 2; }
-/* Agrega reglas de z-index para cada capa según la prioridad visual */
-
-.text {
-    font-family: Inter;
-    font-size: 64px;
-    font-style: normal;
+.welcome .text {
+    font-family: 'Inter', sans-serif;
+    color: #4D4D4D;
+    margin-bottom: 10px;
     font-weight: 600;
+    font-size: 64px;
     line-height: 76px;
-  color: black; /* Default color */
+    letter-spacing: 0%;
+
 }
 
-.highlight {
-  color: #4CAF4F; /* Green color */
+/* Color especial para palabras resaltadas */
+.welcome .highlight {
+    color: #4CAF4F; /* Verde */
+    font-weight: bold;
+}
+
+/* Subtexto */
+.welcome .subtext {
+    font-size: 18px;
+    color: #777;
+    margin-bottom: 20px;
+}
+/* Botón */
+.welcome .btn-success {
+    width: 146px;
+    height: 52px;
+    border-radius: 4px;
+    padding: 14px 32px; /* Padding simplificado */
+    gap: 10px;
+    background-color: #4CAF50; /* Cambia el color del botón */
+    border: none; /* Elimina el borde si no lo quieres */
+}
+
+/* Asegura que el texto mantenga su color original */
+.welcome .btn-success span,
+.welcome .btn-success {
+    color: white;
+}
+
+
+/* Contenedor de la imagen */
+.welcome .illustration {
+    width: 500px;
+    height: 300px;
+    object-fit: contain;
 }

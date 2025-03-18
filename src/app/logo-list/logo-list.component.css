@@ -2,7 +2,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  width: 1440;
+  height: 1259;
+  margin-top: 40px;
+  top: 84px;
 }
 
 .logo-list-container {
