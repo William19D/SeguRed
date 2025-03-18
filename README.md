@@ -10,7 +10,7 @@ Segured es una plataforma diseñada para mejorar la seguridad en las comunidades
 
 ### 🔧 Backend:
 - **Spring Boot** 🚀 (API REST para la gestión de datos)
-- **MongoDB/MySQL** 🗄️ (Base de datos para almacenamiento de información)
+- **MongoDB** 🗄️ (Base de datos para almacenamiento de información)
 
 ## 🔥 Funcionalidades Principales
 
