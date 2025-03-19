@@ -1,11 +1,10 @@
-<nav class="topbar">
+<nav class="topbar" [ngClass]="{ 'hidden': isNavbarHidden }">
     <div class="container">
-        <!-- Logo con enlace a la Landing -->
+        <!-- Logo con enlace a la Home -->
         <a class="navbar-brand" (click)="goToHome()">
             <img src="Logo.svg" alt="SeguRed" class="logo">
             <span class="brand-name">SeguRed</span>
         </a>
-        
 
         <!-- Menú de navegación -->
         <div class="nav-center">
