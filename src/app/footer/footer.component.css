@@ -1,0 +1,96 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+.footer {
+    background-color: #212529;
+    color: #fff;
+    padding: 2rem 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.footer-left, .footer-center, .footer-right {
+    flex: 1;
+    min-width: 250px;
+    padding: 10px;
+}
+.logo {
+    width: 50px;
+    filter: invert(60%) sepia(23%) saturate(560%) hue-rotate(90deg) brightness(95%) contrast(90%);
+}
+
+.footer-left p {
+    font-size: 14px;
+    color: #bbb;
+}
+
+.social-icons a {
+    color: #bbb;
+    margin-right: 10px;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.social-icons a:hover {
+    color: #28a745;
+}
+
+.footer-center h3, .footer-right h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.footer-center ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-center ul li {
+    margin: 8px 0;
+}
+
+.footer-center ul li a {
+    color: #bbb;
+    text-decoration: none;
+}
+
+.footer-center ul li a:hover {
+    color: #28a745;
+}
+
+.subscribe {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.subscribe input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.subscribe button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.subscribe button:hover {
+    color: #28a745;
+}
