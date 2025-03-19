@@ -1,0 +1,140 @@
+/* Importar la fuente Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+/* Estilos generales */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.register-container {
+    margin-top: 5vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80%;
+    background-color: #f8f9fa;
+    padding: 2rem;
+}
+
+.register-content {
+    display: flex;
+    max-width: 90%;
+    width: 100%;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Lado izquierdo (texto e imagen) */
+.register-info {
+    flex: 1;
+    text-align: left;
+    padding-right: 2rem;
+}
+
+.register-info h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.register-info span {
+    color: #36a832; /* Verde */
+}
+
+.register-info p {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 10px;
+}
+
+.image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.image img {
+    width: 300px;  /* Ajusta este valor según el tamaño deseado */
+    height: 300px; /* Mantiene una proporción cuadrada */
+}
+
+/* Formulario */
+.register-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.register-form label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.register-form input,
+.register-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.register-form input:focus,
+.register-form select:focus {
+    outline: none;
+    border-color: #36a832;
+    box-shadow: 0 0 5px rgba(54, 168, 50, 0.5);
+}
+
+.register-form .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.register-form .captcha-container {
+    margin-bottom: 15px;
+}
+
+.register-form .register-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #36a832;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'Inter', sans-serif;
+}
+
+.register-form .register-btn:hover {
+    background-color: #2c8a28;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .register-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .register-info {
+        padding-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .register-image {
+        display: none; /* Ocultar imagen en móviles */
+    }
+}

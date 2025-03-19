@@ -19,11 +19,19 @@ export class RegisterComponent {
   user = {
     name: '',
     email: '',
-    password: ''
+    password: '',
+    phone: '',   // 📌 Agregar teléfono
+    city: '',    // 📌 Agregar ciudad de residencia
+    address: '', // 📌 Agregar dirección
+    useLocation: false, // 📌 Checkbox para ubicación
+    documentType: 'CC', // 📌 Tipo de documento con valor por defecto
+    documentNumber: '',
+    birthdate: ''
   };
 
   onRegister() {
-    console.log("Usuario registrado:", this.user);
-    // Aquí puedes agregar lógica para enviar los datos a un backend.
+    console.log('Usuario registrado:', this.user);
+    // Aquí puedes manejar la lógica para el registro
   }
 }
+
