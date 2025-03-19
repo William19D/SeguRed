@@ -1,11 +1,11 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router'; // Importar Router
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule], // IMPORTAR CommonModule PARA USAR ngClass
+  imports: [CommonModule],
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.css']
 })
@@ -13,23 +13,26 @@ export class TopbarComponent {
   isNavbarHidden = false;
   lastScrollTop = 0;
 
-  constructor(private router: Router) {} // Inyectar Router
+  constructor(private router: Router) {}
 
   @HostListener('window:scroll', [])
   onScroll() {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
     if (scrollTop > this.lastScrollTop) {
-      this.isNavbarHidden = true; // Ocultar navbar al bajar
+      this.isNavbarHidden = true;
     } else {
-      this.isNavbarHidden = false; // Mostrar navbar al subir
+      this.isNavbarHidden = false;
     }
 
-    this.lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Evitar valores negativos
+    this.lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   }
 
-  // Método para redirigir al inicio
   goToHome() {
     this.router.navigate(['/']);
+  }
+
+  goToRegister() {
+    this.router.navigate(['/register']); // Redirige a la página de registro
   }
 }

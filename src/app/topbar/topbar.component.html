@@ -1,11 +1,12 @@
-<nav class="topbar" [ngClass]="{ 'hidden': isNavbarHidden }">
+<nav class="topbar">
     <div class="container">
-        <!-- Logo y nombre con enlace -->
-        <a class="navbar-brand" routerLink="/">
+        <!-- Logo con enlace a la Landing -->
+        <a class="navbar-brand" (click)="goToHome()">
             <img src="Logo.svg" alt="SeguRed" class="logo">
             <span class="brand-name">SeguRed</span>
         </a>
-  
+        
+
         <!-- Menú de navegación -->
         <div class="nav-center">
             <ul class="nav-menu">
@@ -15,11 +16,11 @@
                 <li><a routerLink="/faq">FAQ</a></li>
             </ul>
         </div>
-  
+
         <!-- Botones de usuario -->
         <div class="user-actions">
             <a routerLink="/login" class="login-btn">Iniciar Sesión</a>
-            <button class="btn">Registrarse</button>        
+            <a (click)="goToRegister()" class="btn">Registrarse</a>
         </div>
     </div>
 </nav>

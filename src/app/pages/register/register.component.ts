@@ -9,7 +9,9 @@ import { FooterComponent } from '../../footer/footer.component';
   standalone: true, // Especificamos que es un componente independiente
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [FormsModule, FooterComponent] // Importamos FormsModule aquí
+  imports: [FormsModule, 
+            FooterComponent,
+            TopbarComponent] // Importamos FormsModule aquí
  // Importamos FormsModule aquí
  // Importamos FormsModule aquí
 })
