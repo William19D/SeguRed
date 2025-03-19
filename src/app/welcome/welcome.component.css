@@ -74,4 +74,6 @@
     width: 500px;
     height: 300px;
     object-fit: contain;
+    -webkit-user-drag: none;
+    pointer-events: none;
 }

@@ -44,6 +44,8 @@ body {
     width: 70px; /* Iconos más grandes */
     height: 70px;
     margin-bottom: 15px;
+    -webkit-user-drag: none;
+    pointer-events: none;
 }
 
 /* Títulos */

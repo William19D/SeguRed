@@ -20,6 +20,8 @@
 .image {
     width: 500px;
     margin-right: 30px;
+    -webkit-user-drag: none;
+    pointer-events: none;
 }
 
 .text-content {
