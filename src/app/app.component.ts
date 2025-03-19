@@ -4,6 +4,9 @@ import { RouterModule } from '@angular/router';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { LogoListComponent } from "./logo-list/logo-list.component";
 import { CaracteristicasComponent } from "./caracteristicas/caracteristicas.component";
+import { FeaturesComponent } from './features/features.component';
+import { StadisticsComponent } from './stadistics/stadistics.component';
+import { InvitationComponent } from './invitation/invitation.component';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +18,10 @@ import { CaracteristicasComponent } from "./caracteristicas/caracteristicas.comp
     RouterModule,
     WelcomeComponent,
     LogoListComponent,
-    CaracteristicasComponent // Asegúrate de que este componente esté correctamente importado
+    CaracteristicasComponent,
+    FeaturesComponent,
+    StadisticsComponent,
+    InvitationComponent // Asegúrate de que este componente esté correctamente importado
   ]
 })
 export class AppComponent {

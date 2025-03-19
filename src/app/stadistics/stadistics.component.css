@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Contenedor que ocupa todo el ancho */
+.full-width-container {
+  width: 100vw;
+  display: flex;
+  justify-content: center; /* Centra el contenido */
+  background-color: #f8f9fa;
+}
+
+/* Contenedor interno centrado */
+.stadistics-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  height: 25rem;
+  width: 80%; /* Controla el ancho del contenido */
+  max-width: 1200px; /* Evita que se extienda demasiado en pantallas grandes */
+}
+
+/* Sección del título */
+.title-section {
+  flex: 1;
+  text-align: left;
+}
+
+.title-section h2 {
+    font-size: 3.3rem; /* Antes: 3rem */
+    font-weight: 700;
+  }
+
+.title-section h2 span {
+  color: #4CAF4F;
+}
+
+/* Sección de estadísticas */
+.stats-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px; /* Aumenta la separación entre las filas */
+  }
+  
+  /* Fila de estadísticas */
+  .stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* Aumenta el espacio horizontal entre tarjetas */
+    width: 100%;
+  }
+  
+  /* Tarjetas de estadísticas */
+  .stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 320px; /* Ajusta el tamaño para que sean más horizontales */
+    height: 100px;
+  }
+  
+  /* Ajuste para evitar superposición */
+  @media (max-width: 768px) {
+    .stat-row {
+      flex-direction: column; /* En pantallas pequeñas, coloca las tarjetas una debajo de otra */
+      align-items: center;
+    }
+  }
+  
+
+/* Iconos en la tarjeta */
+.stat-item img {
+  width: 50px;
+  height: 50px;
+  margin-right: 15px; /* Espacio entre el icono y el texto */
+}
+
+/* Contenedor del texto */
+.stat-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+/* Número grande */
+.stat-number {
+    font-size: 2rem; /* Antes: 1.5rem */
+    font-weight: bold;
+  }
+/* Descripción */
+.stat-label {
+  font-size: 1.2rem; /* Antes: 0.9rem */
+  color: gray;
+}

@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contenedor principal */
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 50px; /* Mayor separación entre tarjetas */
+    max-width: 1200px;
+    margin: auto;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+/* Estilo de cada tarjeta */
+.feature {
+    background: white;
+    padding: 30px; /* Más espacio interno */
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    width: 350px; /* Aumenta el ancho */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto hover */
+.feature:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Icono */
+.feature-icon {
+    width: 70px; /* Iconos más grandes */
+    height: 70px;
+    margin-bottom: 15px;
+}
+
+/* Títulos */
+.feature h3 {
+    font-size: 23px; /* Aumenta el tamaño del título */
+    font-weight: 700;
+    margin: 15px 0;
+    color: #333;
+}
+
+/* Texto */
+.feature p {
+    font-size: 16px; /* Aumenta el tamaño del texto */
+    color: #444;
+    line-height: 1.5; /* Mayor legibilidad */
+}
+

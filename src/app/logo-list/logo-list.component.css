@@ -10,14 +10,15 @@
 
 .logo-list-container {
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex-direction: column;
-  gap: 4rem;
-  padding: 0 144px;
+  flex-wrap: nowrap; /* Evita que los logos se vayan a otra línea */
   width: 100%;
-  font-family: 'Inter', sans-serif;
+  padding: 0 50px; /* Ajusta el padding si es necesario*/
+  height: 98;
+  justify-content: space-between;
+  
 }
+
 
 .logo-list-header {
   display: flex;
@@ -28,11 +29,14 @@
   width: 100%;
   max-width: 1110px;
 }
-
 .long-logo {
-  max-width: 300px;
-  height: 300px;
-  margin: 0 30px;
+  max-width: 350px !important; /* Aumenta el tamaño */
+  height: auto;
+}
+
+.alcaldia-logo {
+  max-width: 350px !important; /* Ajusta el tamaño para la Alcaldía */
+  height: auto;
 }
 
 .logo-list-title {
@@ -52,12 +56,54 @@
 }
 
 .logo-list-svg {
-  width: 1152px;
-  height: 98px;
+  width: auto; /* Permitir que crezca */
+  height: auto;
+  max-width: none;
+}
+.logo-image {
+  max-width: 150px; /* Ajusta el tamaño */
+  height: auto;
+  margin: 0 30px; /* Espaciado entre los logos */
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.logo-image:nth-child(1), /* Policía */
+.logo-image:nth-child(2), /* Cruz Roja */
+.logo-image:nth-child(3)  /* Bomberos */ {
+  margin-right: 30px; /* Espacio extra */
+}
+.logo-slider {
+  overflow: hidden;
+  width: 100%;
+  background: white;
+  padding: 10px 0;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
+.logo-track {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  white-space: nowrap;
+  animation: scroll 35s linear infinite;
+  width: max-content; /* Se ajusta al contenido total */
+}
+
+/* Logos */
 .logo-image {
-  max-width: 150px;
-  height: auto;
-  margin: 0 30px; /* Add margin to create spacing between images */
+  max-height: 100px;
+  object-fit: contain;
+  margin: 0 20px;
+}
+
+/* Animación sin cortes */
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }

@@ -10,7 +10,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 30px;
     background-color: #f8f9fa;
     height: 25rem;
     margin-top: 4rem;
@@ -23,7 +23,7 @@
 }
 
 .text-content {
-    max-width: 500px;
+    max-width: 40vw;
 }
 
 .title {
@@ -38,9 +38,8 @@ color: #4D4D4D;
     margin-top: 1rem;
     margin-bottom: 1rem;
     font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0%;
+    font-size: 24px;
+    line-height: 1.3vw;
     color: #717171;
 }
 
