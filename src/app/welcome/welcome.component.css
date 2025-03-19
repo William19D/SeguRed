@@ -1,13 +1,13 @@
 /* Estilos generales */
 .welcome {
-    width: 100vw; /* Ocupar todo el ancho de la pantalla */
+    width: 100; /* Ocupar todo el ancho de la pantalla */
     min-height: 300px; /* Altura mínima */
     display: flex;
     align-items: center; /* Centra verticalmente */
     justify-content: center; /* Centra horizontalmente */
     background-color: #F5F7FA; /* Color de fondo */
     padding: 2vw 20px; /* Espaciado interno */
-    margin-top: 3vw;
+    margin-top: 4vw;
 }
 
 /* Contenedor interno para limitar el ancho del contenido */

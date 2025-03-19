@@ -13,7 +13,7 @@ body {
 
 /* Contenedor que ocupa todo el ancho */
 .full-width-container {
-  width: 100vw;
+  width: 100%;
   display: flex;
   justify-content: center; /* Centra el contenido */
   background-color: #f8f9fa;
