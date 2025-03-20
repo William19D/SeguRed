@@ -4,15 +4,13 @@
     <div class="register-content">
         <!-- Sección de información e imagen -->
         <div class="register-info">
-            <h1>Crea tu cuenta y ayuda a <span>mejorar tu comunidad.</span></h1>
+            <h1 class = "title">Crea tu cuenta y ayuda a <span>mejorar tu comunidad.</span></h1>
             <p>Regístrate y disfruta de una experiencia personalizada.</p>
             <img src="img2.svg" alt="Registro" class="image">
         </div>
 
         <!-- Formulario de registro -->
         <div class="register-form">
-            <h2>Crear una cuenta</h2>
-
             <form (ngSubmit)="onRegister()">
                 <label for="name">Nombre Completo</label>
                 <input type="text" id="name" [(ngModel)]="user.name" name="name" placeholder="Ingresa tu nombre completo" required>
@@ -49,10 +47,10 @@
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" [(ngModel)]="user.password" name="password" placeholder="Ingresa tu contraseña" required>
 
-                <button type="submit" class="register-btn">Registrarse</button>
+                <button type="submit" class="btn">Registrarse</button>
             </form>
 
-            <p>¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión</a></p>
+            <p class = "subtitle">¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión</a></p>
         </div>
     </div>
 </div>
