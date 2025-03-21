@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TopbarComponent } from '../../topbar/topbar.component';
-import { FooterComponent } from '../../footer/footer.component';
+import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-register',
