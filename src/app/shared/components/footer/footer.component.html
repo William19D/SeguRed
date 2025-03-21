@@ -1,0 +1,38 @@
+<footer class="footer">
+  <div class="footer-container">
+    <!-- Sección Izquierda -->
+    <div class="footer-left">
+      <img src="Logo.svg" alt="SeguRed" class="logo">
+      <p>Copyright © 2025 SeguRed Ltd.</p>
+      <p>All rights reserved</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-dribbble"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+
+    <!-- Sección Central -->
+    <div class="footer-center">
+      <h3>Company</h3>
+      <ul>
+        <li><a href="#">SeguRed</a></li>
+        <li><a href="#">Comunidad</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+
+    <!-- Sección Derecha (Suscripción) -->
+    <div class="footer-right">
+      <h3>Mantente al día</h3>
+      <div class="subscribe">
+        <input type="email" [(ngModel)]="email" placeholder="Tu correo electrónico" required>
+        <button type="button" (click)="subscribe()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</footer>
