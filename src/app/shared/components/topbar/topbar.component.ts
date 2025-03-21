@@ -35,4 +35,8 @@ export class TopbarComponent {
   goToRegister() {
     this.router.navigate(['/register']); // Redirige a la página de registro
   }
+
+  goToLogin() {
+    this.router.navigate(['/login']); // Redirige a la página de registro
+  }
 }
