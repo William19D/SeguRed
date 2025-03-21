@@ -6,7 +6,8 @@ import { Injectable } from '@angular/core';
 })
 export class ApiService {
   private apiUrl = 'http://localhost:8080/email-news/newssubscription';
-  private healthCheckUrl = 'http://localhost:8080/health';
+  private healthCheckUrl = 'http://localhost:8080/health'; // Endpoint de prueba
+
   constructor(private http: HttpClient) {}
 
   enviarCorreo(email: string) {
