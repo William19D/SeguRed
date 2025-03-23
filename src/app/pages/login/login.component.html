@@ -23,14 +23,19 @@
           <input type="password" id="password" placeholder="Ingresa tu contraseña" [(ngModel)]="user.password" name="password" required>
         </div>
         <button class="btn-green">Iniciar Sesión</button>
+        
 
   
         <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
   
         <!-- Captcha -->
         <div class="captcha">
+          <ngx-recaptcha2 
+          [siteKey]="siteKey" 
+          (success)="onCaptchaResolved($event)">
+        </ngx-recaptcha2>
         </div>
-  
+        
         <p class="register-link">
           ¿No tienes cuenta? <a href="#"> <strong>Regístrate aquí</strong></a>
         </p>
