@@ -3,6 +3,7 @@ import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -16,6 +17,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
  // Importamos FormsModule aquí
 })
 export class RegisterComponent {
+  constructor(private router: Router) {} // Inyectar Router en el constructor
   user = {
     name: '',
     email: '',
@@ -33,5 +35,10 @@ export class RegisterComponent {
     console.log('Usuario registrado:', this.user);
     // Aquí puedes manejar la lógica para el registro
   }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
+  
 }
 

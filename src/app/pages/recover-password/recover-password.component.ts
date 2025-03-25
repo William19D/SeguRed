@@ -37,4 +37,7 @@ export class RecoverPasswordComponent {
       }
     });
   }
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
 }

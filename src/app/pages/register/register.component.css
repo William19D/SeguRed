@@ -1,127 +1,78 @@
-/* Importar la fuente Inter */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
-/* Estilos generales */
-body {
-    font-family: 'Inter', sans-serif;
-}
-h1, h2, h3 {
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 600 !important;
-    font-size: 64px !important;
-    line-height: 76px !important;
-    letter-spacing: 0% !important;
-}
-.subtitle{
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 400 !important;
-    font-size: 20px !important;
-    line-height: 1.3vw !important;
-    margin-top: 1vw;
-    color: #717171 !important;
-}
-
 .register-container {
-    margin-top: 5vh;
+    margin-top: 80px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    height: 80%;
-    background-color: #f8f9fa;
-    padding: 2rem;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
 }
 
 .register-content {
-    width: 587;
-    height: 228;
     display: flex;
-    max-width: 90%;
-    background: #ffffff;
-    padding: 2rem;
+    max-width: 80%;
+    background: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Lado izquierdo (texto e imagen) */
 .register-info {
     flex: 1;
-    text-align: left;
-    padding-right: 2rem;
-    
+    padding-right: 30px;
 }
 
-.register-info h1 {
-    font-size: 2rem;
+.title {
+    font-size: 4rem;
+    color: #4D4D4D;
     font-weight: bold;
-    color: #333;
 }
 
-.register-info span {
-    color: #36a832; /* Verde */
-}
-
-.register-info p {
-    font-size: 1rem;
-    color: #666;
-    margin-top: 10px;
+.title .highlight {
+    color: #28a745; /* Verde similar al de la imagen */
 }
 
 .image {
-    width: 100%;  /* Ajusta según el tamaño deseado */
-    height: auto;  /* Mantiene la proporción */
-    max-width: 100%; /* Asegura que no sobrepase el contenedor */
+    width: 100%;
+    max-width: 900px;
 }
 
-
-/* Formulario */
 .register-form {
     flex: 1;
-    display: flex;
-    flex-direction: column;
 }
 
 .register-form label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 5px;
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #555;
 }
 
 .register-form input,
 .register-form select {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
+    margin-top: 5px;
+    border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 1rem;
-    font-family: 'Inter', sans-serif;
-    padding-top: 8px;
-    padding-right: 16px;
-    padding-bottom: 8px;
-    padding-left: 16px;
+}
+
+.document-input {
+    display: flex;
     gap: 10px;
-    border-radius: 5px;
-    border-width: 1px;
-
 }
 
-.register-form input:focus,
-.register-form select:focus {
-    outline: none;
-    border-color: #36a832;
-    box-shadow: 0 0 5px rgba(54, 168, 50, 0.5);
+.document-input select {
+    width: 30%;
 }
 
-.register-form .checkbox-container {
+.address-checkbox {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 15px;
 }
 
-.register-form .captcha-container {
-    margin-bottom: 15px;
+.recaptcha-container {
+    margin-top: 15px;
 }
 
 .btn {
@@ -138,19 +89,45 @@ h1, h2, h3 {
     background-color: #218838;
 }
 
-/* Responsivo */
-@media (max-width: 768px) {
-    .register-content {
-        flex-direction: column;
-        text-align: center;
-    }
+.subtitle {
+    font-size: 1rem;
+    color: #333;
+    text-align: center;
+    margin-top: 10px;
+}
+.subtitle a {
+    font-weight: bold;
+}
 
-    .register-info {
-        padding-right: 0;
-        margin-bottom: 20px;
-    }
+.address-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el checkbox y el texto */
+    margin-bottom: 10px;
+}
 
-    .register-image {
-        display: none; /* Ocultar imagen en móviles */
-    }
+.address-container input[type="checkbox"] {
+    width: 18px; /* Ajusta el tamaño */
+    height: 18px;
+    cursor: pointer;
+}
+
+.address-container label {
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+
+.login-link {
+    color: #28a745; /* Color azul llamativo */
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.login-link:hover {
+    color: #218838; /* Color más oscuro al pasar el mouse */
+    text-decoration: underline;
 }

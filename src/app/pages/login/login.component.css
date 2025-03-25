@@ -87,13 +87,15 @@ h1, h2, h3 {
 
 .forgot-password {
   text-decoration: none;
-  color: #007bff;
+  color: #28a745;
   font-size: 14px;
   display: block;
   cursor: pointer;
 }
 
+
 .forgot-password:hover {
+  color: #218838;
   text-decoration: underline;
 }
 
