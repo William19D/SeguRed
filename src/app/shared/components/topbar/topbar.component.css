@@ -5,6 +5,7 @@
   box-sizing: border-box;
 }
 
+/* 🔹 Hotbar fija y protegida contra cambios */
 .topbar {
   background: white;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -14,13 +15,14 @@
   width: 100%;
   transition: top 0.3s ease-in-out;
   z-index: 1000; /* Asegura que la barra esté sobre otros elementos */
+  font-weight: 700; /* Más gruesa y bloquea cambios */
 }
 
 .topbar.hidden {
   top: -100px; /* Oculta la barra al hacer scroll */
 }
 
-/* Contenedor principal */
+/* 🔹 Contenedor principal */
 .container {
   display: flex;
   align-items: center;
@@ -31,15 +33,15 @@
   padding: 0 20px;
 }
 
-/* Logo y nombre */
+/* 🔹 Logo y nombre */
 .navbar-brand {
   display: flex;
   align-items: center;
   text-decoration: none;
   color: #333;
-  font-weight: 700;
-  font-size: 18px;
-  cursor: pointer; /* Hace que el cursor cambie a una mano */
+  font-weight: 700 !important; /* Fuente más gruesa */
+  font-size: 20px;
+  cursor: pointer;
 }
 
 .navbar-brand img {
@@ -50,13 +52,13 @@
 }
 
 .navbar-brand .brand-name {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 700 !important; /* Fuente gruesa */
   color: #333;
   transition: color 0.3s ease-in-out;
 }
 
-/* Efecto hover en logo y texto */
+/* 🔹 Efecto hover en logo y texto */
 .navbar-brand:hover img {
   filter: brightness(0) saturate(100%) invert(50%) sepia(50%) saturate(500%) hue-rotate(100deg);
 }
@@ -65,7 +67,7 @@
   color: #28a745;
 }
 
-/* Menú de navegación centrado */
+/* 🔹 Menú de navegación centrado */
 .nav-center {
   flex-grow: 1;
   display: flex;
@@ -83,8 +85,8 @@
   text-decoration: none;
   cursor: pointer;
   color: #333;
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 700 !important; /* Más grueso */
+  font-size: 18px;
   padding: 8px 12px;
   transition: color 0.3s;
 }
@@ -93,7 +95,7 @@
   color: #218838;
 }
 
-/* Botones de usuario */
+/* 🔹 Botones de usuario */
 .user-actions {
   display: flex;
   align-items: center;
@@ -103,8 +105,12 @@
 .login-btn {
   text-decoration: none;
   color: #28a745;
-  font-weight: 600;
+  font-weight: 700 !important; /* Más grueso */
   cursor: pointer;
+}
+
+.login-btn:hover {
+  color: #185f29;
 }
 
 .btn {
@@ -115,8 +121,14 @@
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: 700 !important; /* Más grueso */
 }
 
 .btn:hover {
   background-color: #218838;
+}
+
+/* 🔹 Evita cambios de estilos tras iniciar sesión */
+body, h1, h2, h3, p, a {
+  font-weight: 700 !important; /* Fuente más gruesa */
 }

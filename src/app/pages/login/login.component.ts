@@ -52,4 +52,10 @@ export class LoginComponent {
         alert('Error en la verificación del reCAPTCHA');
       });
   }
+  goToRegister() {
+    this.router.navigate(['/register']); // Redirige a la página de registro
+  }
+  goToRecoverPassword() {
+    this.router.navigate(['/recover-password']); // Redirige a la recuperación de contraseña
+  }
 }
