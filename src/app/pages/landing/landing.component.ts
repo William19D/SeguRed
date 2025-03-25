@@ -33,5 +33,7 @@ export class LandingComponent {
   email: string = '';
   subscribe() {
     console.log("Email suscrito:", this.email);
-  }
+  } 
 }
+
+
