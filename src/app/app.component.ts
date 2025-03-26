@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,10 +8,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: true,
-  imports: [RouterModule, CommonModule] // Agregamos CommonModule para usar *ngIf si es necesario
+  imports: [RouterModule, CommonModule, HttpClientModule] // Agregamos HttpClientModule aquí
 })
 export class AppComponent implements OnInit {
-  private healthCheckUrl = 'http://localhost:8080/health'; // Endpoint de verificación
+  private healthCheckUrl = 'http://localhost:8080/health'; 
   backendStatus: string = 'Verificando conexión...';
 
   constructor(private http: HttpClient) {}

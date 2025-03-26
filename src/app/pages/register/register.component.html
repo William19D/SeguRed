@@ -1,17 +1,17 @@
 <app-topbar></app-topbar>
 
 <div class="register-container">
-    <div class="register-content">
-        <!-- Sección de información e imagen -->
-        <div class="register-info">
-            <h1 class="title">
-                Crea tu cuenta y ayuda a <span class="highlight">mejorar tu comunidad.</span>
-            </h1>
-            <p>Regístrate en nuestra plataforma para reportar incidentes, recibir alertas en tiempo real y colaborar con otros ciudadanos en la construcción de un entorno más seguro.</p>
-            <img src="img2.svg" alt="Registro" class="image">
-        </div>
+    <!-- Sección de información e imagen (Fuera del contenedor blanco) -->
+    <div class="register-info">
+        <h1 class="title">
+            Crea tu cuenta y ayuda a <span class="highlight">mejorar tu comunidad.</span>
+        </h1>
+        <p>Regístrate en nuestra plataforma para reportar incidentes, recibir alertas en tiempo real y colaborar con otros ciudadanos en la construcción de un entorno más seguro.</p>
+        <img src="img2.svg" alt="Registro" class="image">
+    </div>
 
-        <!-- Formulario de registro -->
+    <!-- Formulario de registro con fondo blanco -->
+    <div class="register-content">
         <div class="register-form">
             <form (ngSubmit)="onRegister()">
                 <label for="name">Nombre Completo</label>
@@ -27,12 +27,11 @@
                 <input type="text" id="city" [(ngModel)]="user.city" name="city" placeholder="Ejemplo: Bogotá, Medellín, Cali" required>
 
                 <label for="address">Dirección</label>
-                    <div class="address-container">
+                <div class="address-container">
                     <input type="checkbox" id="useLocation" [(ngModel)]="user.useLocation" name="useLocation">
                     <label for="useLocation">Usar mi ubicación actual</label>
-                    </div>
+                </div>
                 <input type="text" id="address" [(ngModel)]="user.address" name="address" placeholder="Ejemplo: Calle 123 # 45-67" required>
-
 
                 <label for="documentType">No. de Documento</label>
                 <div class="document-input">
@@ -52,7 +51,7 @@
 
                 <!-- reCAPTCHA -->
                 <div class="recaptcha-container">
-                   <!-- <re-captcha (resolved)="handleCaptcha($event)"></re-captcha -->
+                    <!-- <re-captcha (resolved)="handleCaptcha($event)"></re-captcha> -->
                 </div>
 
                 <button type="submit" class="btn">Registrarse</button>
@@ -62,7 +61,7 @@
                 ¿Ya tienes una cuenta? 
                 <a (click)="goToLogin()" class="login-link">Inicia sesión</a>
             </p>
-                    </div>
+        </div>
     </div>
 </div>
 

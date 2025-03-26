@@ -10,7 +10,7 @@
 
 .register-content {
     display: flex;
-    max-width: 80%;
+    width:30%;
     background: #fff;
     border-radius: 10px;
     padding: 30px;
@@ -19,6 +19,7 @@
 
 .register-info {
     flex: 1;
+    max-width: 35%;
     padding-right: 30px;
 }
 
@@ -38,6 +39,7 @@
 }
 
 .register-form {
+    width: 80%;
     flex: 1;
 }
 
