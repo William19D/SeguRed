@@ -62,6 +62,10 @@ export class RegisterComponent {
   goToLogin() {
     this.router.navigate(['/login']);
   }
+
+  goToVerification() {
+    this.router.navigate(['/verification-code']);
+  }
   
 }
 
