@@ -8,44 +8,63 @@ import { ApiService } from '../../core/services/api.service';
 
 @Component({
   selector: 'app-register',
-  standalone: true, // Especificamos que es un componente independiente
+  standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [FormsModule, 
-            FooterComponent,
-            TopbarComponent] // Importamos FormsModule aquí
- // Importamos FormsModule aquí
- // Importamos FormsModule aquí
+  imports: [TopbarComponent, FooterComponent, FormsModule]
 })
 export class RegisterComponent {
-  constructor(private router: Router, private apiService: ApiService) {} // Inyectar Router en el constructor
+  constructor(private router: Router, private apiService: ApiService) {} 
+
   user = {
     name: '',
     email: '',
     password: '',
-    phone: '',   // 📌 Agregar teléfono
-    city: '',    // 📌 Agregar ciudad de residencia
-    address: '', // 📌 Agregar dirección
-    useLocation: false, // 📌 Checkbox para ubicación
-    documentType: 'CC', // 📌 Tipo de documento con valor por defecto
+    phone: '',
+    city: '',
+    address: '',
+    useLocation: false,
+    documentType: 'CC',
     documentNumber: '',
     birthdate: ''
   };
 
+  obtenerUbicacion() {
+    if (this.user.useLocation) { 
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            this.user.address = `Lat: ${lat}, Lon: ${lon}`;
+            console.log(`Ubicación obtenida: ${this.user.address}`);
+          },
+          (error) => {
+            console.error("Error al obtener ubicación:", error.message);
+          }
+        );
+      } else {
+        console.log("Geolocalización no soportada en este navegador.");
+      }
+    } else {
+      this.user.address = '';
+    }
+  }
+
   onRegister() {
     console.log('Usuario registrado:', this.user);
     const payload = {
-      tpDocumento: this.user.documentType,      
-      documento: this.user.documentNumber,        
-      nombreCom: this.user.name,                  
-      fechaNacimiento: this.user.birthdate,      
-      ciudadResidencia: this.user.city,          
-      direccion: this.user.address,             
-      telefono: this.user.phone,                 
-      cargo: '',                                 
-      estado: 'En espera',                        
-      correo: this.user.email,                   
-      preferencias: '',                           
+      tpDocumento: this.user.documentType,
+      documento: this.user.documentNumber,
+      nombreCom: this.user.name,
+      fechaNacimiento: this.user.birthdate,
+      ciudadResidencia: this.user.city,
+      direccion: this.user.address,
+      telefono: this.user.phone,
+      cargo: '',
+      estado: 'En espera',
+      correo: this.user.email,
+      preferencias: '',
       contraseña: this.user.password 
     }
 
@@ -54,7 +73,7 @@ export class RegisterComponent {
         console.log('Registro exitoso', response);
       },
       (error) => {
-        console.log('Error al registrar',error);
+        console.log('Error al registrar', error);
       }
     );
   }
@@ -62,10 +81,4 @@ export class RegisterComponent {
   goToLogin() {
     this.router.navigate(['/login']);
   }
-
-  goToVerification() {
-    this.router.navigate(['/verification-code']);
-  }
-  
 }
-

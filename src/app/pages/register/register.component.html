@@ -28,9 +28,10 @@
 
                 <label for="address">Dirección</label>
                 <div class="address-container">
-                    <input type="checkbox" id="useLocation" [(ngModel)]="user.useLocation" name="useLocation">
+                    <input type="checkbox" id="useLocation" [(ngModel)]="user.useLocation" name="useLocation" (change)="obtenerUbicacion()">
                     <label for="useLocation">Usar mi ubicación actual</label>
                 </div>
+                
                 <input type="text" id="address" [(ngModel)]="user.address" name="address" placeholder="Ejemplo: Calle 123 # 45-67" required>
 
                 <label for="documentType">No. de Documento</label>
