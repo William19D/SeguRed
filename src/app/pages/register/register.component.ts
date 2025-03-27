@@ -43,7 +43,7 @@ export class RegisterComponent {
       direccion: this.user.address,             
       telefono: this.user.phone,                 
       cargo: '',                                 
-      estado: 'Rechazado',                        
+      estado: 'En espera',                        
       correo: this.user.email,                   
       preferencias: '',                           
       contraseña: this.user.password 
