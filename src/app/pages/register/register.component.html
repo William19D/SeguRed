@@ -26,10 +26,11 @@
                 <label for="city">Ciudad de Residencia</label>
                 <input type="text" id="city" [(ngModel)]="user.city" name="city" placeholder="Ejemplo: Bogotá, Medellín, Cali" required>
 
+ 
                 <label for="address">Dirección</label>
                 <div class="address-container">
-                    <input type="checkbox" id="useLocation" [(ngModel)]="user.useLocation" name="useLocation">
-                    <label for="useLocation">Usar mi ubicación actual</label>
+                  <input type="checkbox" id="useLocation" [(ngModel)]="user.useLocation" name="useLocation" (change)="onUseLocationChange()">
+                  <label for="useLocation">Usar mi ubicación actual</label>
                 </div>
                 <input type="text" id="address" [(ngModel)]="user.address" name="address" placeholder="Ejemplo: Calle 123 # 45-67" required>
 
