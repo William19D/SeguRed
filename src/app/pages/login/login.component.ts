@@ -13,7 +13,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
   standalone: true,
   imports: [CommonModule, FormsModule, NgxCaptchaModule, TopbarComponent, FooterComponent],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   
@@ -38,13 +38,15 @@ export class LoginComponent {
       .subscribe((res: any) => {
         if (res.success) {
           console.log('Captcha validado correctamente');
-
-          if (this.user.email === 'admin' && this.user.password === 'admin') {
+          this.http.post('http://localhost:8080/auth/login', {
+            correo: this.user.email,
+            contraseña: this.user.password
+          }).subscribe((loginRes: any) => {
             alert('Inicio de sesión exitoso');
             this.router.navigate(['/dashboard']);
-          } else {
+          }, err => {
             alert('Correo o contraseña incorrectos');
-          }
+          });
         } else {
           alert('Verificación de reCAPTCHA fallida');
         }
@@ -52,9 +54,11 @@ export class LoginComponent {
         alert('Error en la verificación del reCAPTCHA');
       });
   }
+
   goToRegister() {
     this.router.navigate(['/register']); // Redirige a la página de registro
   }
+
   goToRecoverPassword() {
     this.router.navigate(['/recover-password']); // Redirige a la recuperación de contraseña
   }
