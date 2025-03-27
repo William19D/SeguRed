@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { Router } from '@angular/router';
+import { ApiService } from '../../core/services/api.service';
 
 @Component({
   selector: 'app-register',
@@ -17,7 +18,7 @@ import { Router } from '@angular/router';
  // Importamos FormsModule aquí
 })
 export class RegisterComponent {
-  constructor(private router: Router) {} // Inyectar Router en el constructor
+  constructor(private router: Router, private apiService: ApiService) {} // Inyectar Router en el constructor
   user = {
     name: '',
     email: '',
@@ -33,7 +34,29 @@ export class RegisterComponent {
 
   onRegister() {
     console.log('Usuario registrado:', this.user);
-    // Aquí puedes manejar la lógica para el registro
+    const payload = {
+      tpDocumento: this.user.documentType,      
+      documento: this.user.documentNumber,        
+      nombreCom: this.user.name,                  
+      fechaNacimiento: this.user.birthdate,      
+      ciudadResidencia: this.user.city,          
+      direccion: this.user.address,             
+      telefono: this.user.phone,                 
+      cargo: '',                                 
+      estado: 'Rechazado',                        
+      correo: this.user.email,                   
+      preferencias: '',                           
+      contraseña: this.user.password 
+    }
+
+    this.apiService.registerUser(payload).subscribe(
+      (response) => {
+        console.log('Registro exitoso', response);
+      },
+      (error) => {
+        console.log('Error al registrar',error);
+      }
+    );
   }
 
   goToLogin() {

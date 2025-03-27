@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 export class ApiService {
   private emailSubUrl = 'http://localhost:8080/suscripcion/noticias';
   private healthCheckUrl = 'http://localhost:8080/health'; // Endpoint de prueba
-
+  private registerUrl= 'http://localhost:8080/registro/usuario';
   constructor(private http: HttpClient) {}
 
   enviarCorreo(correo: string) {
@@ -16,5 +16,9 @@ export class ApiService {
 
   checkConnection() {
     return this.http.get(this.healthCheckUrl, { responseType: 'text' });
+  }
+
+  registerUser(user: any) {
+    return this.http.post(this.registerUrl, user, { responseType: 'text' });
   }
 }
