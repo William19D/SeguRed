@@ -5,13 +5,13 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:8080/email-news/newssubscription';
+  private emailSubUrl = 'http://localhost:8080/suscripcion/noticias';
   private healthCheckUrl = 'http://localhost:8080/health'; // Endpoint de prueba
 
   constructor(private http: HttpClient) {}
 
-  enviarCorreo(email: string) {
-    return this.http.post(this.apiUrl, { email }, { responseType: 'text' });
+  enviarCorreo(correo: string) {
+    return this.http.post(this.emailSubUrl, { correo }, { responseType: 'text' });
   }
 
   checkConnection() {
