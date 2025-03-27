@@ -19,7 +19,10 @@
 .info {
     max-width: 50%; /* Para que no ocupe demasiado espacio */
 }
+h2 {
+    color: #4D4D4D;
 
+}
 h1 {
     font-size: 4rem;
     font-weight: bold;
@@ -44,6 +47,16 @@ p {
     max-width: 50%; 
 }
 
+.codigo-container {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
 .codigo-inputs {
     display: flex;
     justify-content: center;
@@ -61,6 +74,12 @@ p {
     outline: none;
 }
 
+/* Nueva regla para alinear el botón a la derecha */
+.btn-container {
+    display: flex;
+    justify-content: flex-end; /* Alinea el botón a la derecha */
+}
+
 .btn {
     background-color: #28a745;
     color: white;
@@ -69,6 +88,7 @@ p {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    width: auto; /* Evita que el botón se expanda */
 }
 
 .btn:hover {
