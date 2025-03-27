@@ -1,11 +1,12 @@
-<div class="map-container">
-    <h2>Implementación en proceso</h2>
-    <p>Estamos trabajando en la integración del mapa. Pronto podrás visualizar la información en tiempo real.</p>
-  
-    <div class="map-placeholder">
-      <p>Mapa en desarrollo...</p>
+<div *ngFor="let user of usuarios; let userIndex = index" class="user-container">
+  <h2>{{ user.nombreCom }}</h2>
+
+  <div class="maps-grid">
+    <div
+      *ngFor="let location of user.locations; let locIndex = index"
+      class="map-wrapper"
+    >
+      <div [id]="'map' + userIndex + '-' + locIndex" class="map"></div>
     </div>
-  
-    <p>Estamos utilizando <strong>MapBox</strong> como librería de mapas para una mejor experiencia.</p>
   </div>
-  
+</div>
