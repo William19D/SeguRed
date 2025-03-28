@@ -7,28 +7,26 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { LocationService } from '../../core/services/location.service'; // Importar el servicio de ubicación
 
+
 @Component({
   selector: 'app-register',
-  standalone: true, // Especificamos que es un componente independiente
+  standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [FormsModule, 
-            FooterComponent,
-            TopbarComponent] // Importamos FormsModule aquí
- // Importamos FormsModule aquí
- // Importamos FormsModule aquí
+  imports: [TopbarComponent, FooterComponent, FormsModule]
 })
 export class RegisterComponent {
   constructor(private router: Router, private apiService: ApiService ,private locationService: LocationService) {} // Inyectar Router en el constructor
+
   user = {
     name: '',
     email: '',
     password: '',
-    phone: '',   // 📌 Agregar teléfono
-    city: '',    // 📌 Agregar ciudad de residencia
-    address: '', // 📌 Agregar dirección
-    useLocation: false, // 📌 Checkbox para ubicación
-    documentType: 'CC', // 📌 Tipo de documento con valor por defecto
+    phone: '',
+    city: '',
+    address: '',
+    useLocation: false,
+    documentType: 'CC',
     documentNumber: '',
     birthdate: '',
     locations: [] as { lat: number; lng: number }[], // 📌 Arreglo para almacenar ubicaciones
@@ -47,6 +45,7 @@ export class RegisterComponent {
   register() {
     // Lógica para registrar al usuario
     console.log(this.user);
+
   }
 
   onRegister() {
@@ -80,6 +79,4 @@ export class RegisterComponent {
   goToLogin() {
     this.router.navigate(['/login']);
   }
-  
 }
-

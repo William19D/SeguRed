@@ -1,0 +1,26 @@
+<div class="background">
+    <div class="container">
+        <div class="info">
+            <h1>Verifica tu <span>Correo Electrónico.</span></h1>
+            <p>
+            📧 Hemos enviado un código de verificación a tu correo electrónico. Ingresa
+            el código para activar tu cuenta. Recuerda que el código expira en 15 minutos.
+            </p>
+        </div>
+
+        <div class="codigo-container">
+            <h2>🔑 Ingresa el código de 6 dígitos para activar tu cuenta.</h2>
+            <div class="codigo-inputs">
+                <input type="text" maxlength="1" (input)="moverFoco($event, 1)" #code1 />
+                <input type="text" maxlength="1" (input)="moverFoco($event, 2)" #code2 />
+                <input type="text" maxlength="1" (input)="moverFoco($event, 3)" #code3 />
+                <input type="text" maxlength="1" (input)="moverFoco($event, 4)" #code4 />
+                <input type="text" maxlength="1" (input)="moverFoco($event, 5)" #code5 />
+                <input type="text" maxlength="1" (input)="verificarCodigo()" #code6 />
+            </div>
+            <div class="btn-container">
+                <button class="btn">Activar</button>
+            </div>
+        </div>
+    </div>
+    <app-footer></app-footer>

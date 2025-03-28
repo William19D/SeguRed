@@ -1,0 +1,88 @@
+.background{
+    background-color: #f8f9fa;
+
+}
+
+.container {
+    margin-bottom: 15%;
+    
+    display: flex;
+    flex-direction: row; /* Cambia a fila */
+    align-items: center;
+    justify-content: center; /* Centra los elementos */
+    text-align: left;
+    font-family: Arial, sans-serif;
+    padding: 5%;
+    gap: 50px; /* Espaciado entre los elementos */
+}
+
+.info {
+    max-width: 50%; /* Para que no ocupe demasiado espacio */
+}
+h2 {
+    color: #4D4D4D;
+
+}
+h1 {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #4D4D4D;
+}
+
+h1 span {
+    color: #28a745;
+}
+
+p {
+    color: #666;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.codigo-container {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+.codigo-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.codigo-inputs input {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+/* Nueva regla para alinear el botón a la derecha */
+.btn-container {
+    display: flex;
+    justify-content: flex-end; /* Alinea el botón a la derecha */
+}
+
+.btn {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: auto; /* Evita que el botón se expanda */
+}
+
+.btn:hover {
+    background-color: #218838;
+}
