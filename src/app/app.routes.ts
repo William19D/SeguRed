@@ -8,9 +8,9 @@ import { TestMapComponent } from './pages/test-map/test-map.component';
 export const routes: Routes = [
   { path: 'home', component: LandingComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'verification-code/:email', component: VerificationCodeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'recover-password', component: RecoverPasswordComponent},
-  { path: 'verification-code', component: VerificationCodeComponent},
   {path: 'mapbox', component: TestMapComponent},
   { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirección a la landing por defecto
 

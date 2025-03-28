@@ -6,11 +6,22 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
+
   private apiUrl = 'http://localhost:8080/api/auth';
 
   constructor(private http: HttpClient) {}
 
-  verificarCodigo(code: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verificar-codigo`, { code });
+  registerUser(userData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/register`, userData);
+  }
+
+  sendVerificationCode(email: string): Observable<any> {
+    const payload = { email: email };
+    return this.http.post<any>(`${this.apiUrl}/enviar-codigo`, payload);
+  }
+
+  verificarCodigo(email: string, code: string): Observable<{ message: string }> {
+    const payload = { email: email, code: code };
+    return this.http.post<{ message: string }>(`${this.apiUrl}/verificar-codigo`, payload);
   }
 }

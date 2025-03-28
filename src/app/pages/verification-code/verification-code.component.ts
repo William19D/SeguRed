@@ -1,7 +1,8 @@
-import { Component, ElementRef, ViewChild, ViewChildren, QueryList } from '@angular/core';
+import { Component, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
 import { AuthService } from '../../core/services/authentication.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-verificacion-correo',
@@ -16,8 +17,12 @@ import { AuthService } from '../../core/services/authentication.service';
 export class VerificationCodeComponent {
   
   @ViewChildren('code1, code2, code3, code4, code5, code6') inputs!: QueryList<ElementRef>;
+  email: string | null = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private route: ActivatedRoute, private router: Router) {
+    this.email = this.route.snapshot.paramMap.get('email');
+    console.log(`Email en VerificationCodeComponent: ${this.email}`);
+  }
 
   moverFoco(event: any, index: number) {
     const inputValue = event.target.value;
@@ -36,15 +41,17 @@ export class VerificationCodeComponent {
   }
 
   verificarCodigo() {
-    const inputsArray = this.inputs.toArray();
+    const inputsArray = this.inputs.toArray();   
     const codigoIngresado = inputsArray.map(input => input.nativeElement.value).join('');
 
-    if (codigoIngresado.length === 6) {
-      this.authService.verificarCodigo(codigoIngresado).subscribe(
+    if (codigoIngresado.length === 6 && this.email) {
+      this.authService.verificarCodigo(this.email, codigoIngresado).subscribe(
         (response: { message: string }) => {
           alert(response.message);
+          this.router.navigate(['/home']); // Redirigir al usuario a la página de inicio u otra página después de la verificación
         },
-        (error: { message: string }) => {
+        (error: any) => {
+          console.error('Error al verificar el código', error);
           alert('Código incorrecto o expirado.');
         }
       );

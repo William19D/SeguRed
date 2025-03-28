@@ -5,6 +5,7 @@ import { TopbarComponent } from '../../shared/components/topbar/topbar.component
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/authentication.service';
 import { LocationService } from '../../core/services/location.service'; // Importar el servicio de ubicación
 
 @Component({
@@ -16,7 +17,7 @@ import { LocationService } from '../../core/services/location.service'; // Impor
 })
 export class RegisterComponent {
 
-  constructor(private router: Router, private apiService: ApiService ,private locationService: LocationService) {} // Inyectar Router en el constructor
+  constructor(private router: Router, private apiService: ApiService, private authService: AuthService, private locationService: LocationService) {} // Inyectar Router en el constructor
   user = {
     name: '',
     email: '',
@@ -30,7 +31,6 @@ export class RegisterComponent {
     birthdate: '',
     locations: [] as { lat: number; lng: number }[], // 📌 Arreglo para almacenar ubicaciones
   };
-
 
   onUseLocationChange() {
     if (this.user.useLocation) {
@@ -62,11 +62,25 @@ export class RegisterComponent {
     };
 
     this.apiService.registerUser(payload).subscribe(
-      (response) => {
+      (response: any) => { // Especificar el tipo 'any' para response
         console.log('Registro exitoso', response);
+        this.sendVerificationEmail(this.user.email); // Enviar el correo de verificación
       },
-      (error) => {
+      (error: any) => { // Especificar el tipo 'any' para error
         console.log('Error al registrar', error);
+      }
+    );
+  }
+
+  sendVerificationEmail(email: string) {
+    this.authService.sendVerificationCode(email).subscribe(
+      (response: any) => { // Especificar el tipo 'any' para response
+        console.log('Correo de verificación enviado', response);
+        console.log(`Redirigiendo a /verification-code/${encodeURIComponent(email)}`);
+        this.router.navigate([`/verification-code/${encodeURIComponent(email)}`]); // Redirigir a la página de verificación de código con el correo
+      },
+      (error: any) => { // Especificar el tipo 'any' para error
+        console.log('Error al enviar el correo de verificación', error);
       }
     );
   }
