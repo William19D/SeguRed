@@ -123,16 +123,6 @@
   font-size: 16px;
   font-weight: 700 !important; /* Más grueso */
 }
-.mapa {
-  background-color: #9f1212;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 700 !important; /* Más grueso */
-}
 
 .btn:hover {
   background-color: #218838;

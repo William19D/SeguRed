@@ -46,7 +46,4 @@ export class TopbarComponent {
   goToLogin() {
     this.router.navigate(['/login']);
   }
-  goToMapbox() {
-    this.router.navigate(['/mapbox']);
-  }
 }
