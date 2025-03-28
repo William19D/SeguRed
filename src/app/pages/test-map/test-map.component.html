@@ -1,0 +1,12 @@
+<div *ngFor="let user of usuarios; let userIndex = index" class="user-container">
+  <h2>{{ user.nombreCom }}</h2>
+
+  <div class="maps-grid">
+    <div
+      *ngFor="let location of user.locations; let locIndex = index"
+      class="map-wrapper"
+    >
+      <div [id]="'map' + userIndex + '-' + locIndex" class="map"></div>
+    </div>
+  </div>
+</div>

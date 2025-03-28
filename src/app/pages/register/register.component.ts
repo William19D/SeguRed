@@ -5,6 +5,7 @@ import { TopbarComponent } from '../../shared/components/topbar/topbar.component
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
+import { LocationService } from '../../core/services/location.service'; // Importar el servicio de ubicación
 
 @Component({
   selector: 'app-register',
@@ -14,8 +15,8 @@ import { ApiService } from '../../core/services/api.service';
   imports: [TopbarComponent, FooterComponent, FormsModule]
 })
 export class RegisterComponent {
-  constructor(private router: Router, private apiService: ApiService) {} 
 
+  constructor(private router: Router, private apiService: ApiService ,private locationService: LocationService) {} // Inyectar Router en el constructor
   user = {
     name: '',
     email: '',
@@ -26,47 +27,39 @@ export class RegisterComponent {
     useLocation: false,
     documentType: 'CC',
     documentNumber: '',
-    birthdate: ''
+    birthdate: '',
+    locations: [] as { lat: number; lng: number }[], // 📌 Arreglo para almacenar ubicaciones
   };
 
-  obtenerUbicacion() {
-    if (this.user.useLocation) { 
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            this.user.address = `Lat: ${lat}, Lon: ${lon}`;
-            console.log(`Ubicación obtenida: ${this.user.address}`);
-          },
-          (error) => {
-            console.error("Error al obtener ubicación:", error.message);
-          }
-        );
-      } else {
-        console.log("Geolocalización no soportada en este navegador.");
-      }
-    } else {
-      this.user.address = '';
+
+  onUseLocationChange() {
+    if (this.user.useLocation) {
+      this.locationService.getCurrentLocation().then((lngLat) => {
+        this.user.address = `${lngLat.lat}, ${lngLat.lng}`;
+        this.user.locations.push({ lat: lngLat.lat, lng: lngLat.lng });
+      }).catch((error) => {
+        console.error('Error getting location', error);
+      });
     }
-  }
+  }  
 
   onRegister() {
     console.log('Usuario registrado:', this.user);
     const payload = {
-      tpDocumento: this.user.documentType,
-      documento: this.user.documentNumber,
-      nombreCom: this.user.name,
-      fechaNacimiento: this.user.birthdate,
-      ciudadResidencia: this.user.city,
-      direccion: this.user.address,
-      telefono: this.user.phone,
-      cargo: '',
-      estado: 'En espera',
-      correo: this.user.email,
-      preferencias: '',
-      contraseña: this.user.password 
-    }
+      tpDocumento: this.user.documentType,      
+      documento: this.user.documentNumber,        
+      nombreCom: this.user.name,                  
+      fechaNacimiento: this.user.birthdate,      
+      ciudadResidencia: this.user.city,          
+      direccion: this.user.address,             
+      telefono: this.user.phone,                 
+      cargo: '',                                 
+      estado: 'En espera',                        
+      correo: this.user.email,                   
+      preferencias: '',                           
+      contraseña: this.user.password,
+      locations: this.user.locations              
+    };
 
     this.apiService.registerUser(payload).subscribe(
       (response) => {
