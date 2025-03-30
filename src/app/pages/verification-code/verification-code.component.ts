@@ -20,10 +20,12 @@ export class VerificationCodeComponent {
   email: string | null = '';
 
   constructor(private authService: AuthService, private route: ActivatedRoute, private router: Router) {
-    this.email = this.route.snapshot.paramMap.get('email');
+    const emailParam = this.route.snapshot.paramMap.get('email');
+    this.email = emailParam ? decodeURIComponent(emailParam) : null;
     console.log(`Email en VerificationCodeComponent: ${this.email}`);
   }
 
+  // Método para mover el foco al siguiente input
   moverFoco(event: any, index: number) {
     const inputValue = event.target.value;
     const inputsArray = this.inputs.toArray();
@@ -33,6 +35,7 @@ export class VerificationCodeComponent {
     }
   }
 
+  // Método para mover el foco al input anterior al borrar
   borrarFoco(event: KeyboardEvent, index: number) {
     if (event.key === 'Backspace' && index > 0) {
       const inputsArray = this.inputs.toArray();
@@ -40,6 +43,7 @@ export class VerificationCodeComponent {
     }
   }
 
+  // Método para verificar el código de verificación
   verificarCodigo() {
     const inputsArray = this.inputs.toArray();   
     const codigoIngresado = inputsArray.map(input => input.nativeElement.value).join('');
