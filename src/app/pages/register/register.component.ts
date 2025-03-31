@@ -94,7 +94,7 @@ export class RegisterComponent {
           `Redirigiendo a /verification-code/${encodeURIComponent(email)}`
         );
         
-        // Un timeout para simular la carga de la animación
+        // Un timeout para dejar el paso a la anim
         setTimeout(() => {
           this.isLoading = false;
           this.router.navigate([
@@ -103,7 +103,7 @@ export class RegisterComponent {
         }, 1000);
       },
       (error: any) => {
-        this.isLoading = false; // Set loading to false if there's an error
+        this.isLoading = false; // Desactivar la animación de carga si hay algún error
         console.log('Error al enviar el correo de verificación', error);
       }
     );
