@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = 'http://localhost:8080/auth';
 
   constructor(private http: HttpClient) {}
 
@@ -19,12 +19,12 @@ export class AuthService {
   // Método para enviar el código de verificación
   sendVerificationCode(email: string): Observable<any> {
     const payload = { email: email };
-    return this.http.post<any>(`${this.apiUrl}/enviar-codigo`, payload);
+    return this.http.post<any>(`${this.apiUrl}/codigo-usuario`, payload);
   }
 
   // Método para verificar el código de verificación
   verificarCodigo(email: string, code: string): Observable<{ message: string }> {
     const payload = { email: email, code: code };
-    return this.http.post<{ message: string }>(`${this.apiUrl}/verificar-codigo`, payload);
+    return this.http.post<{ message: string }>(`${this.apiUrl}/token`, payload);
   }
 }

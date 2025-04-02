@@ -23,7 +23,7 @@ export class RegisterComponent {
     private locationService: LocationService
   ) {} // Inyectar Router en el constructor
 
-  isLoading: boolean=false; // Variable para controlar el estado de carga de animación
+  isLoading: boolean = false; // Variable para controlar el estado de carga de animación
 
   user = {
     name: '',
@@ -38,8 +38,6 @@ export class RegisterComponent {
     birthdate: '',
     locations: [] as { lat: number; lng: number }[], // 📌 Arreglo para almacenar ubicaciones
   };
-
-  isLoading: boolean = false; // Variable para controlar la visibilidad del indicador de carga
 
   onUseLocationChange() {
     if (this.user.useLocation) {
@@ -90,8 +88,6 @@ export class RegisterComponent {
   }
 
   sendVerificationEmail(email: string) {
-    this.isLoading = true; // Activar la animación de carga
-    
     this.authService.sendVerificationCode(email).subscribe(
       (response: any) => {
         console.log('Correo de verificación enviado', response);
@@ -99,7 +95,7 @@ export class RegisterComponent {
           `Redirigiendo a /verification-code/${encodeURIComponent(email)}`
         );
         
-        // Un timeout para dejar el paso a la anim
+        // Un timeout para dejar el paso a la animación de carga
         setTimeout(() => {
           this.isLoading = false;
           this.router.navigate([
@@ -110,7 +106,6 @@ export class RegisterComponent {
       (error: any) => {
         this.isLoading = false; // Desactivar la animación de carga si hay algún error
         console.log('Error al enviar el correo de verificación', error);
-        this.isLoading = false; // Ocultar el indicador de carga en caso de error
       }
     );
   }
