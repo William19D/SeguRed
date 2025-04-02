@@ -8,6 +8,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 20px;
     z-index: 9999;
   }
   
@@ -164,3 +167,160 @@
       color: #218838; /* Color más oscuro al pasar el mouse */
       text-decoration: underline;
   }
+
+.register-content {
+    display: flex;
+    width:30%;
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.register-info {
+    flex: 1;
+    max-width: 35%;
+    padding-right: 30px;
+}
+
+.title {
+    font-size: 4rem;
+    color: #4D4D4D;
+    font-weight: bold;
+}
+
+.title .highlight {
+    color: #28a745; /* Verde similar al de la imagen */
+}
+
+.image {
+    width: 100%;
+    max-width: 900px;
+}
+
+.register-form {
+    width: 80%;
+    flex: 1;
+}
+
+.register-form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+.register-form input,
+.register-form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.document-input {
+    display: flex;
+    gap: 10px;
+}
+
+.document-input select {
+    width: 30%;
+}
+
+.address-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.recaptcha-container {
+    margin-top: 15px;
+}
+
+.btn {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn:hover {
+    background-color: #218838;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #333;
+    text-align: center;
+    margin-top: 10px;
+}
+.subtitle a {
+    font-weight: bold;
+}
+
+.address-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el checkbox y el texto */
+    margin-bottom: 10px;
+}
+
+.address-container input[type="checkbox"] {
+    width: 18px; /* Ajusta el tamaño */
+    height: 18px;
+    cursor: pointer;
+}
+
+.address-container label {
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+
+.login-link {
+    color: #28a745; /* Color azul llamativo */
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.login-link:hover {
+    color: #218838; /* Color más oscuro al pasar el mouse */
+    text-decoration: underline;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+  
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #007bff;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 10px;
+}
+  
+@keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+}

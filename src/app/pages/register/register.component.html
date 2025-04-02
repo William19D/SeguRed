@@ -54,6 +54,12 @@
                     <!-- <re-captcha (resolved)="handleCaptcha($event)"></re-captcha> -->
                 </div>
 
+                <!-- Spinner -->
+                <div *ngIf="isLoading" class="loading-overlay">
+                  <div class="spinner"></div>
+                  <p>Enviando correo de verificación...</p>
+                </div>
+
                 <button type="submit" class="btn">Registrarse</button>
             </form>
 
