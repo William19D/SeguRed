@@ -37,6 +37,8 @@ export class RegisterComponent {
     locations: [] as { lat: number; lng: number }[], // 📌 Arreglo para almacenar ubicaciones
   };
 
+  isLoading: boolean = false; // Variable para controlar la visibilidad del indicador de carga
+
   onUseLocationChange() {
     if (this.user.useLocation) {
       this.locationService
@@ -69,6 +71,8 @@ export class RegisterComponent {
       locations: this.user.locations,
     };
 
+    this.isLoading = true; // Mostrar el indicador de carga
+
     this.apiService.registerUser(payload).subscribe(
       (response: any) => {
         // Especificar el tipo 'any' para response
@@ -78,6 +82,7 @@ export class RegisterComponent {
       (error: any) => {
         // Especificar el tipo 'any' para error
         console.log('Error al registrar', error);
+        this.isLoading = false; // Ocultar el indicador de carga en caso de error
       }
     );
   }
@@ -90,6 +95,7 @@ export class RegisterComponent {
         console.log(
           `Redirigiendo a /verification-code/${encodeURIComponent(email)}`
         );
+        this.isLoading = false; // Ocultar el indicador de carga después de enviar el correo
         this.router.navigate([
           `/verification-code/${encodeURIComponent(email)}`,
         ]); // Redirigir a la página de verificación de código con el correo
@@ -97,6 +103,7 @@ export class RegisterComponent {
       (error: any) => {
         // Especificar el tipo 'any' para error
         console.log('Error al enviar el correo de verificación', error);
+        this.isLoading = false; // Ocultar el indicador de carga en caso de error
       }
     );
   }
