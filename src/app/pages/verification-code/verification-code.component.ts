@@ -1,6 +1,5 @@
 import { Component, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
-import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
 import { AuthService } from '../../core/services/authentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -11,7 +10,6 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./verification-code.component.css'],
   imports: [
     FooterComponent,
-    TopbarComponent
   ],
 })
 export class VerificationCodeComponent {
