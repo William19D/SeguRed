@@ -51,8 +51,11 @@ export class RegisterComponent implements AfterViewInit, OnInit {
   cities: any[] = [];
   selectedDepartmentId: number | null = null;
 
+  minBirthdate: string = '';  // Inicializar con una cadena vacía
+
   ngOnInit(): void {
     this.loadDepartments();
+    this.setMinBirthdate();
   }
 
   ngAfterViewInit(): void {
@@ -77,6 +80,12 @@ export class RegisterComponent implements AfterViewInit, OnInit {
       this.user.locations = [{ lat: position.lat, lng: position.lng }];
       this.updateAddress(position.lat, position.lng);
     });
+  }
+
+  private setMinBirthdate(): void {
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
+    this.minBirthdate = minDate.toISOString().split('T')[0];
   }
 
   onUseLocationChange() {
@@ -218,16 +227,12 @@ export class RegisterComponent implements AfterViewInit, OnInit {
     this.authService.sendVerificationCode(email).subscribe(
       (response: any) => {
         console.log('Correo de verificación enviado', response);
-        console.log(
-          `Redirigiendo a /verification-code/${encodeURIComponent(email)}`
-        );
-        
+        console.log(`Redirigiendo a /verification-code/${encodeURIComponent(email)}`);
+
         // Un timeout para dejar el paso a la animación de carga
         setTimeout(() => {
           this.isLoading = false;
-          this.router.navigate([
-            `/verification-code/${encodeURIComponent(email)}`,
-          ]);
+          this.router.navigate([`/verification-code/${encodeURIComponent(email)}`]);
         }, 1000);
       },
       (error: any) => {
