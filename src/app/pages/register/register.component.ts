@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { Component, AfterViewInit, OnInit } from '@angular/core';
+import { NgIf, NgForOf } from '@angular/common'; // Asegúrate de importar NgForOf
 import { FormsModule } from '@angular/forms';
 import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
@@ -7,20 +7,25 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/authentication.service';
 import { LocationService } from '../../core/services/location.service';
+import { NominatimService } from '../../core/services/nominatim.service';
+import { ColombiaApiService } from '../../core/services/colombia-api.service';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [TopbarComponent, FooterComponent, FormsModule, NgIf],
+  imports: [TopbarComponent, FooterComponent, FormsModule, NgIf, NgForOf], // Incluye NgForOf aquí
 })
-export class RegisterComponent {
+export class RegisterComponent implements AfterViewInit, OnInit {
   constructor(
     private router: Router,
     private apiService: ApiService,
     private authService: AuthService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private nominatimService: NominatimService,
+    private colombiaApiService: ColombiaApiService
   ) {} // Inyectar Router en el constructor
 
   isLoading: boolean = false; // Variable para controlar el estado de carga de animación
@@ -31,6 +36,7 @@ export class RegisterComponent {
     password: '',
     phone: '',
     city: '',
+    department: '',
     address: '',
     useLocation: false,
     documentType: 'CC',
@@ -39,18 +45,139 @@ export class RegisterComponent {
     locations: [] as { lat: number; lng: number }[], // 📌 Arreglo para almacenar ubicaciones
   };
 
+  map: L.Map | undefined;
+  marker: L.Marker | undefined;
+  departments: any[] = [];
+  cities: any[] = [];
+  selectedDepartmentId: number | null = null;
+
+  ngOnInit(): void {
+    this.loadDepartments();
+  }
+
+  ngAfterViewInit(): void {
+    this.initMap();
+  }
+
+  private initMap(): void {
+    // Establecer las coordenadas iniciales a Bogotá, Colombia
+    this.map = L.map('map').setView([4.7110, -74.0721], 16); // Aumentar el nivel de zoom inicial a 16
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(this.map);
+
+    this.marker = L.marker([4.7110, -74.0721], { draggable: true }).addTo(this.map)
+      .bindPopup('Arrastra el marcador para actualizar la dirección.')
+      .openPopup();
+
+    this.marker.on('dragend', () => {
+      const position = this.marker!.getLatLng();
+      this.user.locations = [{ lat: position.lat, lng: position.lng }];
+      this.updateAddress(position.lat, position.lng);
+    });
+  }
+
   onUseLocationChange() {
     if (this.user.useLocation) {
       this.locationService
         .getCurrentLocation()
         .then((lngLat) => {
-          this.user.address = `${lngLat.lat}, ${lngLat.lng}`;
-          this.user.locations.push({ lat: lngLat.lat, lng: lngLat.lng });
+          this.user.locations = [{ lat: lngLat.lat, lng: lngLat.lng }];
+          if (this.map && this.marker) {
+            this.map.setView([lngLat.lat, lngLat.lng], 16); // Actualizar el nivel de zoom del mapa a 16
+            this.marker.setLatLng([lngLat.lat, lngLat.lng]);
+          }
+          this.updateAddress(lngLat.lat, lngLat.lng);
         })
         .catch((error) => {
           console.error('Error getting location', error);
         });
     }
+  }
+
+  private updateAddress(lat: number, lng: number): void {
+    this.nominatimService.reverseGeocode(lat, lng).subscribe(
+      (response) => {
+        if (response && response.display_name) {
+          this.user.address = this.extractPartialAddress(response.display_name);
+          this.user.city = this.extractCityFromAddress(response.address);
+          this.user.department = this.extractDepartmentFromAddress(response.address);
+          this.loadCities(this.user.department);
+        } else {
+          this.user.address = `${lat}, ${lng}`; // Fallback en caso de error
+        }
+      },
+      (error) => {
+        console.error('Error getting address', error);
+        this.user.address = `${lat}, ${lng}`; // Fallback en caso de error
+      }
+    );
+  }
+
+  private extractPartialAddress(fullAddress: string): string {
+    const parts = fullAddress.split(',');
+    return parts.slice(0, 2).join(','); // Obtener solo hasta la segunda coma
+  }
+
+  private extractCityFromAddress(address: any): string {
+    if (address.city) {
+      return address.city;
+    }
+    if (address.town) {
+      return address.town;
+    }
+    if (address.village) {
+      return address.village;
+    }
+    if (address.hamlet) {
+      return address.hamlet;
+    }
+    return '';
+  }
+
+  private extractDepartmentFromAddress(address: any): string {
+    if (address.state) {
+      return address.state;
+    }
+    if (address.county) {
+      return address.county;
+    }
+    return '';
+  }
+
+  private loadDepartments(): void {
+    this.colombiaApiService.getDepartments().subscribe(
+      (data) => {
+        this.departments = data;
+      },
+      (error) => {
+        console.error('Error loading departments', error);
+      }
+    );
+  }
+
+  private loadCities(departmentName: string): void {
+    const department = this.departments.find(d => d.name === departmentName);
+    if (department) {
+      this.selectedDepartmentId = department.id;
+      this.colombiaApiService.getCitiesByDepartment(department.id).subscribe(
+        (data) => {
+          this.cities = data;
+        },
+        (error) => {
+          console.error('Error loading cities', error);
+        }
+      );
+    }
+  }
+
+  onDepartmentChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedDepartment = selectElement.value;
+    this.user.department = selectedDepartment;
+    this.loadCities(selectedDepartment);
   }
 
   onRegister() {
