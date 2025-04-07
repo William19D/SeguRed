@@ -1,0 +1,222 @@
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+  }
+  
+  header {
+    grid-column: span 2;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  header h1 {
+    font-size: 36px;
+    margin: 10px 0;
+  }
+  
+  header p {
+    font-size: 18px;
+    color: #555;
+    margin: 10px 0 20px;
+  }
+  
+  header button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #ffca28;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  header button:hover {
+    background-color: #ffc107;
+  }
+  
+  .reports-summary {
+    grid-column: span 2;
+    text-align: center;
+  }
+  
+  .reports-summary h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .reports-summary .summary {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 18px;
+  }
+  
+  .filters {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .filters input[type="text"] {
+    width: 60%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .filters .sort-by {
+    display: flex;
+    align-items: center;
+  }
+  
+  .filters .sort-by label {
+    margin-right: 10px;
+  }
+  
+  .filters .sort-by select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .reports {
+    grid-column: span 2;
+  }
+  
+  .report-card {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+  
+  .report-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .report-header h3 {
+    font-size: 24px;
+  }
+  
+  .report-header .distance {
+    font-size: 18px;
+    color: #888;
+  }
+  
+  .report-body {
+    display: flex;
+    flex: 1;
+  }
+  
+  .report-body .map {
+    flex: 1;
+  }
+  
+  .report-body .map img {
+    max-width: 100%;
+    border-radius: 4px;
+  }
+  
+  .report-body .details {
+    flex: 2;
+    padding-left: 20px;
+  }
+  
+  .report-body .details p {
+    margin: 5px 0;
+  }
+  
+  .report-body .details .generated-time {
+    color: #888;
+    font-size: 14px;
+  }
+  
+  .report-body .details .category {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 14px;
+    color: #fff;
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+  
+  .report-body .details .category.mascotas {
+    background-color: #4caf50;
+  }
+  
+  .report-body .details .category.seguridad {
+    background-color: #f44336;
+  }
+  
+  .report-body .details .stars {
+    margin-top: 10px;
+  }
+  
+  .report-body .details .stars span {
+    color: #ffca28;
+    font-size: 20px;
+  }
+  
+  .report-body .details .view-report {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 10px;
+  }
+  
+  .report-body .details .view-report:hover {
+    background-color: #45a049;
+  }
+  
+  .report-image {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .report-image img {
+    max-width: 100%;
+    border-radius: 4px;
+  }
+  
+  aside {
+    grid-column: span 2;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  
+  aside h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  aside div {
+    margin-bottom: 10px;
+  }
+  
+  aside label {
+    margin-left: 5px;
+  }

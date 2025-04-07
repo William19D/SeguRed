@@ -1,11 +1,19 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-verification-complete',
-  imports: [],
+  imports: [TopbarComponent, FooterComponent],
   templateUrl: './verification-complete.component.html',
-  styleUrl: './verification-complete.component.css'
+  styleUrls: ['./verification-complete.component.css']
 })
 export class VerificationCompleteComponent {
 
+  constructor(private router: Router) {}
+
+  navigateToLogin() {
+    this.router.navigate(['/login']);
+  }
 }

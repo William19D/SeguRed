@@ -1,0 +1,45 @@
+.verification-complete {
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 10%;
+    margin-bottom: 11%;
+
+  }
+  
+  .verification-complete .icon {
+    font-size: 48px;
+  }
+  
+  .verification-complete h1 {
+    font-size: 36px;
+    margin: 10px 0;
+  }
+  
+  .verification-complete .highlight {
+    color: #4caf50;
+  }
+  
+  .verification-complete p {
+    font-size: 18px;
+    color: #555;
+    margin: 10px 0 20px;
+  }
+  
+  .verification-complete .btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .verification-complete .btn-primary:hover {
+    background-color: #45a049;
+  }
