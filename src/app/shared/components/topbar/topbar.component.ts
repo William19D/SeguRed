@@ -12,6 +12,7 @@ import { Router, Event, NavigationEnd } from '@angular/router';
 export class TopbarComponent {
   isNavbarHidden = false;
   lastScrollTop = 0;
+  isMenuOpen = false; // Controla si el menú de hamburguesa está abierto
 
   constructor(private router: Router) {
     // Detectar cambios en la navegación para resetear el scroll
@@ -33,6 +34,10 @@ export class TopbarComponent {
     }
 
     this.lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen; // Alterna el estado del menú
   }
 
   goToHome() {

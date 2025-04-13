@@ -5,7 +5,6 @@
   box-sizing: border-box;
 }
 
-/* 🔹 Hotbar fija y protegida contra cambios */
 .topbar {
   background: white;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -19,10 +18,10 @@
 }
 
 .topbar.hidden {
-  top: -100px;
+  top: -100px; /* Oculta la barra al hacer scroll */
 }
 
-/* 🔹 Contenedor principal */
+/* Contenedor principal */
 .container {
   display: flex;
   align-items: center;
@@ -33,7 +32,7 @@
   padding: 0 20px;
 }
 
-/* 🔹 Logo y nombre */
+/* Logo y nombre */
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -58,7 +57,6 @@
   transition: color 0.3s ease-in-out;
 }
 
-/* 🔹 Efecto hover en logo y texto */
 .navbar-brand:hover img {
   filter: brightness(0) saturate(100%) invert(50%) sepia(50%) saturate(500%) hue-rotate(100deg);
 }
@@ -67,7 +65,7 @@
   color: #28a745;
 }
 
-/* 🔹 Menú de navegación centrado */
+/* Menú de navegación */
 .nav-center {
   flex-grow: 1;
   display: flex;
@@ -95,7 +93,7 @@
   color: #218838;
 }
 
-/* 🔹 Botones de usuario */
+/* Botones de usuario */
 .user-actions {
   display: flex;
   align-items: center;
@@ -128,7 +126,7 @@
   background-color: #218838;
 }
 
-/* 🔹 Hamburguesa para pantallas pequeñas */
+/* Hamburguesa para pantallas pequeñas */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -145,7 +143,7 @@
   transition: transform 0.3s ease;
 }
 
-/* 🔹 Menú responsive */
+/* Menú responsive */
 @media (max-width: 768px) {
   .hamburger {
     display: flex;
@@ -179,7 +177,7 @@
   }
 }
 
-/* 🔹 Evita cambios de estilos tras iniciar sesión */
+/* Evita cambios de estilos tras iniciar sesión */
 body, h1, h2, h3, p, a {
   font-weight: 700 !important;
 }
