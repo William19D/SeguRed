@@ -14,12 +14,12 @@
   left: 0;
   width: 100%;
   transition: top 0.3s ease-in-out;
-  z-index: 1000; /* Asegura que la barra esté sobre otros elementos */
-  font-weight: 700; /* Más gruesa y bloquea cambios */
+  z-index: 1000;
+  font-weight: 700;
 }
 
 .topbar.hidden {
-  top: -100px; /* Oculta la barra al hacer scroll */
+  top: -100px;
 }
 
 /* 🔹 Contenedor principal */
@@ -39,7 +39,7 @@
   align-items: center;
   text-decoration: none;
   color: #333;
-  font-weight: 700 !important; /* Fuente más gruesa */
+  font-weight: 700;
   font-size: 20px;
   cursor: pointer;
 }
@@ -53,7 +53,7 @@
 
 .navbar-brand .brand-name {
   font-size: 26px;
-  font-weight: 700 !important; /* Fuente gruesa */
+  font-weight: 700;
   color: #333;
   transition: color 0.3s ease-in-out;
 }
@@ -85,7 +85,7 @@
   text-decoration: none;
   cursor: pointer;
   color: #333;
-  font-weight: 700 !important; /* Más grueso */
+  font-weight: 700;
   font-size: 18px;
   padding: 8px 12px;
   transition: color 0.3s;
@@ -105,7 +105,7 @@
 .login-btn {
   text-decoration: none;
   color: #28a745;
-  font-weight: 700 !important; /* Más grueso */
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -121,14 +121,65 @@
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  font-weight: 700 !important; /* Más grueso */
+  font-weight: 700;
 }
 
 .btn:hover {
   background-color: #218838;
 }
 
+/* 🔹 Hamburguesa para pantallas pequeñas */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger-line {
+  width: 30px;
+  height: 3px;
+  background-color: #333;
+  transition: transform 0.3s ease;
+}
+
+/* 🔹 Menú responsive */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-center {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    padding: 20px 0;
+  }
+
+  .nav-center.active {
+    display: flex;
+  }
+
+  .nav-menu {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .user-actions {
+    display: none;
+  }
+}
+
 /* 🔹 Evita cambios de estilos tras iniciar sesión */
 body, h1, h2, h3, p, a {
-  font-weight: 700 !important; /* Fuente más gruesa */
+  font-weight: 700 !important;
 }
