@@ -73,13 +73,16 @@
   color: #28a745;
 }
 
-/* Ocultar botones de usuario en pantallas grandes */
+/* Mostrar botones de usuario en pantallas grandes */
 .user-actions {
-  display: none; /* Oculta los botones por defecto */
+  display: flex; /* Asegúrate de que los botones sean visibles por defecto */
+  align-items: center;
+  gap: 20px;
 }
 
 .login-btn {
   text-decoration: none;
+  cursor: pointer;
   color: #28a745;
 }
 
@@ -147,9 +150,9 @@
     align-items: center;
   }
 
-  /* Mostrar los botones de usuario dentro del menú desplegable */
+  /* Ocultar los botones de usuario fuera del menú desplegable */
   .user-actions {
-    display: none; /* Oculta los botones fuera del menú desplegable */
+    display: none; /* Oculta los botones en pantallas pequeñas */
   }
 
   .nav-center.active .user-actions {

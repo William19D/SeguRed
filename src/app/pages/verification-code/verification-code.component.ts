@@ -50,7 +50,7 @@ export class VerificationCodeComponent {
       this.authService.verificarCodigo(this.email, codigoIngresado).subscribe(
         (response: { message: string }) => {
           alert(response.message);
-          this.router.navigate(['/home']); // Redirigir al usuario a la página de inicio u otra página después de la verificación
+          this.router.navigate(['/verification-complete']); // Cambiado a redirigir a /verification-complete
         },
         (error: any) => {
           console.error('Error al verificar el código', error);
