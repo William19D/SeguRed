@@ -5,9 +5,13 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ApiService {
-  private emailSubUrl = 'http://localhost:8080/suscripcion/noticias';
-  private healthCheckUrl = 'http://localhost:8080/health'; // Endpoint de prueba
-  private registerUrl= 'http://localhost:8080/registro/usuario';
+  // URL base de tu API en Cloud Run
+  private baseUrl = 'https://seguredapi-919088633053.us-central1.run.app';
+
+  // Endpoints actualizados
+  private emailSubUrl = `${this.baseUrl}/suscripcion/noticias`;
+  private healthCheckUrl = `${this.baseUrl}/health`; // Ajusta si este endpoint existe en la nube
+  private registerUrl = `${this.baseUrl}/registro/usuario`;
 
   constructor(private http: HttpClient) {}
 
@@ -18,7 +22,6 @@ export class ApiService {
   checkConnection() {
     return this.http.get(this.healthCheckUrl, { responseType: 'text' });
   }
-
 
   registerUser(userData: any) {
     return this.http.post(this.registerUrl, userData, { responseType: 'text' });

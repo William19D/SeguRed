@@ -17,7 +17,7 @@ export interface Usuario {
     providedIn: 'root'
 })
 export class UsuarioService {
-    private apiUrl = 'http://localhost:8080/registro/usuarios';
+    private apiUrl = 'https://seguredapi-919088633053.us-central1.run.app/registro/usuarios';
 
     constructor(private http: HttpClient) {}
 

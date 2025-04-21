@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'https://seguredapi-919088633053.us-central1.run.app/auth';
 
   constructor(private http: HttpClient) {}
 
