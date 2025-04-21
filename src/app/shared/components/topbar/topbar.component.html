@@ -1,32 +1,31 @@
 <nav class="topbar" [ngClass]="{ 'hidden': isNavbarHidden }">
-    <div class="container">
-      <!-- Logo con enlace a la Home -->
-      <a class="navbar-brand" (click)="goToHome()">
-        <img src="Logo.svg" alt="SeguRed" class="logo" />
-        <span class="brand-name">SeguRed</span>
-      </a>
-  
-      <!-- Ícono de hamburguesa para pantallas pequeñas -->
-      <button class="hamburger" (click)="toggleMenu()">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-      </button>
-  
-      <!-- Menú de navegación -->
-      <div class="nav-center" [ngClass]="{ 'active': isMenuOpen }">
-        <ul class="nav-menu">
-          <li><a (click)="goToHome()" routerLink="/">Inicio</a></li>
-          <li><a routerLink="/comunidad">Comunidad</a></li>
-          <li><a routerLink="/contacto">Contacto</a></li>
-          <li><a routerLink="/faq">FAQ</a></li>
-        </ul>
-      </div>
-  
-      <!-- Botones de usuario -->
+  <div class="container">
+    <!-- Logo con enlace a la Home -->
+    <a class="navbar-brand" (click)="goToHome()">
+      <img src="Logo.svg" alt="SeguRed" class="logo" />
+      <span class="brand-name">SeguRed</span>
+    </a>
+
+    <!-- Ícono de hamburguesa para pantallas pequeñas -->
+    <button class="hamburger" (click)="toggleMenu()">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+
+    <!-- Menú de navegación -->
+    <div class="nav-center" [ngClass]="{ 'active': isMenuOpen }">
+      <ul class="nav-menu">
+        <li><a (click)="goToHome()" routerLink="/">Inicio</a></li>
+        <li><a routerLink="/comunidad">Comunidad</a></li>
+        <li><a routerLink="/contacto">Contacto</a></li>
+        <li><a routerLink="/faq">FAQ</a></li>
+      </ul>
+      <!-- Botones de usuario (ahora dentro del menú desplegable) -->
       <div class="user-actions">
         <a (click)="goToLogin()" class="login-btn">Iniciar Sesión</a>
         <a (click)="goToRegister()" class="btn">Registrarse</a>
       </div>
     </div>
-  </nav>
+  </div>
+</nav>

@@ -43,6 +43,16 @@
   cursor: pointer;
 }
 
+.navbar-brand:hover {
+  color: #28a745; /* Cambia el texto a verde */
+  transition: color 0.3s ease-in-out; /* Transición suave para el cambio de color */
+}
+
+.navbar-brand:hover img {
+  filter: hue-rotate(120deg); /* Cambia el color del logo a verde */
+  transition: filter 0.3s ease-in-out; /* Transición suave para la imagen */
+}
+
 .navbar-brand img {
   width: 60px;
   height: 60px;
@@ -60,6 +70,7 @@
   display: flex;
   gap: 40px;
   align-items: center;
+  cursor: pointer;
 }
 
 .nav-menu li a {
@@ -141,7 +152,7 @@
   }
 
   .nav-center.active {
-    display: flex;
+    display: flex; /* Muestra el menú desplegable */
   }
 
   .nav-menu {
@@ -150,18 +161,24 @@
     align-items: center;
   }
 
-  /* Ocultar los botones de usuario fuera del menú desplegable */
+  /* Mostrar los botones de usuario en el menú desplegable */
   .user-actions {
-    display: none; /* Oculta los botones en pantallas pequeñas */
+    display: none; /* Oculta los botones por defecto */
   }
 
   .nav-center.active .user-actions {
-    display: flex; /* Muestra los botones solo cuando el menú está activo */
+    display: flex; /* Muestra los botones cuando el menú está activo */
     flex-direction: column; /* Alinea los botones verticalmente */
     gap: 10px; /* Espacio entre los botones */
     margin-top: 20px; /* Espacio extra debajo del menú */
     align-items: center;
-    width: 100%; /* Asegura que ocupen todo el ancho */
+    width: auto; /* Ajusta el ancho dinámicamente */
+  }
+
+  .user-actions .login-btn, 
+  .user-actions .btn {
+    width: 80%; /* Ajusta el ancho de los botones para dispositivos pequeños */
+    text-align: center; /* Centra el texto dentro del botón */
   }
 
   .login-btn {
