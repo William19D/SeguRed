@@ -88,6 +88,7 @@
   align-items: center;
   gap: 20px; /* Espaciado entre los botones */
   justify-content: flex-end; /* Alinea los botones a la derecha */
+  margin-left: 30px; /* Separa los botones de las labels del centro */
 }
 
 .login-btn {
@@ -95,6 +96,9 @@
   cursor: pointer;
   color: #28a745;
   font-size: 16px;
+  margin-right: 10px; /* Añade espacio entre "Iniciar Sesión" y "Registrarse" */
+  margin-left: 25px; /* Añade espacio entre "Iniciar Sesión" y "Registrarse" */
+
 }
 
 .btn {

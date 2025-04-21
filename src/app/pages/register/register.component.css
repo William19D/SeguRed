@@ -120,10 +120,10 @@
     flex: 1; /* Permite que el campo de texto se ajuste automáticamente */
 }
 
-.address-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.address-container input[type="checkbox"] {
+    width: 20px; /* Aumenta el ancho del checkbox */
+    height: 20px; /* Aumenta la altura del checkbox */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el checkbox */
 }
 
 .recaptcha-container {
