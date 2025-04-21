@@ -41,16 +41,7 @@
   font-weight: 700;
   font-size: 20px;
   cursor: pointer;
-}
-
-.navbar-brand:hover {
-  color: #28a745; /* Cambia el texto a verde */
-  transition: color 0.3s ease-in-out; /* Transición suave para el cambio de color */
-}
-
-.navbar-brand:hover img {
-  filter: hue-rotate(120deg); /* Cambia el color del logo a verde */
-  transition: filter 0.3s ease-in-out; /* Transición suave para la imagen */
+  margin-right: auto; /* Asegura que el logo esté alineado a la izquierda */
 }
 
 .navbar-brand img {
@@ -65,16 +56,23 @@
   color: #333;
 }
 
+/* Menú de navegación */
+.nav-center {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center; /* Centra los labels del menú de navegación */
+}
+
 .nav-menu {
   list-style: none;
   display: flex;
   gap: 40px;
   align-items: center;
-  cursor: pointer;
 }
 
 .nav-menu li a {
   text-decoration: none;
+  cursor: pointer;
   color: #333;
   font-size: 18px;
   padding: 8px 12px;
@@ -84,17 +82,19 @@
   color: #28a745;
 }
 
-/* Mostrar botones de usuario en pantallas grandes */
+/* Botones de usuario */
 .user-actions {
-  display: flex; /* Asegúrate de que los botones sean visibles por defecto */
+  display: flex; /* Asegura que los botones estén en una línea */
   align-items: center;
-  gap: 20px;
+  gap: 20px; /* Espaciado entre los botones */
+  justify-content: flex-end; /* Alinea los botones a la derecha */
 }
 
 .login-btn {
   text-decoration: none;
   cursor: pointer;
   color: #28a745;
+  font-size: 16px;
 }
 
 .btn {
@@ -106,10 +106,7 @@
   font-size: 16px;
 }
 
-.btn:hover {
-  background-color: #218838;
-}
-
+/* Hamburguesa */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -126,16 +123,9 @@
 }
 
 /* Media Queries para Responsiveness */
-
-@media (max-width: 1024px) {
-  .nav-menu {
-    gap: 20px;
-  }
-}
-
 @media (max-width: 768px) {
   .hamburger {
-    display: flex;
+    display: flex; /* Muestra el ícono de hamburguesa en pantallas pequeñas */
   }
 
   .nav-center {
@@ -161,35 +151,23 @@
     align-items: center;
   }
 
-  /* Mostrar los botones de usuario en el menú desplegable */
   .user-actions {
-    display: none; /* Oculta los botones por defecto */
+    flex-direction: column; /* Cambia la dirección a vertical en pantallas pequeñas */
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+    width: 100%;
   }
 
-  .nav-center.active .user-actions {
-    display: flex; /* Muestra los botones cuando el menú está activo */
-    flex-direction: column; /* Alinea los botones verticalmente */
-    gap: 10px; /* Espacio entre los botones */
-    margin-top: 20px; /* Espacio extra debajo del menú */
-    align-items: center;
-    width: auto; /* Ajusta el ancho dinámicamente */
-  }
-
-  .user-actions .login-btn, 
-  .user-actions .btn {
-    width: 80%; /* Ajusta el ancho de los botones para dispositivos pequeños */
-    text-align: center; /* Centra el texto dentro del botón */
-  }
-
-  .login-btn {
-    font-size: 14px;
-  }
-
+  .login-btn, 
   .btn {
     font-size: 14px;
     padding: 10px 16px;
-    width: 80%; /* Botones adaptados al ancho del menú */
     text-align: center;
+  }
+
+  .btn {
+    width: auto; /* Ajusta el ancho dinámicamente */
   }
 }
 
@@ -202,9 +180,12 @@
     font-size: 16px;
   }
 
+  .user-actions {
+    gap: 5px; /* Reduce el espacio entre los botones */
+  }
+
   .btn {
     font-size: 14px;
-    padding: 8px 16px;
-    width: 90%; /* Botones adaptados mejor al ancho en móviles */
+    padding: 8px 12px;
   }
 }
