@@ -8,10 +8,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: true,
-  imports: [RouterModule, CommonModule, HttpClientModule] // Agregamos HttpClientModule aquí
+  imports: [RouterModule, CommonModule, HttpClientModule]
 })
 export class AppComponent implements OnInit {
-  private healthCheckUrl = 'http://localhost:8080/health'; 
+  private healthCheckUrl = 'https://www.googleapis.com/discovery/v1/apis'; // ✅ URL ejemplo de API de Google
   backendStatus: string = 'Verificando conexión...';
 
   constructor(private http: HttpClient) {}
@@ -20,11 +20,11 @@ export class AppComponent implements OnInit {
     this.http.get(this.healthCheckUrl, { responseType: 'text' }).subscribe(
       (response) => {
         console.log('✅ Backend conectado:', response);
-        this.backendStatus = '✅ Conexión establecida con el backend.';
+        this.backendStatus = '✅ Conexión establecida con la API de Google.';
       },
       (error) => {
-        console.error('❌ Error al conectar con el backend:', error);
-        this.backendStatus = '❌ No se pudo conectar con el backend.';
+        console.error('❌ Error al conectar con la API de Google:', error);
+        this.backendStatus = '❌ No se pudo conectar con la API de Google.';
       }
     );
   }
