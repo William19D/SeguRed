@@ -47,29 +47,12 @@
   width: 60px;
   height: 60px;
   margin-right: 10px;
-  transition: filter 0.3s ease-in-out;
 }
 
 .navbar-brand .brand-name {
   font-size: 26px;
   font-weight: 700;
   color: #333;
-  transition: color 0.3s ease-in-out;
-}
-
-.navbar-brand:hover img {
-  filter: brightness(0) saturate(100%) invert(50%) sepia(50%) saturate(500%) hue-rotate(100deg);
-}
-
-.navbar-brand:hover .brand-name {
-  color: #28a745;
-}
-
-/* Menú de navegación */
-.nav-center {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
 }
 
 .nav-menu {
@@ -81,52 +64,38 @@
 
 .nav-menu li a {
   text-decoration: none;
-  cursor: pointer;
   color: #333;
-  font-weight: 700;
   font-size: 18px;
   padding: 8px 12px;
-  transition: color 0.3s;
 }
 
 .nav-menu li a:hover {
-  color: #218838;
+  color: #28a745;
 }
 
-/* Botones de usuario */
+/* Ocultar botones de usuario en pantallas grandes */
 .user-actions {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+  display: none; /* Oculta los botones por defecto */
 }
 
 .login-btn {
   text-decoration: none;
   color: #28a745;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.login-btn:hover {
-  color: #185f29;
 }
 
 .btn {
   background-color: #28a745;
   color: white;
-  padding: 12px 20px;
+  padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
   font-size: 16px;
-  font-weight: 700;
 }
 
 .btn:hover {
   background-color: #218838;
 }
 
-/* Hamburguesa para pantallas pequeñas */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -140,10 +109,16 @@
   width: 30px;
   height: 3px;
   background-color: #333;
-  transition: transform 0.3s ease;
 }
 
-/* Menú responsive */
+/* Media Queries para Responsiveness */
+
+@media (max-width: 1024px) {
+  .nav-menu {
+    gap: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .hamburger {
     display: flex;
@@ -172,12 +147,44 @@
     align-items: center;
   }
 
+  /* Mostrar los botones de usuario dentro del menú desplegable */
   .user-actions {
-    display: none;
+    display: none; /* Oculta los botones fuera del menú desplegable */
+  }
+
+  .nav-center.active .user-actions {
+    display: flex; /* Muestra los botones solo cuando el menú está activo */
+    flex-direction: column; /* Alinea los botones verticalmente */
+    gap: 10px; /* Espacio entre los botones */
+    margin-top: 20px; /* Espacio extra debajo del menú */
+    align-items: center;
+    width: 100%; /* Asegura que ocupen todo el ancho */
+  }
+
+  .login-btn {
+    font-size: 14px;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 10px 16px;
+    width: 80%; /* Botones adaptados al ancho del menú */
+    text-align: center;
   }
 }
 
-/* Evita cambios de estilos tras iniciar sesión */
-body, h1, h2, h3, p, a {
-  font-weight: 700 !important;
+@media (max-width: 480px) {
+  .navbar-brand .brand-name {
+    font-size: 18px;
+  }
+
+  .nav-menu li a {
+    font-size: 16px;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 8px 16px;
+    width: 90%; /* Botones adaptados mejor al ancho en móviles */
+  }
 }
