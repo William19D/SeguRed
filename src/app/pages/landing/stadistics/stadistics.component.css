@@ -1,48 +1,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
 
 body {
-  font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
 /* Contenedor que ocupa todo el ancho */
 .full-width-container {
-  width: 100%;
-  display: flex;
-  justify-content: center; /* Centra el contenido */
-  background-color: #f8f9fa;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Centra el contenido */
+    background-color: #f8f9fa;
+    padding: 20px; /* Añade un padding general para mejor espaciado en móviles */
 }
 
 /* Contenedor interno centrado */
 .stadistics-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f8f9fa;
-  height: 25rem;
-  width: 80%; /* Controla el ancho del contenido */
-  max-width: 1200px; /* Evita que se extienda demasiado en pantallas grandes */
+    display: flex;
+    align-items: center;
+    justify-content: space-around; /* Distribuye el título y las estadísticas en escritorio */
+    background-color: #f8f9fa;
+    width: 90%; /* Ocupa más ancho en pantallas pequeñas */
+    max-width: 1200px; /* Evita que se extienda demasiado */
+    flex-direction: row; /* Disposición horizontal por defecto */
+    padding: 20px; /* Añade padding interno */
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
 }
 
 /* Sección del título */
 .title-section {
-  flex: 1;
-  text-align: left;
+    text-align: left;
+    flex: 1; /* Ocupa espacio disponible */
+    margin-right: 20px; /* Espacio entre el título y las estadísticas en escritorio */
 }
 
 .title-section h2 {
-    font-size: 3.3rem; /* Antes: 3rem */
+    font-size: 2.5rem; /* Reducido para pantallas más pequeñas */
     font-weight: 700;
-  }
+    line-height: 1.2; /* Mejora la lectura en varias líneas */
+}
 
 .title-section h2 span {
-  color: #4CAF4F;
+    color: #4CAF4F;
 }
 
 /* Sección de estadísticas */
@@ -51,62 +56,108 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px; /* Aumenta la separación entre las filas */
-  }
-  
-  /* Fila de estadísticas */
-  .stat-row {
+    gap: 20px; /* Reduce la separación entre filas en móviles */
+    width: 100%;
+}
+
+/* Fila de estadísticas */
+.stat-row {
     display: flex;
     justify-content: center;
-    gap: 30px; /* Aumenta el espacio horizontal entre tarjetas */
+    gap: 15px; /* Reduce el espacio horizontal entre tarjetas en móviles */
     width: 100%;
-  }
-  
-  /* Tarjetas de estadísticas */
-  .stat-item {
+}
+
+/* Tarjetas de estadísticas */
+.stat-item {
     display: flex;
     align-items: center;
     justify-content: center;
     background: white;
-    padding: 15px 25px;
+    padding: 10px 15px; /* Reduce el padding en móviles */
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 320px; /* Ajusta el tamaño para que sean más horizontales */
-    height: 100px;
-  }
-  
-  /* Ajuste para evitar superposición */
-  @media (max-width: 768px) {
-    .stat-row {
-      flex-direction: column; /* En pantallas pequeñas, coloca las tarjetas una debajo de otra */
-      align-items: center;
-    }
-  }
-  
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sutiliza la sombra en móviles */
+    width: 100%; /* Las tarjetas ocupan todo el ancho disponible en las filas */
+    min-height: 80px; /* Reduce la altura mínima en móviles */
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
+}
 
 /* Iconos en la tarjeta */
 .stat-item img {
-  width: 50px;
-  height: 50px;
-  margin-right: 15px; /* Espacio entre el icono y el texto */
-  -webkit-user-drag: none;
-  pointer-events: none;
+    width: 40px; /* Reduce el tamaño del icono en móviles */
+    height: 40px;
+    margin-right: 10px; /* Reduce el espacio entre el icono y el texto */
+    -webkit-user-drag: none;
+    pointer-events: none;
 }
 
 /* Contenedor del texto */
 .stat-text {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
 }
 
 /* Número grande */
 .stat-number {
-    font-size: 2rem; /* Antes: 1.5rem */
+    font-size: 1.7rem; /* Reducido para móviles */
     font-weight: bold;
-  }
+}
+
 /* Descripción */
 .stat-label {
-  font-size: 1.2rem; /* Antes: 0.9rem */
-  color: gray;
+    font-size: 1rem; /* Reducido para móviles */
+    color: gray;
+}
+
+/* Media Query para pantallas móviles (ancho máximo de 768px) */
+@media (max-width: 768px) {
+    .stadistics-container {
+        flex-direction: column; /* Apila el título y las estadísticas */
+        align-items: center; /* Centra los elementos */
+        height: auto; /* Ajusta la altura automáticamente */
+        padding: 20px;
+    }
+
+    .title-section {
+        text-align: center; /* Centra el título en móviles */
+        margin-right: 0; /* Elimina el margen derecho */
+        margin-bottom: 30px; /* Añade espacio debajo del título */
+    }
+
+    .title-section h2 {
+        font-size: 2rem; /* Reduce aún más el tamaño del título en pantallas muy pequeñas */
+    }
+
+    .stats-section {
+        gap: 15px; /* Reduce el espacio entre las filas de estadísticas */
+    }
+
+    .stat-row {
+        flex-direction: column; /* Apila las tarjetas en una sola columna */
+        align-items: stretch; /* Las tarjetas ocupan todo el ancho del contenedor */
+        gap: 10px; /* Reduce el espacio entre las tarjetas apiladas */
+    }
+
+    .stat-item {
+        padding: 15px; /* Reduce el padding interno de las tarjetas */
+        flex-direction: row; /* Vuelve a la disposición horizontal dentro de la tarjeta */
+        justify-content: flex-start; /* Alinea el contenido a la izquierda */
+        width: 100%; /* Asegura que las tarjetas ocupen todo el ancho */
+        min-height: auto; /* Ajusta la altura automáticamente */
+    }
+
+    .stat-item img {
+        width: 30px; /* Reduce aún más el tamaño del icono */
+        height: 30px;
+        margin-right: 10px;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+    }
 }

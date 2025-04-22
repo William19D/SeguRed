@@ -2,10 +2,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 1440;
+  max-width: 1440px; /* Ancho máximo */
+  width: 100%; /* Para que ocupe el ancho disponible en pantallas más pequeñas */
   height: 100%;
-  margin-top: 40px;
-  top: 84px;
+  margin: 40px auto 0; /* Centra horizontalmente y añade margen superior */
+  top: 84px; /* Esta propiedad con 'top' solo funciona si el elemento tiene una 'position' definida (relative, absolute, fixed, sticky) */
 }
 
 .logo-list-container {
@@ -14,9 +15,9 @@
   flex-wrap: nowrap; /* Evita que los logos se vayan a otra línea */
   width: 100%;
   padding: 0 50px; /* Ajusta el padding si es necesario*/
-  height: 98;
+  height: 98px;
   justify-content: space-between;
-  
+
 }
 
 
@@ -105,5 +106,12 @@
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+/* Media query para pantallas con un ancho máximo de 768 píxeles (típico de móviles) */
+@media (max-width: 768px) {
+  .wrapper {
+    display: none; /* Oculta completamente el contenedor .wrapper y su contenido */
   }
 }

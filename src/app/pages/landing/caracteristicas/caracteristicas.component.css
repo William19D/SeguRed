@@ -3,7 +3,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
-
 }
 
 .content-container {
@@ -29,11 +28,11 @@
 }
 
 .title {
-font-weight: 600;
-font-size: 36px;
-line-height: 44px;
-letter-spacing: 0%;
-color: #4D4D4D;
+    font-weight: 600;
+    font-size: 36px;
+    line-height: 44px;
+    letter-spacing: 0%;
+    color: #4D4D4D;
 }
 
 .description {
@@ -57,4 +56,36 @@ color: #4D4D4D;
 
 .btn:hover {
     background-color: #218838;
+}
+
+/* Estilos para pantallas móviles (ancho máximo de 768px, que suele ser un estándar para tablets y móviles) */
+@media (max-width: 768px) {
+    .content-container {
+        /* Cambiamos la dirección del flex para que los elementos se apilen verticalmente */
+        flex-direction: column;
+        align-items: center; /* Centramos los elementos horizontalmente */
+        text-align: center; /* Centramos el texto dentro del contenedor en móviles */
+        height: auto; /* Ajustamos la altura automáticamente al contenido */
+        padding: 20px; /* Reducimos el padding para pantallas más pequeñas */
+    }
+
+    .image {
+        width: 90%; /* La imagen ocupa un mayor ancho en móviles */
+        margin-right: 0; /* Eliminamos el margen derecho */
+        margin-bottom: 20px; /* Añadimos un margen inferior para separar la imagen del texto */
+    }
+
+    .text-content {
+        max-width: 90%; /* El texto ocupa un mayor ancho en móviles */
+    }
+
+    .title {
+        font-size: 28px; /* Reducimos el tamaño del título */
+        line-height: 34px;
+    }
+
+    .description {
+        font-size: 18px; /* Reducimos el tamaño de la descripción */
+        line-height: 1.5;
+    }
 }

@@ -8,18 +8,20 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
+    min-height: 100vh; /* Cambiado para asegurar que ocupe toda la pantalla */
 }
 
 /* Contenedor principal */
 .features {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap; /* Permite que las tarjetas se ajusten a pantallas pequeñas */
     gap: 50px; /* Mayor separación entre tarjetas */
     max-width: 1200px;
     margin: auto;
     margin-top: 50px;
     margin-bottom: 50px;
+    padding: 0 20px; /* Espaciado lateral para pantallas pequeñas */
 }
 
 /* Estilo de cada tarjeta */
@@ -29,7 +31,7 @@ body {
     border-radius: 16px;
     text-align: center;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-    width: 350px; /* Aumenta el ancho */
+    width: 350px; /* Ancho fijo para pantallas grandes */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -63,3 +65,53 @@ body {
     line-height: 1.5; /* Mayor legibilidad */
 }
 
+/* Media Queries para Responsividad */
+@media (max-width: 1024px) {
+    .feature {
+        width: 300px; /* Reduce el ancho en pantallas medianas */
+        padding: 25px; /* Reduce el padding interno */
+    }
+
+    .feature-icon {
+        width: 60px; /* Reduce el tamaño del icono */
+        height: 60px;
+    }
+
+    .feature h3 {
+        font-size: 20px; /* Reduce el tamaño del título */
+    }
+
+    .feature p {
+        font-size: 15px; /* Reduce el tamaño del texto */
+    }
+}
+
+@media (max-width: 768px) {
+    .features {
+        gap: 30px; /* Reduce el espacio entre tarjetas */
+    }
+
+    .feature {
+        width: 90%; /* Tarjetas ocupan el 90% del ancho disponible */
+    }
+}
+
+@media (max-width: 480px) {
+    .feature {
+        width: 100%; /* Tarjetas ocupan todo el ancho en móviles */
+        padding: 20px; /* Reduce el padding para móviles */
+    }
+
+    .feature h3 {
+        font-size: 18px; /* Reduce aún más el tamaño del título */
+    }
+
+    .feature p {
+        font-size: 14px; /* Texto más pequeño para móviles */
+    }
+
+    .feature-icon {
+        width: 50px; /* Iconos más pequeños */
+        height: 50px;
+    }
+}   

@@ -1,22 +1,24 @@
 /* Estilos generales */
 .welcome {
-    width: 100; /* Ocupar todo el ancho de la pantalla */
+    width: 100%; /* Ocupar todo el ancho de la pantalla */
     min-height: 300px; /* Altura mínima */
     display: flex;
     align-items: center; /* Centra verticalmente */
     justify-content: center; /* Centra horizontalmente */
     background-color: #F5F7FA; /* Color de fondo */
-    padding: 2vw 20px; /* Espaciado interno */
-    margin-top: 4vw;
+    padding: 2vw 20px; /* Espaciado interno adaptable */
+    margin-top: 4vw; /* Margen superior adaptable */
+    box-sizing: border-box; /* Para que el padding no afecte el ancho */
 }
 
 /* Contenedor interno para limitar el ancho del contenido */
 .welcome .content {
     max-width: 1200px; /* Evita que se expanda demasiado en pantallas grandes */
-    width: 100%;
+    width: 90%; /* Ocupa un porcentaje del ancho en pantallas más pequeñas */
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Separa el texto y la imagen */
+    justify-content: space-between; /* Separa el texto y la imagen en pantallas amplias */
+    flex-direction: row; /* Disposición horizontal por defecto */
 }
 
 /* Sección de texto */
@@ -32,7 +34,6 @@
     font-size: 64px;
     line-height: 76px;
     letter-spacing: 0%;
-
 }
 
 /* Color especial para palabras resaltadas */
@@ -47,6 +48,7 @@
     color: #777;
     margin-bottom: 20px;
 }
+
 /* Botón */
 .btn {
     background-color: #28a745;
@@ -68,7 +70,6 @@
     color: white;
 }
 
-
 /* Contenedor de la imagen */
 .welcome .illustration {
     width: 500px;
@@ -76,4 +77,57 @@
     object-fit: contain;
     -webkit-user-drag: none;
     pointer-events: none;
+}
+
+/* Media Query para pantallas móviles (ancho máximo de 768px) */
+@media (max-width: 768px) {
+    .welcome {
+        padding: 5vw 20px; /* Ajusta el padding vertical */
+        margin-top: 15vw; /* Ajusta el margen superior */
+        min-height: auto; /* Ajusta la altura automáticamente */
+    }
+
+    .welcome .content {
+        flex-direction: column; /* Apila el texto y la imagen */
+        align-items: center; /* Centra los elementos */
+        justify-content: center; /* Centra el contenido */
+        text-align: center; /* Centra el texto */
+    }
+
+    .welcome .text-section {
+        max-width: 90%; /* Ocupa más ancho */
+        margin-bottom: 20px; /* Espacio entre texto e imagen */
+    }
+
+    .welcome .text {
+        font-size: 2.5rem; /* Reduce el tamaño del texto */
+        line-height: 1.2;
+    }
+
+    .welcome .subtext {
+        font-size: 1rem; /* Reduce el tamaño del subtexto */
+    }
+
+    .welcome .illustration {
+        width: 90%; /* La imagen ocupa más ancho */
+        height: auto; /* Mantiene la proporción */
+    }
+}
+
+/* Media Query para tablets (ancho mínimo de 769px y máximo de 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .welcome {
+        padding: 3vw 30px; /* Ajusta el padding para tablets */
+        margin-top: 6vw; /* Ajusta el margen superior para tablets */
+    }
+
+    .welcome .text {
+        font-size: 3.5rem; /* Ajusta el tamaño del texto para tablets */
+        line-height: 1.1;
+    }
+
+    .welcome .illustration {
+        width: 45%; /* Ajusta el ancho de la imagen para tablets */
+        height: auto;
+    }
 }

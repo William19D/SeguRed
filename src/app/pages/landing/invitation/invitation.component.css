@@ -12,7 +12,7 @@
     justify-content: center;
     text-align: center;
     padding: 4rem 2rem;
-    height: 100% ;
+    min-height: 30vh; /* Asegura una altura mínima para el contenedor */
 }
 
 .invitation-title {
@@ -35,4 +35,21 @@
 
 .btn:hover {
     background-color: #218838;
+}
+
+/* Estilos específicos para pantallas móviles (ancho máximo de 768px) */
+@media (max-width: 768px) {
+    .invitation-title {
+        font-size: 2.5rem; /* Reduce el tamaño del título en móviles */
+        margin-bottom: 1rem; /* Reduce el margen inferior en móviles */
+    }
+
+    .btn {
+        font-size: 1rem; /* Reduce el tamaño del botón en móviles */
+        padding: 10px 16px; /* Reduce el padding del botón en móviles */
+    }
+
+    .invitation-container {
+        padding: 2rem 1rem; /* Reduce el padding general del contenedor en móviles */
+    }
 }
