@@ -34,11 +34,11 @@ export class LoginComponent {
       return;
     }
 
-    this.http.post('http://localhost:8080/api/recaptcha/verify', { token: this.recaptchaToken })
+    this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', { token: this.recaptchaToken })
       .subscribe((res: any) => {
         if (res.success) {
           console.log('Captcha validado correctamente');
-          this.http.post('http://localhost:8080/auth/login', {
+          this.http.post('https://seguredapi-919088633053.us-central1.run.app/auth/login', {
             correo: this.user.email,
             contraseña: this.user.password
           }).subscribe((loginRes: any) => {

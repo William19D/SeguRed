@@ -61,12 +61,10 @@
 /* Estilos para pantallas móviles (ancho máximo de 768px, que suele ser un estándar para tablets y móviles) */
 @media (max-width: 768px) {
     .content-container {
-        /* Cambiamos la dirección del flex para que los elementos se apilen verticalmente */
         flex-direction: column;
         align-items: center; /* Centramos los elementos horizontalmente */
         text-align: center; /* Centramos el texto dentro del contenedor en móviles */
         height: auto; /* Ajustamos la altura automáticamente al contenido */
-        padding: 20px; /* Reducimos el padding para pantallas más pequeñas */
     }
 
     .image {

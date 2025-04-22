@@ -6,7 +6,7 @@
     align-items: center; /* Centra verticalmente */
     justify-content: center; /* Centra horizontalmente */
     background-color: #F5F7FA; /* Color de fondo */
-    padding: 2vw 20px; /* Espaciado interno adaptable */
+    padding: 2vw; /* Espaciado interno adaptable */
     margin-top: 4vw; /* Margen superior adaptable */
     box-sizing: border-box; /* Para que el padding no afecte el ancho */
 }
@@ -96,7 +96,6 @@
 
     .welcome .text-section {
         max-width: 90%; /* Ocupa más ancho */
-        margin-bottom: 20px; /* Espacio entre texto e imagen */
     }
 
     .welcome .text {
