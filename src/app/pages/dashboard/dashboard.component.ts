@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/authentication.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { UsertopbarComponent } from '../../shared/components/topbar/user/usertopbar/usertopbar.component'; // Importa la topbar
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  imports: [FooterComponent],
+  imports: [FooterComponent, UsertopbarComponent], // Agrega la topbar a imports
   standalone: true,
   styleUrls: ['./dashboard.component.css']
 })
@@ -43,7 +44,11 @@ export class DashboardComponent implements OnInit {
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
-   // this.user = this.authService.getUser();
+    // Simula obtener un usuario desde el servicio de autenticación
+    this.user = {
+      name: 'Daniel' // Puedes descomentar la línea de abajo para usar datos reales
+      // this.authService.getUser();
+    };
   }
 
   makeReport() {

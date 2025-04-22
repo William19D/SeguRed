@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { NgxCaptchaModule } from 'ngx-captcha';
 
-import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
+import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({

@@ -1,0 +1,136 @@
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 15px 30px; /* Aumenta el padding superior/inferior y lateral */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .navbar-brand .logo {
+    height: 50px; /* Aumenta la altura del logo */
+  }
+  
+  .nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 40px; /* Aumenta el espacio entre los elementos del menú */
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-menu a {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px; /* Aumenta el tamaño de la fuente del menú */
+    font-weight: 500;
+  }
+  
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Aumenta el espacio entre los elementos de la sección de usuario */
+    position: relative; /* Añade esta línea */
+
+  }
+  
+  .notification-bell img {
+    width: 30px; /* Aumenta el ancho del icono de la campana */
+    height: 30px; /* Aumenta la altura del icono de la campana */
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .profile-picture {
+    width: 40px; /* Aumenta el ancho de la foto de perfil */
+    height: 40px; /* Aumenta la altura de la foto de perfil */
+    border-radius: 50%;
+    border: 2px solid #ddd;
+  }
+  
+  .user-name {
+    margin-left: 12px; /* Aumenta el margen izquierdo del nombre de usuario */
+    font-size: 16px; /* Aumenta el tamaño de la fuente del nombre de usuario */
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .user-role {
+    margin-left: 8px; /* Aumenta el margen izquierdo del rol de usuario */
+    font-size: 14px; /* Aumenta el tamaño de la fuente del rol de usuario */
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 4px 10px; /* Aumenta el padding del rol de usuario */
+    color: #555;
+  }
+  
+  .dropdown-arrow {
+    margin-left: 8px; /* Aumenta el margen izquierdo de la flecha del dropdown */
+    font-size: 16px; /* Aumenta el tamaño de la fuente de la flecha del dropdown */
+    color: #333;
+  }
+  
+  /* No es necesario modificar user-dropdown a menos que también quieras hacerlo más grande */
+  .user-dropdown {
+    position: absolute;
+    top: 100%; /* Lo coloca justo debajo del elemento relativo */
+    right: 0; /* Lo alinea a la derecha del elemento relativo */
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    margin-top: 10px;
+    padding: 10px;
+    z-index: 1000;
+  }
+  
+  .user-dropdown a {
+    display: block;
+    padding: 12px; /* Aumenta el padding de los elementos del dropdown */
+    text-decoration: none;
+    color: #333;
+    font-size: 16px; /* Aumenta el tamaño de la fuente de los elementos del dropdown */
+  }
+  
+  .user-dropdown a:hover {
+    background-color: #f5f5f5;
+  }
+  .notification-bell {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  
+  .notification-bell img {
+    width: 40px; /* Aumenta el ancho del icono de la campana */
+    height: 40px; /* Aumenta la altura del icono de la campana */
+    transition: transform 0.1s ease-in-out;
+  }
+  
+  .notification-bell:hover img {
+    animation: gentleShake 1s; /* Aumenta la duración a 1 segundo para hacerlo más suave */
+    animation-iteration-count: infinite;
+  }
+  
+  @keyframes gentleShake {
+    0% { transform: rotate(-10deg); } /* Aumenta la rotación inicial */
+    5% { transform: rotate(10deg); }  /* Aumenta la rotación en la dirección opuesta */
+    10% { transform: rotate(-8deg); }
+    15% { transform: rotate(8deg); }
+    20% { transform: rotate(0deg); }
+    40% { transform: rotate(0deg); } /* Mantiene un tiempo en el centro para hacerlo menos frenético */
+  }

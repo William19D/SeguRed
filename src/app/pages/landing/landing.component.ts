@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms'; // Importar FormsModule
-import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
+import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
 import { RouterModule } from '@angular/router';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { LogoListComponent } from "./logo-list/logo-list.component";

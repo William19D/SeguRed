@@ -1,74 +1,80 @@
-<div class="dashboard">
-    <header>
-      <h1>Bienvenido Daniel a SeguRed</h1>
+<app-usertopbar></app-usertopbar> <div class="dashboard">
+  <header>
+    <div class="header-content">
+      <h1>Bienvenido {{ user?.name || 'Usuario' }} a SeguRed</h1>
       <p>Explora reportes en tu comunidad, crea nuevos anuncios y mantente informado sobre lo que sucede a tu alrededor.</p>
       <button (click)="makeReport()">Hacer un Reporte</button>
-    </header>
-  
-    <section class="reports-summary">
-      <h2>Reportes en las últimas 24 horas</h2>
-      <div class="summary">
-        <span><strong>67</strong> Incidentes Reportados</span>
-        <span><strong>176</strong> Miembros Activos</span>
+    </div>
+    <div class="header-image">
+      <img src="Illustration.svg" alt="Imagen Dashboard" />
+    </div>
+  </header>
+
+  <section class="reports-summary">
+    <h2>Reportes en las últimas 24 horas</h2>
+    <div class="summary">
+      <span><strong>67</strong> Incidentes Reportados</span>
+      <span><strong>176</strong> Miembros Activos</span>
+    </div>
+  </section>
+
+  <section class="filters">
+    <input type="text" placeholder="Buscar" />
+    <div class="sort-by">
+      <label for="sort">Ordenar por:</label>
+      <select id="sort">
+        <option value="distance">Distancia</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="reports">
+    <div *ngFor="let report of reports" class="report-card">
+      <div class="report-header">
+        <h3>{{ report.title }}</h3>
+        <span class="distance">{{ report.distance }}</span>
       </div>
-    </section>
-  
-    <section class="filters">
-      <input type="text" placeholder="Buscar" />
-      <div class="sort-by">
-        <label for="sort">Ordenar por:</label>
-        <select id="sort">
-          <option value="distance">Distancia</option>
-        </select>
-      </div>
-    </section>
-  
-    <section class="reports">
-      <div *ngFor="let report of reports" class="report-card">
-        <div class="report-header">
-          <h3>{{ report.title }}</h3>
-          <span class="distance">{{ report.distance }}</span>
+      <div class="report-body">
+        <div class="map">
+          <img [src]="report.mapUrl" alt="Ubicación del mapa" />
         </div>
-        <div class="report-body">
-          <div class="map">
-            <img [src]="report.mapUrl" alt="Ubicación del mapa" />
+        <div class="details">
+          <p><strong>Dirección:</strong> {{ report.address }}</p>
+          <p><strong>Descripción:</strong> {{ report.description }}</p>
+          <p class="generated-time">Reporte generado {{ report.generatedTime }}</p>
+          <div class="category {{ report.categoryClass }}">{{ report.category }}</div>
+          <div class="stars">
+            <span *ngFor="let star of [].constructor(report.stars)">&#9733;</span>
+            <span *ngFor="let star of [].constructor(5 - report.stars)">&#9734;</span>
           </div>
-          <div class="details">
-            <p><strong>Dirección:</strong> {{ report.address }}</p>
-            <p><strong>Descripción:</strong> {{ report.description }}</p>
-            <p class="generated-time">Reporte generado {{ report.generatedTime }}</p>
-            <div class="category {{ report.categoryClass }}">{{ report.category }}</div>
-            <div class="stars">
-              <span *ngFor="let star of [].constructor(report.stars)">&#9733;</span>
-              <span *ngFor="let star of [].constructor(5 - report.stars)">&#9734;</span>
-            </div>
-            <button class="view-report">Visualizar</button>
-          </div>
-        </div>
-        <div class="report-image">
-          <img [src]="report.imageUrl" alt="{{ report.title }}" />
+          <button class="view-report">Visualizar</button>
         </div>
       </div>
-    </section>
-  
-    <aside>
-      <h4>Solo ver:</h4>
-      <div>
-        <input type="checkbox" id="mascotas" />
-        <label for="mascotas">Mascotas</label>
+      <div class="report-image">
+        <img [src]="report.imageUrl" alt="{{ report.title }}" />
       </div>
-      <div>
-        <input type="checkbox" id="seguridad" />
-        <label for="seguridad">Seguridad</label>
-      </div>
-      <div>
-        <input type="checkbox" id="comunidad" />
-        <label for="comunidad">Comunidad</label>
-      </div>
-      <div>
-        <input type="checkbox" id="emergencia-medica" />
-        <label for="emergencia-medica">Emergencia Médica</label>
-      </div>
-    </aside>
-  </div>
+    </div>
+  </section>
+
+  <aside>
+    <h4>Solo ver:</h4>
+    <div>
+      <input type="checkbox" id="mascotas" />
+      <label for="mascotas">Mascotas</label>
+    </div>
+    <div>
+      <input type="checkbox" id="seguridad" />
+      <label for="seguridad">Seguridad</label>
+    </div>
+    <div>
+      <input type="checkbox" id="comunidad" />
+      <label for="comunidad">Comunidad</label>
+    </div>
+    <div>
+      <input type="checkbox" id="emergencia-medica" />
+      <label for="emergencia-medica">Emergencia Médica</label>
+    </div>
+  </aside>
+</div>
+
 <app-footer></app-footer>

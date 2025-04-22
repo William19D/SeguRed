@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { NgIf, NgForOf } from '@angular/common'; // Asegúrate de importar NgForOf
 import { FormsModule } from '@angular/forms';
-import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
+import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';

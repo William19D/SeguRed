@@ -1,222 +1,358 @@
 .dashboard {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr 300px; /* Ajuste para el aside */
+  gap: 20px;
+  padding: 20px; /* Añade un poco de padding al contenedor principal */
+  font-family: 'Inter', sans-serif; /* Asumiendo que estás usando esta fuente */
+  background-color: #f7f8fa; /* Fondo similar al de la imagen */
+  min-height: 100vh; /* Para que ocupe al menos toda la altura de la pantalla */
+}
+
+header {
+  grid-column: 1 / -1; /* Ocupa todo el ancho */
+  display: flex; /* Para alinear el contenido y la imagen */
+  justify-content: space-between; /* Espacio entre texto e imagen */
+  align-items: center; /* Centra verticalmente el texto y la imagen */
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.header-content {
+  text-align: left;
+  flex-grow: 1; /* Permite que el contenido de texto ocupe más espacio */
+}
+
+header h1 {
+  font-size: 3rem; /* Aumenta el tamaño del texto principal */
+  font-weight: bold; /* Pone el texto principal en negrita */
+  color: #333;
+  margin-bottom: 10px;
+}
+
+header p {
+  font-size: 1rem;
+  color: #777;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+header button {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 1rem;
+  color: #000000;
+  background-color: #FBC02D;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+header button:hover {
+  background-color: rgb(210, 161, 0);
+}
+
+.header-image {
+  width: 250px; /* Aumenta el ancho de la imagen para hacerla más grande */
+  height: auto; /* Mantiene la proporción de la imagen */
+  margin-left: 30px; /* Aumenta el margen para separarla más del texto si es necesario */
+}
+
+.header-image img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor */
+}
+
+.reports-summary {
+  grid-column: 1 / -1; /* Ocupa todo el ancho */
+  display: flex;
+  justify-content: space-around; /* Espacio entre los elementos */
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.reports-summary h2 {
+  display: none; /* Oculta el título "Reportes en las últimas 24 horas" */
+}
+
+.reports-summary .summary {
+  display: flex;
+  gap: 30px;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.reports-summary .summary strong {
+  font-weight: bold;
+  color: #333;
+}
+
+.filters {
+  grid-column: 1 / -1; /* Ocupa todo el ancho */
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.filters input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.filters .sort-by {
+  display: flex;
+  align-items: center;
+}
+
+.filters .sort-by label {
+  margin-right: 10px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.filters .sort-by select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.reports {
+  grid-column: 1; /* Ocupa la primera columna */
+}
+
+.report-card {
+  display: flex;
+  gap: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  padding: 15px;
+  align-items: flex-start; /* Alinea los elementos verticalmente al inicio */
+}
+
+.report-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.report-header h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.report-header .distance {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.report-body {
+  display: flex;
+  flex-direction: column; /* Cambia la dirección a columna */
+  flex: 1;
+}
+
+.report-body .map {
+  width: 100px; /* Ancho fijo para la miniatura del mapa */
+  height: 75px; /* Altura fija para la miniatura del mapa */
+  border-radius: 4px;
+  overflow: hidden; /* Asegura que la imagen no se salga del contenedor */
+  margin-right: 15px; /* Espacio entre mapa y detalles */
+}
+
+.report-body .map img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cubre el contenedor sin deformar la imagen */
+}
+
+.report-body .details {
+  flex-grow: 1;
+}
+
+.report-body .details p {
+  margin: 3px 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.report-body .details strong {
+  font-weight: bold;
+  color: #333;
+}
+
+.report-body .details .generated-time {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.report-body .details .category {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  color: #fff;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.report-body .details .category.mascotas {
+  background-color: #4caf50;
+}
+
+.report-body .details .category.seguridad {
+  background-color: #f44336;
+}
+
+.report-body .details .stars {
+  margin-top: 5px;
+}
+
+.report-body .details .stars span {
+  color: #ffca28;
+  font-size: 1rem;
+}
+
+.report-body .details .view-report {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  color: #fff;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
+.report-body .details .view-report:hover {
+  background-color: #45a049;
+}
+
+.report-image {
+  width: 100px; /* Ancho fijo para la imagen */
+  height: 75px; /* Altura fija para la imagen */
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.report-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+aside {
+  grid-column: 2; /* Ocupa la segunda columna */
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 0; /* Elimina el margen superior */
+}
+
+aside h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+aside div {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+aside input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+aside label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Estilos para pantallas más pequeñas (responsive) */
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr; /* Una sola columna */
+    padding: 10px;
   }
-  
+
   header {
-    grid-column: span 2;
     text-align: center;
     padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
-  header h1 {
-    font-size: 36px;
-    margin: 10px 0;
-  }
-  
-  header p {
-    font-size: 18px;
-    color: #555;
-    margin: 10px 0 20px;
-  }
-  
-  header button {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #ffca28;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-  }
-  
-  header button:hover {
-    background-color: #ffc107;
-  }
-  
+
   .reports-summary {
-    grid-column: span 2;
-    text-align: center;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
   }
-  
-  .reports-summary h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  
-  .reports-summary .summary {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    font-size: 18px;
-  }
-  
+
   .filters {
-    grid-column: span 2;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .filters input[type="text"] {
-    width: 60%;
+    flex-direction: column;
+    gap: 10px;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
   }
-  
+
+  .filters input[type="text"] {
+    width: 100%;
+  }
+
   .filters .sort-by {
-    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .reports {
+    grid-column: 1;
+  }
+
+  .report-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-body {
+    flex-direction: row; /* Vuelve a fila para pantallas pequeñas */
     align-items: center;
   }
-  
-  .filters .sort-by label {
+
+  .report-body .map {
     margin-right: 10px;
   }
-  
-  .filters .sort-by select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .reports {
-    grid-column: span 2;
-  }
-  
-  .report-card {
-    display: flex;
-    flex-wrap: wrap;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 20px;
-  }
-  
-  .report-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .report-header h3 {
-    font-size: 24px;
-  }
-  
-  .report-header .distance {
-    font-size: 18px;
-    color: #888;
-  }
-  
-  .report-body {
-    display: flex;
-    flex: 1;
-  }
-  
-  .report-body .map {
-    flex: 1;
-  }
-  
-  .report-body .map img {
-    max-width: 100%;
-    border-radius: 4px;
-  }
-  
-  .report-body .details {
-    flex: 2;
-    padding-left: 20px;
-  }
-  
-  .report-body .details p {
-    margin: 5px 0;
-  }
-  
-  .report-body .details .generated-time {
-    color: #888;
-    font-size: 14px;
-  }
-  
-  .report-body .details .category {
-    display: inline-block;
-    padding: 4px 8px;
-    font-size: 14px;
-    color: #fff;
-    border-radius: 4px;
-    margin-top: 10px;
-  }
-  
-  .report-body .details .category.mascotas {
-    background-color: #4caf50;
-  }
-  
-  .report-body .details .category.seguridad {
-    background-color: #f44336;
-  }
-  
-  .report-body .details .stars {
-    margin-top: 10px;
-  }
-  
-  .report-body .details .stars span {
-    color: #ffca28;
-    font-size: 20px;
-  }
-  
-  .report-body .details .view-report {
-    display: inline-block;
-    padding: 8px 16px;
-    font-size: 14px;
-    color: #fff;
-    background-color: #4caf50;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    margin-top: 10px;
-  }
-  
-  .report-body .details .view-report:hover {
-    background-color: #45a049;
-  }
-  
+
   .report-image {
-    flex: 1;
-    text-align: center;
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
   }
-  
-  .report-image img {
-    max-width: 100%;
-    border-radius: 4px;
-  }
-  
+
   aside {
-    grid-column: span 2;
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    grid-column: 1;
     margin-top: 20px;
   }
-  
-  aside h4 {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  
-  aside div {
-    margin-bottom: 10px;
-  }
-  
-  aside label {
-    margin-left: 5px;
-  }
+}
