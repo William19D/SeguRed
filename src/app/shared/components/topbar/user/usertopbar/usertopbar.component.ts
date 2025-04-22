@@ -19,14 +19,15 @@ export class UsertopbarComponent {
     role: 'Usuario' // Rol del usuario
   };
 
-  constructor(private router: Router) {
+  constructor(private router: Router) { }
 
+  goToDashboard() {
+    console.log('Navegando al Dashboard...');
+    this.router.navigate(['/dashboard']); // Utiliza el Router para navegar a la ruta '/dashboard'
   }
-
-  // Método para navegar a la página de inicio
-  goToHome() {
-    console.log('Navegando a la página de inicio...');
-    this.router.navigate(['/']); // Utiliza el Router para navegar a la ruta '/' (home)
+  goToProfile() {
+    console.log('Navegando al perfil...');
+    this.router.navigate(['/profile']); // Utiliza el Router para navegar a la ruta '/profile'
   }
 
   // Método para abrir las notificaciones
@@ -47,7 +48,7 @@ export class UsertopbarComponent {
     // 1. Limpiar cualquier dato de autenticación almacenado (tokens, información de usuario, etc.)
     localStorage.removeItem('authToken'); // Ejemplo: Eliminar un token del localStorage
     sessionStorage.clear(); // Ejemplo: Limpiar todos los datos de la sessionStorage
-    // 2. Redirigir al usuario a la página de inicio
-    this.router.navigate(['/']);
+    // 2. Redirigir al usuario al Dashboard después de cerrar sesión
+    this.router.navigate(['/dashboard']);
   }
 }

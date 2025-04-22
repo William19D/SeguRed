@@ -1,25 +1,20 @@
 <nav class="topbar" [ngClass]="{ 'hidden': isNavbarHidden }">
   <div class="container">
-    <!-- Logo con enlace a la Home -->
-    <a class="navbar-brand" (click)="goToHome()">
+    <a class="navbar-brand" (click)="goToDashboard()">
       <img src="Logo.svg" alt="SeguRed" class="logo" />
     </a>
 
-    <!-- Menú de navegación -->
     <ul class="nav-menu">
-      <li><a routerLink="/">Inicio</a></li>
+      <li><a routerLink="/" (click)="goToDashboard()">Inicio</a></li>
       <li><a routerLink="/mis-reportes">Mis Reportes</a></li>
       <li><a routerLink="/crear-reporte">Crear Reporte</a></li>
     </ul>
 
-    <!-- Área de usuario y notificaciones -->
     <div class="user-section">
-      <!-- Campana de notificaciones -->
       <button class="notification-bell" (click)="openNotifications()">
         <img src="bell.svg" alt="Notificaciones" />
       </button>
 
-      <!-- Información del usuario -->
       <div class="user-info" (click)="toggleUserMenu()">
         <img
           [src]="user?.profilePicture || 'default-profile.png'"
@@ -31,9 +26,8 @@
         <span class="dropdown-arrow">▼</span>
       </div>
 
-      <!-- Menú desplegable de usuario -->
-      <div class="user-dropdown" *ngIf="isUserMenuOpen">
-        <a routerLink="/perfil">Mi Perfil</a>
+      <div class="user-dropdown" [ngClass]="{ 'open': isUserMenuOpen }">
+        <a (click)="goToProfile()">Mi Perfil</a>
         <a (click)="logout()">Cerrar Sesión</a>
       </div>
     </div>

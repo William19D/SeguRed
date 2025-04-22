@@ -7,6 +7,7 @@ import { VerificationCodeComponent } from './pages/verification-code/verificatio
 import { TestMapComponent } from './pages/test-map/test-map.component';
 import { VerificationCompleteComponent } from './pages/verification-complete/verification-complete.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 export const routes: Routes = [
   { path: 'home', component: LandingComponent },
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'recover-password', component: RecoverPasswordComponent},
   { path: 'mapbox', component: TestMapComponent},
   { path: 'verification-complete', component: VerificationCompleteComponent},
+  { path: 'profile', component: ProfileComponent}, // Ruta para el perfil de usuario
   {path: 'dashboard', component: DashboardComponent}, // Ruta para el dashboard
   { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirección a la landing por defecto
 

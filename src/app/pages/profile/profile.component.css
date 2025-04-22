@@ -1,0 +1,125 @@
+/* profile.component.css */
+.user-profile-container {
+    font-family: sans-serif;
+    background-color: #f9f9f9;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 20px auto;
+  }
+  
+  .header {
+    margin-bottom: 30px;
+  }
+  
+  .header h1 {
+    color: #333;
+    font-size: 2.5em;
+    margin: 0;
+  }
+  
+  /* Estilos específicos para el título "Mi Perfil." */
+  .header h1 strong { /* Para la palabra "Mi" en negrita */
+    font-weight: bold;
+  }
+  
+  .header h1 span { /* Para la palabra "Perfil." en verde */
+    color: green;
+    font-weight: bold;
+
+  }
+  
+  .profile-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 20px;
+    border: 2px solid #ddd;
+  }
+  
+  .profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .user-details h2 {
+    color: #333;
+    margin-bottom: 5px;
+    font-size: 1.8em;
+    font-weight: bold; /* Nombre del usuario en negrita */
+  }
+  
+  .user-details .email {
+    color: #777;
+    font-size: 1em;
+  }
+  
+  .data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .data-item {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .data-item label {
+    display: block;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .data-item .value {
+    color: #333;
+    font-size: 1.1em;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+  }
+  
+  .delete-button,
+  .edit-button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+  }
+  
+  .delete-button {
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+  }
+  
+  .delete-button:hover {
+    background-color: #d32f2f;
+  }
+  
+  .edit-button {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+  }
+  
+  .edit-button:hover {
+    background-color: #45a049;
+  }
