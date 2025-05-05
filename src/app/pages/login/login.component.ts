@@ -7,6 +7,7 @@ import { NgxCaptchaModule } from 'ngx-captcha';
 
 import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { AuthService } from '../../core/services/authentication.service';
 
 @Component({
   selector: 'app-login',
@@ -19,9 +20,15 @@ export class LoginComponent {
   
   user = { email: '', password: '', rememberMe: false };
   recaptchaToken: string | null = null;
-  siteKey: string = "6LeoMP0qAAAAAKSJjU9ruPHmHCCVJK_LX1Svmhg8"; // 🔑 Clave de sitio
+  siteKey: string = "6LeoMP0qAAAAAKSJjU9ruPHmHCCVJK_LX1Svmhg8";
+  loading = false;
+  errorMessage = '';
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(
+    private router: Router, 
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   onCaptchaResolved(token: string) {
     this.recaptchaToken = token;
@@ -29,37 +36,61 @@ export class LoginComponent {
   }
 
   onLogin() {
+    this.errorMessage = '';
+    this.loading = true;
+    
     if (!this.recaptchaToken) {
-      alert("Por favor, completa el reCAPTCHA");
+      this.errorMessage = "Por favor, completa el reCAPTCHA";
+      this.loading = false;
       return;
     }
 
-    this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', { token: this.recaptchaToken })
-      .subscribe((res: any) => {
+    // Verificar CAPTCHA
+    this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
+      { token: this.recaptchaToken }
+    ).subscribe({
+      next: (res: any) => {
         if (res.success) {
-          console.log('Captcha validado correctamente');
+          // CAPTCHA validado, proceder con autenticación
           this.http.post('https://seguredapi-919088633053.us-central1.run.app/auth/login', {
             correo: this.user.email,
             contraseña: this.user.password
-          }).subscribe((loginRes: any) => {
-            alert('Inicio de sesión exitoso');
-            this.router.navigate(['/dashboard']);
-          }, err => {
-            alert('Correo o contraseña incorrectos');
+          }).subscribe({
+            next: (loginRes: any) => {
+              // Guardar token y datos de usuario
+              this.authService.setAuthToken(loginRes.token);
+              this.authService.setCurrentUser(loginRes.usuario);
+              
+              // Establecer tiempo de expiración si es necesario
+              if (this.user.rememberMe) {
+                this.authService.setRememberMe(true);
+              }
+              
+              console.log('Inicio de sesión exitoso');
+              this.router.navigate(['/dashboard']);
+            },
+            error: (err) => {
+              this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
+              this.loading = false;
+            }
           });
         } else {
-          alert('Verificación de reCAPTCHA fallida');
+          this.errorMessage = 'Verificación de reCAPTCHA fallida';
+          this.loading = false;
         }
-      }, err => {
-        alert('Error en la verificación del reCAPTCHA');
-      });
+      },
+      error: (err) => {
+        this.errorMessage = 'Error en la verificación del reCAPTCHA';
+        this.loading = false;
+      }
+    });
   }
 
   goToRegister() {
-    this.router.navigate(['/register']); // Redirige a la página de registro
+    this.router.navigate(['/register']);
   }
 
   goToRecoverPassword() {
-    this.router.navigate(['/recover-password']); // Redirige a la recuperación de contraseña
+    this.router.navigate(['/recover-password']);
   }
 }

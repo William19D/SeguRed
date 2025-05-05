@@ -1,18 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/authentication.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
-import { UsertopbarComponent } from '../../shared/components/topbar/user/usertopbar/usertopbar.component'; // Importa la topbar
+import { UsertopbarComponent } from '../../shared/components/topbar/user/usertopbar/usertopbar.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  imports: [FooterComponent, UsertopbarComponent], // Agrega la topbar a imports
+  imports: [FooterComponent, UsertopbarComponent, CommonModule],
   standalone: true,
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  user: any;
+  user: any = null;
+  loading = true;
+  error = false;
 
   reports = [
     {
@@ -44,11 +47,39 @@ export class DashboardComponent implements OnInit {
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
-    // Simula obtener un usuario desde el servicio de autenticación
-    this.user = {
-      name: 'Daniel' // Puedes descomentar la línea de abajo para usar datos reales
-      // this.authService.getUser();
-    };
+    // Verificar si el usuario está autenticado
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Obtener datos del usuario desde el servicio de autenticación
+    this.user = this.authService.getCurrentUser();
+    
+    // Si hay un usuario pero necesitamos datos más actualizados, los pedimos al backend
+    if (this.user) {
+      this.loading = false;
+    } else {
+      // Intentar obtener información actualizada del usuario usando el token
+      this.authService.getUserInfo().subscribe({
+        next: (userInfo) => {
+          this.user = userInfo;
+          this.loading = false;
+          this.authService.setCurrentUser(userInfo); // Actualizar el usuario en el servicio
+        },
+        error: (err) => {
+          console.error('Error al obtener información del usuario:', err);
+          this.error = true;
+          this.loading = false;
+          
+          // Si hay un error de autenticación, redirigir al login
+          if (err.status === 401) {
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          }
+        }
+      });
+    }
   }
 
   makeReport() {
