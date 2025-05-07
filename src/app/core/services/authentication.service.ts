@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
@@ -51,18 +51,23 @@ export class AuthService {
       contraseña: password
     }).pipe(
       tap(response => {
+        console.log('Login response received:', response);
         if (response && response.token) {
           this.setAuthToken(response.token);
-          if (response.usuario) {
-            this.setCurrentUser(response.usuario);
-            
-            // Después de iniciar sesión, obtener información completa del usuario
-            this.getUserInfo().subscribe({
-              next: (userData) => console.log('Información de usuario actualizada después del login'),
-              error: (err) => console.error('Error al obtener información del usuario tras login', err)
-            });
-          }
+          // Inmediatamente después de recibir el token, obtener los datos del usuario
+          this.getUserInfo().subscribe({
+            next: (userData) => {
+              console.log('User data fetched successfully after login');
+            },
+            error: (err) => {
+              console.error('Failed to fetch user data after login:', err);
+            }
+          });
         }
+      }),
+      catchError(error => {
+        console.error('Login error:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -80,13 +85,24 @@ export class AuthService {
 
   // Guardar datos del usuario
   setCurrentUser(user: any): void {
-    localStorage.setItem(this.userKey, JSON.stringify(user));
+    if (user) {
+      localStorage.setItem(this.userKey, JSON.stringify(user));
+    }
   }
 
   // Obtener datos del usuario
   getCurrentUser(): any {
-    const userData = localStorage.getItem(this.userKey);
-    return userData ? JSON.parse(userData) : null;
+    try {
+      const userData = localStorage.getItem(this.userKey);
+      if (!userData || userData === "undefined" || userData === "null") {
+        return null;
+      }
+      return JSON.parse(userData);
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      localStorage.removeItem(this.userKey); // Clear invalid data
+      return null;
+    }
   }
 
   // Establecer "recordar sesión"
@@ -106,20 +122,27 @@ export class AuthService {
       return throwError(() => new Error('No hay token disponible'));
     }
 
+    // Asegurar que el token tenga el prefijo "Bearer"
+    const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+      'Authorization': bearerToken
     });
 
-    // ACTUALIZADO: Usar el nuevo endpoint /auth/usuario-datos con método POST
+    console.log('Fetching user data with token...');
+    
     return this.http.post(`${this.apiUrl}/usuario-datos`, {}, { headers }).pipe(
       tap((user: any) => {
-        // Almacenar la información del usuario en localStorage
-        this.setCurrentUser(user);
+        console.log('User info received:', user);
+        if (user) {
+          this.setCurrentUser(user);
+        }
       }),
       catchError(error => {
         console.error('Error al obtener información del usuario:', error);
+        // Limpiar datos inválidos si existen
+        localStorage.removeItem(this.userKey);
         if (error.status === 401) {
-          // Si hay un error de autenticación, cerrar sesión
+          console.log('Token inválido o expirado, cerrando sesión');
           this.logout();
         }
         return throwError(() => error);
@@ -157,8 +180,12 @@ export class AuthService {
   // Interceptor para agregar el token a todas las solicitudes
   getAuthHeaders(): HttpHeaders {
     const token = this.getAuthToken();
+    if (!token) {
+      return new HttpHeaders();
+    }
+    const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
     return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+      'Authorization': bearerToken
     });
   }
 
@@ -186,7 +213,9 @@ export class AuthService {
       tap((updatedUser: any) => {
         // Actualizar los datos del usuario en el almacenamiento local
         const currentUser = this.getCurrentUser();
-        this.setCurrentUser({ ...currentUser, ...updatedUser });
+        if (currentUser && updatedUser) {
+          this.setCurrentUser({ ...currentUser, ...updatedUser });
+        }
       }),
       catchError(error => {
         console.error('Error al actualizar perfil:', error);
