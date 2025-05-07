@@ -110,8 +110,8 @@ export class AuthService {
       'Authorization': `Bearer ${token}`
     });
 
-    // Usar el nuevo endpoint de userinfo en el controlador de autenticación
-    return this.http.get(`${this.apiUrl}/userinfo`, { headers }).pipe(
+    // ACTUALIZADO: Usar el nuevo endpoint /auth/usuario-datos con método POST
+    return this.http.post(`${this.apiUrl}/usuario-datos`, {}, { headers }).pipe(
       tap((user: any) => {
         // Almacenar la información del usuario en localStorage
         this.setCurrentUser(user);
