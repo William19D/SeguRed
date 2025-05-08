@@ -13,77 +13,160 @@
     <!-- Formulario de registro con fondo blanco -->
     <div class="register-content">
         <div class="register-form">
-            <form (ngSubmit)="onRegister()">
+            <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+                <!-- Nombre Completo -->
                 <div class="form-group">
                     <label for="name">Nombre Completo</label>
-                    <input type="text" id="name" [(ngModel)]="user.name" name="name" placeholder="Ingresa tu nombre completo" required>
+                    <input type="text" id="name" formControlName="name" placeholder="Ingresa tu nombre completo"
+                        [class.is-invalid]="submitted && f['name'].errors">
+                    <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+                        <div *ngIf="f['name'].errors['required']">El nombre es obligatorio</div>
+                        <div *ngIf="f['name'].errors['pattern']">Solo se permiten letras y espacios</div>
+                        <div *ngIf="f['name'].errors['minlength']">El nombre debe tener al menos 3 caracteres</div>
+                    </div>
                 </div>
+
+                <!-- Correo Electrónico -->
                 <div class="form-group">
                     <label for="email">Correo Electrónico</label>
-                    <input type="email" id="email" [(ngModel)]="user.email" name="email" placeholder="Ingresa tu correo electrónico" required>
+                    <input type="email" id="email" formControlName="email" placeholder="Ingresa tu correo electrónico"
+                        [class.is-invalid]="submitted && f['email'].errors">
+                    <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+                        <div *ngIf="f['email'].errors['required']">El correo es obligatorio</div>
+                        <div *ngIf="f['email'].errors['email'] || f['email'].errors['pattern']">Formato de correo inválido</div>
+                    </div>
                 </div>
+
+                <!-- Teléfono -->
                 <div class="form-group">
                     <label for="phone">Teléfono</label>
-                    <input type="tel" id="phone" [(ngModel)]="user.phone" name="phone" placeholder="Ingresa tu número de contacto" required>
+                    <input type="tel" id="phone" formControlName="phone" placeholder="Ingresa tu número de contacto (10 dígitos)"
+                        [class.is-invalid]="submitted && f['phone'].errors">
+                    <div *ngIf="submitted && f['phone'].errors" class="invalid-feedback">
+                        <div *ngIf="f['phone'].errors['required']">El teléfono es obligatorio</div>
+                        <div *ngIf="f['phone'].errors['pattern']">Debe contener 10 dígitos numéricos</div>
+                        <div *ngIf="f['phone'].errors['invalidPhone']">Formato de teléfono colombiano inválido</div>
+                    </div>
                 </div>
+
+                <!-- Dirección -->
                 <div class="form-group">
                     <label for="address">Dirección</label>
                     <div class="address-container">
-                        <input type="checkbox" id="useLocation" [(ngModel)]="user.useLocation" name="useLocation" (change)="onUseLocationChange()">
+                        <input type="checkbox" id="useLocation" formControlName="useLocation" (change)="onUseLocationChange()">
                         <label for="useLocation">Usar mi ubicación actual</label>
                     </div>
-                    <input type="text" id="address" [(ngModel)]="user.address" name="address" placeholder="Ejemplo: Calle 123 # 45-67" required>
+                    <input type="text" id="address" formControlName="address" placeholder="Ejemplo: Calle 123 # 45-67"
+                        [class.is-invalid]="submitted && f['address'].errors">
+                    <div *ngIf="submitted && f['address'].errors" class="invalid-feedback">
+                        <div *ngIf="f['address'].errors['required']">La dirección es obligatoria</div>
+                        <div *ngIf="f['address'].errors['minlength']">La dirección es demasiado corta</div>
+                    </div>
                 </div>
+
                 <!-- Contenedor para el mapa -->
                 <div class="form-group map-group">
                     <div id="map" class="map-container"></div>
                 </div>
+
                 <!-- Contenedor para ciudad y departamento -->
                 <div class="form-group grid-container">
                     <div class="grid-item">
                         <label for="department">Departamento</label>
-                        <input type="text" id="department" [(ngModel)]="user.department" name="department" disabled style="color: grey;" required>
+                        <input type="text" id="department" formControlName="department" style="color: grey;">
                     </div>
                     <div class="grid-item">
                         <label for="city">Ciudad de Residencia</label>
-                        <select id="city" [(ngModel)]="user.city" name="city" required>
+                        <select id="city" formControlName="city" [class.is-invalid]="submitted && f['city'].errors">
+                            <option value="" disabled selected>Selecciona tu ciudad</option>
                             <option *ngFor="let city of cities" [value]="city.name">{{ city.name }}</option>
                         </select>
+                        <div *ngIf="submitted && f['city'].errors" class="invalid-feedback">
+                            <div *ngIf="f['city'].errors['required']">La ciudad es obligatoria</div>
+                        </div>
                     </div>
                 </div>
+
                 <!-- Contenedor para No. de Documento y Fecha de Nacimiento -->
                 <div class="form-group grid-container">
                     <div class="grid-item">
                         <label for="documentType">No. de Documento</label>
                         <div class="document-input">
-                            <select id="documentType" [(ngModel)]="user.documentType" name="documentType">
+                            <select id="documentType" formControlName="documentType">
                                 <option value="CC">CC</option>
                                 <option value="TI">TI</option>
                                 <option value="CE">CE</option>
                             </select>
-                            <input type="text" id="documentNumber" [(ngModel)]="user.documentNumber" name="documentNumber" placeholder="Ingresa tu número de documento" required>
+                            <input type="text" id="documentNumber" formControlName="documentNumber" 
+                                placeholder="Ingresa tu número de documento"
+                                [class.is-invalid]="submitted && f['documentNumber'].errors">
+                        </div>
+                        <div *ngIf="submitted && f['documentNumber'].errors" class="invalid-feedback">
+                            <div *ngIf="f['documentNumber'].errors['required']">El documento es obligatorio</div>
+                            <div *ngIf="f['documentNumber'].errors['onlyNumbers']">Solo se permiten números</div>
+                            <div *ngIf="f['documentNumber'].errors['invalidCCLength']">La cédula debe tener entre 8 y 10 dígitos</div>
+                            <div *ngIf="f['documentNumber'].errors['invalidTILength']">La tarjeta de identidad debe tener entre 10 y 11 dígitos</div>
+                            <div *ngIf="f['documentNumber'].errors['invalidCELength']">La cédula de extranjería debe tener entre 7 y 12 dígitos</div>
                         </div>
                     </div>
                     <div class="grid-item">
                         <label for="birthdate">Fecha de Nacimiento</label>
-                        <input type="date" id="birthdate" [(ngModel)]="user.birthdate" name="birthdate" [max]="minBirthdate" required>
+                        <input type="date" id="birthdate" formControlName="birthdate" 
+                            [max]="minBirthdate" [class.is-invalid]="submitted && f['birthdate'].errors">
+                        <div *ngIf="submitted && f['birthdate'].errors" class="invalid-feedback">
+                            <div *ngIf="f['birthdate'].errors['required']">La fecha de nacimiento es obligatoria</div>
+                            <div *ngIf="f['birthdate'].errors['minAge']">Debes tener al menos 14 años</div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Contraseña -->
                 <div class="form-group">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" [(ngModel)]="user.password" name="password" placeholder="Ingresa tu contraseña" required>
+                    <input type="password" id="password" formControlName="password" placeholder="Ingresa tu contraseña"
+                        [class.is-invalid]="submitted && f['password'].errors">
+                    <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+                        <div *ngIf="f['password'].errors['required']">La contraseña es obligatoria</div>
+                        <div *ngIf="f['password'].errors['minlength']">La contraseña debe tener al menos 8 caracteres</div>
+                        <div *ngIf="f['password'].errors['weakPassword']">
+                            La contraseña debe contener:
+                            <ul>
+                                <li [class.text-success]="f['password'].value && f['password'].errors['weakPassword']['hasUpperCase']">
+                                    Al menos una letra mayúscula
+                                </li>
+                                <li [class.text-success]="f['password'].value && f['password'].errors['weakPassword']['hasLowerCase']">
+                                    Al menos una letra minúscula
+                                </li>
+                                <li [class.text-success]="f['password'].value && f['password'].errors['weakPassword']['hasNumbers']">
+                                    Al menos un número
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Confirmar Contraseña -->
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Contraseña</label>
+                    <input type="password" id="confirmPassword" formControlName="confirmPassword" 
+                        placeholder="Confirma tu contraseña"
+                        [class.is-invalid]="submitted && (f['confirmPassword'].errors || registerForm.hasError('passwordMismatch'))">
+                    <div *ngIf="submitted && (f['confirmPassword'].errors || registerForm.hasError('passwordMismatch'))" class="invalid-feedback">
+                        <div *ngIf="f['confirmPassword'].errors?.['required']">La confirmación de contraseña es obligatoria</div>
+                        <div *ngIf="registerForm.hasError('passwordMismatch')">Las contraseñas no coinciden</div>
+                    </div>
+                </div>
+
                 <!-- reCAPTCHA -->
                 <div class="form-group recaptcha-container">
                     <!-- <re-captcha (resolved)="handleCaptcha($event)"></re-captcha> -->
                 </div>
-                <!-- Spinner -->
-                <div *ngIf="isLoading" class="loading-overlay">
-                    <div class="spinner"></div>
-                    <p>Enviando correo de verificación...</p>
-                </div>
+
                 <div class="form-group">
-                    <button type="submit" class="btn">Registrarse</button>
+                    <button type="submit" class="btn" [disabled]="isLoading">
+                        <span *ngIf="!isLoading">Registrarse</span>
+                        <span *ngIf="isLoading">Procesando...</span>
+                    </button>
                 </div>
             </form>
             <p class="subtitle">
@@ -96,7 +179,13 @@
 
 <app-footer></app-footer>
 
-<!-- Pantalla de carga -->
+<!-- Pantalla de carga con animación fluida -->
 <div *ngIf="isLoading" class="loading-overlay">
-    <div class="spinner"></div>
+    <div class="loading-container">
+        <div class="logo-container">
+            <img src="assets/logo.svg" alt="Logo" class="animated-logo">
+            <div class="liquid-animation"></div>
+        </div>
+        <p class="loading-text">Enviando correo de verificación...</p>
+    </div>
 </div>
