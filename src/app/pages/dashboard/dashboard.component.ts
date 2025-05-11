@@ -3,12 +3,11 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/authentication.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
-import { UsertopbarComponent } from '../../shared/components/topbar/user/usertopbar/usertopbar.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  imports: [FooterComponent, UsertopbarComponent, CommonModule],
+  imports: [FooterComponent, CommonModule], // Elimina UsertopbarComponent
   standalone: true,
   styleUrls: ['./dashboard.component.css']
 })

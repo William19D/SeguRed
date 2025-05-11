@@ -8,17 +8,24 @@ import { TestMapComponent } from './pages/test-map/test-map.component';
 import { VerificationCompleteComponent } from './pages/verification-complete/verification-complete.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { MainLayoutComponent } from './layouts/main-layout/main-layout.component'; // Importa el MainLayoutComponent
 
 export const routes: Routes = [
   { path: 'home', component: LandingComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'verification-code/:email', component: VerificationCodeComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'recover-password', component: RecoverPasswordComponent},
-  { path: 'mapbox', component: TestMapComponent},
-  { path: 'verification-complete', component: VerificationCompleteComponent},
-  { path: 'profile', component: ProfileComponent}, // Ruta para el perfil de usuario
-  {path: 'dashboard', component: DashboardComponent}, // Ruta para el dashboard
-  { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirección a la landing por defecto
-
+  { path: 'recover-password', component: RecoverPasswordComponent },
+  { path: 'mapbox', component: TestMapComponent },
+  { path: 'verification-complete', component: VerificationCompleteComponent },
+  {
+    path: '', // Rutas que comparten el MainLayoutComponent
+    component: MainLayoutComponent,
+    children: [
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'profile', component: ProfileComponent }
+    ]
+  },
+  { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirección por defecto
+  { path: '**', redirectTo: '/home' } // Redirección para rutas no encontradas
 ];
