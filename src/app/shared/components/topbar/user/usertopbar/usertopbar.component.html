@@ -17,12 +17,12 @@
 
       <div class="user-info" (click)="toggleUserMenu()">
         <img
-          [src]="user?.profilePicture || 'default-profile.png'"
+          [src]="user.profilePicture"
           alt="Foto de perfil"
           class="profile-picture"
         />
-        <span class="user-name">{{ user?.name || 'Usuario' }}</span>
-        <span class="user-role">Usuario</span>
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-role">{{ user.role }}</span>
         <span class="dropdown-arrow">▼</span>
       </div>
 
