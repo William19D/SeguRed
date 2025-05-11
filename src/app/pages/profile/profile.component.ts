@@ -6,18 +6,6 @@ import { AuthService } from '../../core/services/authentication.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
-interface UserProfile {
-  name?: string;
-  email?: string;
-  fullName?: string;
-  phone?: string;
-  city?: string;
-  address?: string;
-  documentNumber?: string;
-  birthDate?: string;
-  profilePicture?: string;
-}
-
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -26,15 +14,25 @@ interface UserProfile {
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
-  userProfile: UserProfile = {};
   isLoading: boolean = true;
   error: string | null = null;
-  showDeleteConfirmation: boolean = false;
+
+  user = {
+    name: 'Usuario',
+    profilePicture: 'assets/default-profile.png', // Imagen por defecto
+    fullName: '',
+    email: '',
+    phone: '',
+    city: '',
+    address: '',
+    documentNumber: '',
+    birthDate: ''
+  };
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // Verificar si el usuario está autenticado
@@ -43,13 +41,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    // Intentar cargar los datos del usuario si ya están en almacenamiento
-    const cachedUser = this.authService.getCurrentUser();
-    if (cachedUser) {
-      this.mapUserDataToProfile(cachedUser);
-    }
-
-    // Independientemente de si tenemos datos en caché o no, obtenemos datos actualizados
+    // Intentar cargar los datos del usuario
     this.loadUserProfile();
   }
 
@@ -59,7 +51,7 @@ export class ProfileComponent implements OnInit {
 
     this.authService.getUserInfo().subscribe({
       next: (userData) => {
-        this.mapUserDataToProfile(userData);
+        this.mapUserData(userData); // Mapear los datos del usuario
         this.isLoading = false;
       },
       error: (error: HttpErrorResponse) => {
@@ -69,18 +61,17 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  mapUserDataToProfile(userData: any): void {
-    // Mapear los datos del backend a nuestro formato de perfil
-    this.userProfile = {
-      name: userData.nombreCom?.split(' ')[0] || 'Usuario',
-      email: userData.email || userData.correo,
-      fullName: userData.nombreCom || userData.fullName,
-      phone: userData.telefono || userData.phone,
-      city: userData.ciudadResidencia || userData.city,
-      address: userData.direccion || userData.address,
-      documentNumber: userData.documento || userData.documentNumber,
-      birthDate: userData.fechaNacimiento || userData.birthDate,
-      profilePicture: userData.profilePicture || 'assets/default-profile.png'
+  mapUserData(userData: any): void {
+    this.user = {
+      name: userData.nombreCom?.split(' ')[0] || 'Usuario', // Primer nombre
+      profilePicture: userData.profilePicture || 'default-profile.png', // Imagen de perfil o por defecto
+      fullName: userData.nombreCom || '',
+      email: userData.email || userData.correo || '',
+      phone: userData.telefono || '',
+      city: userData.ciudadResidencia || '',
+      address: userData.direccion || '',
+      documentNumber: userData.documento || '',
+      birthDate: this.formatDate(userData.fechaNacimiento)
     };
   }
 
@@ -100,39 +91,13 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/edit-profile']);
   }
 
-  confirmarEliminacion(): void {
-    this.showDeleteConfirmation = true;
-  }
-
-  cancelarEliminacion(): void {
-    this.showDeleteConfirmation = false;
-  }
-
   eliminarCuenta(): void {
-    this.isLoading = true;
-    this.error = null;
-
-    // Llamada al servicio para eliminar la cuenta
-    this.authService.deleteAccount().subscribe({
-      next: () => {
-        alert('Tu cuenta ha sido eliminada correctamente.');
-        this.authService.logout(); // Esto redirigirá al login
-      },
-      error: (error) => {
-        this.error = 'No se pudo eliminar la cuenta. Por favor, intenta nuevamente.';
-        this.isLoading = false;
-        console.error('Error al eliminar cuenta:', error);
-      }
-    });
+    // Implementar lógica para eliminar cuenta
+    console.log('Eliminando cuenta...');
   }
 
-  // Método para formatear la fecha si viene en formato diferente
   formatDate(dateString: string | undefined): string {
     if (!dateString) return '';
-    
-    // Si la fecha ya está en formato DD/MM/YYYY la devolvemos igual
-    if (dateString.includes('/')) return dateString;
-    
     try {
       const date = new Date(dateString);
       return `${date.getDate().toString().padStart(2, '0')}/${

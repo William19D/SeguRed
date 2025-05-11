@@ -6,43 +6,40 @@
 
   <div class="profile-info">
     <div class="profile-image">
-      <img [src]="userProfile.profilePicture" alt="{{ userProfile.name }}">
+      <img [src]="user.profilePicture" alt="Foto de perfil">
     </div>
     <div class="user-details">
-      <h2>{{ userProfile.name }}</h2>
-      <p class="email">{{ userProfile.email }}</p>
+      <h2>{{ user.fullName || 'Usuario' }}</h2>
+      <p class="email">{{ user.email || 'Correo no disponible' }}</p>
     </div>
   </div>
 
   <div class="data-grid">
     <div class="data-item">
-      <label>Nombre Completo</label>
-      <div class="value">{{ userProfile.fullName }}</div>
-    </div>
-    <div class="data-item">
       <label>Teléfono</label>
-      <div class="value">{{ userProfile.phone }}</div>
+      <div class="value">{{ user.phone || 'No disponible' }}</div>
     </div>
     <div class="data-item">
       <label>Ciudad</label>
-      <div class="value">{{ userProfile.city }}</div>
+      <div class="value">{{ user.city || 'No disponible' }}</div>
     </div>
     <div class="data-item">
       <label>Dirección</label>
-      <div class="value">{{ userProfile.address }}</div>
+      <div class="value">{{ user.address || 'No disponible' }}</div>
     </div>
     <div class="data-item">
       <label>Número de Documento</label>
-      <div class="value">{{ userProfile.documentNumber }}</div>
+      <div class="value">{{ user.documentNumber || 'No disponible' }}</div>
     </div>
     <div class="data-item">
       <label>Fecha de Nacimiento</label>
-      <div class="value">{{ userProfile.birthDate }}</div>
+      <div class="value">{{ user.birthDate || 'No disponible' }}</div>
     </div>
   </div>
 
   <div class="actions">
-    <button class="delete-button" (click)="eliminarCuenta()">Eliminar Cuenta</button>
     <button class="edit-button" (click)="editarPerfil()">Editar</button>
+    <button class="delete-button" (click)="eliminarCuenta()">Eliminar Cuenta</button>
   </div>
 </div>
+<app-footer></app-footer>

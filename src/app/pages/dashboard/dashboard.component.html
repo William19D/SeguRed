@@ -1,9 +1,8 @@
-<app-usertopbar></app-usertopbar>
-<div class="dashboard">
+<app-usertopbar></app-usertopbar> <div class="dashboard">
   <header>
     <div class="header-content">
-      <!-- Actualización: Mostrar el nombre del usuario -->
-      <h1>Hola {{ user?.name || 'Usuario' }}, bienvenido a SeguRed</h1>      <p>Explora reportes en tu comunidad, crea nuevos anuncios y mantente informado sobre lo que sucede a tu alrededor.</p>
+      <h1>Bienvenido {{ user?.nombreCom || 'Usuario' }} a SeguRed</h1>
+      <p>Explora reportes en tu comunidad, crea nuevos anuncios y mantente informado sobre lo que sucede a tu alrededor.</p>
       <button (click)="makeReport()">Hacer un Reporte</button>
     </div>
     <div class="header-image">
