@@ -179,13 +179,5 @@
 
 <app-footer></app-footer>
 
-<!-- Pantalla de carga con animación fluida -->
-<div *ngIf="isLoading" class="loading-overlay">
-    <div class="loading-container">
-        <div class="logo-container">
-            <img src="Logo.svg" alt="Logo" class="animated-logo">
-            <div class="liquid-animation"></div>
-        </div>
-        <p class="loading-text">Enviando correo de verificación...</p>
-    </div>
-</div>
+<!-- Reemplazado por el componente compartido -->
+<app-loadingscreen *ngIf="isLoading" message="Enviando correo de verificación..."></app-loadingscreen>

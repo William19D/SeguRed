@@ -75,13 +75,6 @@
 </div>
 
 <app-footer></app-footer>
-<!-- Pantalla de carga con animación fluida -->
-<div *ngIf="loading" class="loading-overlay">
-    <div class="loading-container">
-        <div class="logo-animation">
-            <img src="Logo.svg" alt="Logo" class="logo">
-            <div class="liquid-wave"></div>
-        </div>
-        <p class="loading-text">Iniciando sesión...</p>
-    </div>
-</div>
+
+<!-- Use the shared loading screen component -->
+<app-loadingscreen *ngIf="loading" message="Iniciando sesión..."></app-loadingscreen>

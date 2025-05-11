@@ -9,14 +9,20 @@ import { AuthService } from '../../core/services/authentication.service';
 import { LocationService } from '../../core/services/location.service';
 import { NominatimService } from '../../core/services/nominatim.service';
 import { ColombiaApiService } from '../../core/services/colombia-api.service';
+import { LoadingscreenComponent } from '../../shared/components/loadingscreen/loadingscreen.component';
 import * as L from 'leaflet';
+import { loadavg } from 'os';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [TopbarComponent, FooterComponent, ReactiveFormsModule, CommonModule],
+  imports: [TopbarComponent, 
+            FooterComponent, 
+            ReactiveFormsModule, 
+            CommonModule, 
+            LoadingscreenComponent],
 })
 export class RegisterComponent implements AfterViewInit, OnInit {
   registerForm!: FormGroup;

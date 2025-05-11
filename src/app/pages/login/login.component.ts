@@ -4,15 +4,24 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { NgxCaptchaModule } from 'ngx-captcha';
+import { finalize } from 'rxjs/operators';
 
 import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { LoadingscreenComponent } from '../../shared/components/loadingscreen/loadingscreen.component';
 import { AuthService } from '../../core/services/authentication.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxCaptchaModule, TopbarComponent, FooterComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    NgxCaptchaModule, 
+    TopbarComponent, 
+    FooterComponent,
+    LoadingscreenComponent
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -73,11 +82,17 @@ export class LoginComponent implements OnInit {
       return;
     }
 
+    // Show loading animation
     this.loading = true;
 
     // Verificar CAPTCHA
     this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
       { token: this.recaptchaToken }
+    ).pipe(
+      finalize(() => {
+        // This code will run if there's an error in the captcha verification
+        // The loading flag will be set to false if there's an error in the next subscription
+      })
     ).subscribe({
       next: (res: any) => {
         if (res.success) {
@@ -85,6 +100,13 @@ export class LoginComponent implements OnInit {
           this.authService.login(
             this.f['email'].value,
             this.f['password'].value
+          ).pipe(
+            finalize(() => {
+              // This ensures loading is set to false whether login succeeds or fails
+              if (!this.authService.isAuthenticated()) {
+                this.loading = false;
+              }
+            })
           ).subscribe({
             next: (response) => {
               if (this.f['rememberMe'].value) {
@@ -92,10 +114,11 @@ export class LoginComponent implements OnInit {
               }
               console.log('Inicio de sesión exitoso');
               this.router.navigate(['/dashboard']);
+              // Loading will be hidden after navigation
             },
             error: (err) => {
               this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
-              this.loading = false;
+              // Loading is set to false in finalize()
             }
           });
         } else {
