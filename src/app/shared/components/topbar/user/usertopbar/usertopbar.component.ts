@@ -44,8 +44,6 @@ export class UsertopbarComponent {
   // Método para cerrar sesión
   logout() {
     console.log('Cerrando sesión...');
-    // **Lógica de cierre de sesión:**
-    // 1. Limpiar cualquier dato de autenticación almacenado (tokens, información de usuario, etc.)
     localStorage.removeItem('authToken'); // Ejemplo: Eliminar un token del localStorage
     sessionStorage.clear(); // Ejemplo: Limpiar todos los datos de la sessionStorage
     // 2. Redirigir al usuario al Dashboard después de cerrar sesión
