@@ -1,6 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/authentication.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
@@ -15,6 +15,7 @@ export class DashboardComponent implements OnInit {
   user: any = null;
   loading = true;
   error = false;
+  successMessage: string | null = null;
 
   reports = [
     {
@@ -82,6 +83,6 @@ export class DashboardComponent implements OnInit {
   }
 
   makeReport() {
-    this.router.navigate(['/make-report']);
+    this.router.navigate(['/create-report']);
   }
 }

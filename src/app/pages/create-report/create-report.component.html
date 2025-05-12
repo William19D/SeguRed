@@ -1,0 +1,78 @@
+<div class="create-report-container">
+  <div class="report-form-content">
+    <h1 class="title">Crear nuevo reporte</h1>
+    
+    <div *ngIf="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+    
+    <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
+      <!-- Título -->
+      <div class="form-group">
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" formControlName="titulo" 
+               placeholder="Título breve y descriptivo"
+               [class.is-invalid]="submitted && f['titulo'].errors">
+        <div *ngIf="submitted && f['titulo'].errors" class="invalid-feedback">
+          <div *ngIf="f['titulo'].errors['required']">El título es obligatorio</div>
+          <div *ngIf="f['titulo'].errors['minlength']">El título debe tener al menos 5 caracteres</div>
+          <div *ngIf="f['titulo'].errors['maxlength']">El título no debe exceder 100 caracteres</div>
+        </div>
+      </div>
+      
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" formControlName="descripcion" rows="4" 
+                  placeholder="Describe detalladamente la situación"
+                  [class.is-invalid]="submitted && f['descripcion'].errors"></textarea>
+        <div *ngIf="submitted && f['descripcion'].errors" class="invalid-feedback">
+          <div *ngIf="f['descripcion'].errors['required']">La descripción es obligatoria</div>
+          <div *ngIf="f['descripcion'].errors['minlength']">La descripción debe tener al menos 20 caracteres</div>
+          <div *ngIf="f['descripcion'].errors['maxlength']">La descripción no debe exceder 500 caracteres</div>
+        </div>
+      </div>
+      
+      <!-- Categoría -->
+      <div class="form-group">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" formControlName="categoria" 
+                [class.is-invalid]="submitted && f['categoria'].errors">
+          <option value="" disabled selected>Selecciona una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.name }}</option>
+        </select>
+        <div *ngIf="submitted && f['categoria'].errors" class="invalid-feedback">
+          <div *ngIf="f['categoria'].errors['required']">La categoría es obligatoria</div>
+        </div>
+      </div>
+      
+      <!-- Ubicación -->
+      <div class="form-group">
+        <label for="ubicacion">Ubicación</label>
+        <input type="text" id="ubicacion" formControlName="ubicacion" readonly
+               [class.is-invalid]="submitted && f['ubicacion'].errors">
+        <div *ngIf="submitted && f['ubicacion'].errors" class="invalid-feedback">
+          <div *ngIf="f['ubicacion'].errors['required']">La ubicación es obligatoria</div>
+        </div>
+        <p class="help-text">Selecciona la ubicación haciendo clic en el mapa o arrastrando el marcador</p>
+      </div>
+      
+      <!-- Mapa para seleccionar ubicación -->
+      <div class="map-container">
+        <div id="map" style="height: 300px; width: 100%;"></div>
+      </div>
+      
+      <!-- Botones -->
+      <div class="button-group">
+        <button type="button" class="btn secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn primary" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Crear Reporte</span>
+          <span *ngIf="isLoading">Procesando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-footer></app-footer>
+<app-loadingscreen *ngIf="isLoading" message="Creando reporte..."></app-loadingscreen>
