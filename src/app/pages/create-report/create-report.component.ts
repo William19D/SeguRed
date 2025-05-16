@@ -310,90 +310,202 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
     this.imagePreviews.splice(index, 1);
   }
 
-  // Método mejorado para envío de reportes con compresión de imágenes
-  async onSubmit() {
-    this.submitted = true;
-    this.errorMessage = null;
+// Modifica el método onSubmit() con estos cambios:
 
-    // Validación del formulario
-    if (this.reportForm.invalid) {
-      this.errorMessage = 'Por favor completa todos los campos obligatorios';
-      return;
-    }
+async onSubmit() {
+  this.submitted = true;
+  this.errorMessage = null;
 
-    // Validar ubicación
-    if (!this.currentLocation) {
-      this.errorMessage = 'Debes proporcionar una ubicación para el reporte';
-      return;
-    }
-
-    // Validar al menos una imagen
-    if (this.selectedFiles.length === 0) {
-      this.errorMessage = 'Debes subir al menos una foto para documentar el reporte';
-      return;
-    }
-
-    this.isLoading = true;
-
-    try {
-      // Procesar todas las imágenes a Base64 con compresión
-      const imagePromises = this.selectedFiles.map(file => this.processImage(file));
-      const imageBase64Array = await Promise.all(imagePromises);
-      
-      // Obtener la categoría seleccionada
-      const categoriaSeleccionada = this.reportForm.get('categoria')?.value;
-      
-      // Crear array de objetos de imagen según el formato API
-      const imagenes = imageBase64Array.map((base64, index) => ({
-        url: base64,
-        descripcion: `Imagen ${index + 1}: ${this.reportForm.get('titulo')?.value.substring(0, 30)}`
-      }));
-      
-      // Preparar los datos para la API - importante mantener la estructura exacta
-      const reporteRequest = {
-        titulo: this.reportForm.get('titulo')?.value,
-        descripcion: this.reportForm.get('descripcion')?.value,
-        categoria: [categoriaSeleccionada], // Asegurar que sea un array
-        locations: {
-          latitude: this.currentLocation.lat,
-          longitude: this.currentLocation.lng,
-          name: this.currentLocation.address || `${this.currentLocation.lat}, ${this.currentLocation.lng}`
-        },
-        imagenes: imagenes
-      };
-
-      console.log('Enviando reporte a la API:', JSON.stringify(reporteRequest).substring(0, 200) + '...');
-
-      // Enviar el reporte usando el servicio mejorado
-      this.reporteService.createReporte(reporteRequest)
-        .pipe(
-          finalize(() => {
-            this.isLoading = false;
-          })
-        )
-        .subscribe({
-          next: (response: any) => {
-            console.log('Reporte creado exitosamente:', response);
-            
-            // Mostrar mensaje de éxito y redirigir
-            this.showSuccessMessage();
-            
-            // Redirigir después de un breve retraso para que el usuario vea el mensaje
-            setTimeout(() => {
-              this.router.navigate(['/dashboard']);
-            }, 1500);
-          },
-          error: (error) => {
-            console.error('Error al crear el reporte:', error);
-            this.errorMessage = this.getErrorMessage(error);
-          }
-        });
-    } catch (error) {
-      console.error('Error al procesar las imágenes:', error);
-      this.errorMessage = 'Error al procesar las imágenes. Por favor, inténtalo de nuevo.';
-      this.isLoading = false;
-    }
+  // Validaciones iniciales (mantener las que ya tienes)
+  if (this.reportForm.invalid) {
+    this.errorMessage = 'Por favor completa todos los campos obligatorios';
+    return;
   }
+
+  // Otras validaciones (ubicación e imágenes)
+  if (!this.currentLocation) {
+    this.errorMessage = 'Debes proporcionar una ubicación para el reporte';
+    return;
+  }
+
+  if (this.selectedFiles.length === 0) {
+    this.errorMessage = 'Debes subir al menos una foto para documentar el reporte';
+    return;
+  }
+
+  this.isLoading = true;
+
+  try {
+    // Procesar imágenes con mayor compresión para garantizar tamaño adecuado
+    const imagePromises = this.selectedFiles.map(file => this.processImageForServer(file));
+    const imageBase64Array = await Promise.all(imagePromises);
+    
+    // Obtener categoría seleccionada
+    const categoriaSeleccionada = this.reportForm.get('categoria')?.value;
+    
+    // CAMBIO IMPORTANTE: Formato correcto para las imágenes según API
+    const imagenes = imageBase64Array.map((base64, index) => {
+      // Estructura exacta que espera el backend
+      return {
+        nombre: `imagen_${index + 1}_${Date.now()}.jpg`,
+        url: base64,  // Enviamos el base64 completo
+        descripcion: `Imagen ${index + 1} del reporte: ${this.reportForm.get('titulo')?.value.substring(0, 30)}`
+      };
+    });
+    
+    // IMPORTANTE: Log para verificar estructura
+    console.log('Estructura del primer objeto imagen:', 
+                imagenes.length > 0 ? JSON.stringify(imagenes[0]).substring(0, 100) + '...' : 'No hay imágenes');
+    
+    // Estructura completa del reporte según OpenAPI
+    const reporteRequest = {
+      titulo: this.reportForm.get('titulo')?.value,
+      descripcion: this.reportForm.get('descripcion')?.value,
+      categoria: Array.isArray(categoriaSeleccionada) ? 
+                categoriaSeleccionada : 
+                [{
+                  nombre: categoriaSeleccionada.nombre,
+                  descripcion: categoriaSeleccionada.descripcion
+                }],
+      locations: {
+        latitude: this.currentLocation.lat,
+        longitude: this.currentLocation.lng,
+        name: this.currentLocation.address || `${this.currentLocation.lat}, ${this.currentLocation.lng}`
+      },
+      imagenes: imagenes
+    };
+
+    console.log('Enviando reporte, cantidad de imágenes:', imagenes.length);
+
+    // Enviar reporte con las correcciones
+    this.reporteService.createReporte(reporteRequest)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: (response: any) => {
+          console.log('Reporte creado exitosamente:', response);
+          alert('Reporte enviado correctamente');
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          console.error('Error al crear el reporte:', error);
+          this.errorMessage = error.error?.error || 
+                             error.error?.message || 
+                             'Error al crear el reporte. Por favor, inténtalo de nuevo.';
+        }
+      });
+  } catch (error) {
+    console.error('Error al procesar las imágenes:', error);
+    this.errorMessage = 'Error al procesar las imágenes. Por favor, inténtalo de nuevo.';
+    this.isLoading = false;
+  }
+}
+
+// Añade este nuevo método para procesar imágenes con optimizaciones específicas para el servidor
+processImageForServer(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      
+      // Comprimir todas las imágenes, independientemente del tamaño
+      this.compressImageForServer(base64)
+        .then(compressed => resolve(compressed))
+        .catch(err => {
+          console.warn('Compresión fallida, usando original (con tamaño reducido):', err);
+          // Si falla la compresión, intentar reducir resolución
+          this.reduceImageSize(base64)
+            .then(reduced => resolve(reduced))
+            .catch(() => resolve(base64)); // Última opción: usar original
+        });
+    };
+    
+    reader.onerror = error => reject(error);
+  });
+}
+
+// Método optimizado para comprimir imágenes específicamente para el servidor
+compressImageForServer(base64: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      // Reducir resolución a máximo 800px para cualquier dimensión
+      // Esto reduce significativamente el tamaño de archivo
+      let width = img.width;
+      let height = img.height;
+      const maxDimension = 800;
+      
+      if (width > height && width > maxDimension) {
+        height = Math.round(height * maxDimension / width);
+        width = maxDimension;
+      } else if (height > maxDimension) {
+        width = Math.round(width * maxDimension / height);
+        height = maxDimension;
+      }
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('No se pudo crear el contexto del canvas'));
+        return;
+      }
+      
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Comprimir como JPEG con calidad reducida (50%)
+      resolve(canvas.toDataURL('image/jpeg', 0.5));
+    };
+    
+    img.onerror = () => {
+      reject(new Error('Error al cargar imagen para compresión'));
+    };
+    
+    img.src = base64;
+  });
+}
+
+// Método adicional para reducir aún más el tamaño si es necesario
+reduceImageSize(base64: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      // Reducir drásticamente la resolución a 400px máximo
+      let width = img.width;
+      let height = img.height;
+      const maxDimension = 400;
+      
+      if (width > height && width > maxDimension) {
+        height = Math.round(height * maxDimension / width);
+        width = maxDimension;
+      } else if (height > maxDimension) {
+        width = Math.round(width * maxDimension / height);
+        height = maxDimension;
+      }
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('No se pudo crear el contexto del canvas'));
+        return;
+      }
+      
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Comprimir como JPEG con calidad muy reducida (30%)
+      resolve(canvas.toDataURL('image/jpeg', 0.3));
+    };
+    
+    img.onerror = () => reject(new Error('Error al reducir imagen'));
+    img.src = base64;
+  });
+}
 
   // Método para mostrar mensaje de éxito
   private showSuccessMessage() {
