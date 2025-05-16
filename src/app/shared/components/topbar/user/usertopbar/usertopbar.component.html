@@ -6,7 +6,9 @@
     </a>
 
     <!-- Botón hamburguesa para móviles -->
-    <button class="menu-toggle" (click)="toggleMobileMenu()" aria-label="Abrir menú">
+    <button class="menu-toggle" [ngClass]="{'active': isMobileMenuOpen}" 
+            (click)="toggleMobileMenu()" 
+            aria-label="Abrir menú">
       <span></span>
       <span></span>
       <span></span>
@@ -17,7 +19,7 @@
       <ul class="nav-menu">
         <li><a routerLink="/" (click)="goToDashboard()">Inicio</a></li>
         <li><a routerLink="/mis-reportes">Mis Reportes</a></li>
-        <li><a (click)="goToCreateReport()" >Crear Reporte</a></li>
+        <li><a (click)="goToCreateReport()">Crear Reporte</a></li>
       </ul>
 
       <div class="user-section">
@@ -30,8 +32,9 @@
             [src]="user.profilePicture"
             alt="Foto de perfil"
             class="profile-picture"
+            (error)="handleImageError($event)"
           />
-          <div class="user-text">
+          <div class="user-details">
             <span class="user-name">{{ user.name }}</span>
             <span class="user-role">{{ user.role }}</span>
           </div>
@@ -43,6 +46,19 @@
           <a (click)="logout()">Cerrar Sesión</a>
         </div>
       </div>
+      
+      <!-- Botón para cerrar menú móvil -->
+      <button class="close-mobile-menu" (click)="closeMobileMenu()">
+        <span>×</span>
+      </button>
     </div>
   </div>
 </nav>
+
+<!-- Elemento separado para el overlay móvil -->
+<div class="mobile-overlay" [ngClass]="{'active': isMobileMenuOpen}" (click)="closeMobileMenu()"></div>
+
+<!-- Mensaje de error si existe -->
+<div *ngIf="error" class="error-message">
+  {{ error }}
+</div>

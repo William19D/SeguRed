@@ -253,4 +253,15 @@ obtenerNombreCategoria(descripcion: string): string {
   retryLoadReports() {
     this.loadReports();
   }
+  // Método para ocultar spinner cuando la imagen se carga
+hideSpinner(event: any): void {
+  // Añadir clase loaded para hacer visible la imagen y ocultar el spinner
+  event.target.classList.add('loaded');
+}
+
+// Método para manejar errores de carga de imágenes
+handleImageError(event: any): void {
+  event.target.src = 'imagenotfound.png';
+  event.target.classList.add('loaded');
+}
 }

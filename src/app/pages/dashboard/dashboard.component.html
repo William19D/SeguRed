@@ -81,9 +81,16 @@
         </div>
         
         <!-- Imagen a la derecha -->
+        <!-- Imagen a la derecha con spinner de carga -->
         <div class="report-image">
-          <img [src]="report.imageUrl" alt="{{ report.title }}" 
-               onerror="this.src='imagenotfound.png'">
+          <!-- Spinner de carga verde -->
+          <div class="image-loading-spinner"></div>
+          
+          <img [src]="report.imageUrl" 
+              alt="{{ report.title }}" 
+              (load)="hideSpinner($event)"
+              (error)="handleImageError($event)"
+              class="report-img">
         </div>
       </div>
     </section>

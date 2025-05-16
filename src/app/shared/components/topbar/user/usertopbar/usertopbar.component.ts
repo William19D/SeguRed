@@ -90,9 +90,13 @@ export class UsertopbarComponent implements OnInit {
   mapUserData(userData: any): void {
     this.user = {
       name: userData.nombreCom?.split(' ')[0] || 'Usuario',
-      profilePicture: userData.profilePicture || 'default-profile.png',
+      profilePicture: userData.profilePicture || 'assets/default-profile.png',
       role: userData.role || 'Usuario'
     };
+  }
+
+  handleImageError(event: any): void {
+    event.target.src = 'default-profile.png'; 
   }
 
   handleError(error: HttpErrorResponse): void {

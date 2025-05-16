@@ -33,6 +33,7 @@
   transition: all 0.3s ease;
   padding: 5px;
   border-radius: 8px;
+  z-index: 25; /* Asegurar que esté encima del menú móvil */
 }
 
 .navbar-brand .logo {
@@ -256,7 +257,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  z-index: 20;
+  z-index: 1010; /* Mayor z-index para estar por encima del menú */
 }
 
 .menu-toggle span {
@@ -266,6 +267,19 @@
   background-color: #333;
   border-radius: 3px; /* AUMENTADO */
   transition: all 0.3s ease;
+}
+
+/* Transformación del menú hamburguesa a X cuando está activo */
+.menu-toggle.active span:nth-child(1) {
+  transform: translateY(8.5px) rotate(45deg);
+}
+
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+  transform: translateY(-8.5px) rotate(-45deg);
 }
 
 .close-mobile-menu {
@@ -280,7 +294,10 @@
   color: #333;
 }
 
-/* El resto de estilos se mantienen igual pero con ajustes específicos para responsive */
+/* Estilo para prevenir scroll cuando el menú móvil está abierto */
+body.no-scroll {
+  overflow: hidden;
+}
 
 /* Media Queries con ajustes correspondientes */
 @media screen and (max-width: 1024px) {
@@ -311,10 +328,140 @@
     display: flex;
   }
   
-  /* El resto del CSS para móviles se mantiene como estaba */
+  .nav-container {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 320px;
+    height: 100vh;
+    background-color: white;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 70px 25px 25px;
+    transition: right 0.3s ease;
+    box-shadow: none;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  
+  .nav-container.mobile-open {
+    right: 0;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Overlay para cuando el menú móvil está abierto */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 990; /* Por debajo del menú pero encima de otros contenidos */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+  .nav-menu {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+    padding-left: 0;
+    margin-bottom: 30px;
+  }
+  
+  .nav-menu li {
+    width: 100%;
+  }
+  
+  .nav-menu a {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .nav-menu a:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+  
+  .nav-menu a::after {
+    display: none;
+  }
+  
+  .user-section {
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .user-info {
+    width: calc(100% - 28px);
+    padding: 12px 14px;
+  }
+  
+  .user-details {
+    display: flex;
+  }
+  
+  .dropdown-arrow {
+    display: block;
+    margin-left: auto;
+  }
+  
+  .notification-bell {
+    padding: 10px;
+  }
+  
+  .notification-bell img {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .user-dropdown {
+    position: static;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    margin-top: 0;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+  }
+  
+  .user-dropdown.open {
+    visibility: visible;
+    opacity: 1;
+    max-height: 150px;
+    padding: 8px;
+    margin-top: 8px;
+  }
+  
+  .close-mobile-menu {
+    display: block;
+    top: 15px;
+    right: 15px;
+  }
 }
 
 @media screen and (max-width: 480px) {
+  .topbar {
+    padding: 12px 15px;
+  }
+  
   .navbar-brand .logo {
     height: 36px; /* AUMENTADO: de 30px a 36px */
   }
@@ -327,5 +474,69 @@
   .notification-bell img {
     width: 26px; /* AUMENTADO: de 20px a 26px */
     height: 26px; /* AUMENTADO: de 20px a 26px */
+  }
+  
+  .user-info {
+    padding: 10px 12px;
+  }
+  
+  .nav-container {
+    width: 85%;
+    padding: 60px 20px 20px;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media screen and (max-width: 360px) {
+  .topbar {
+    padding: 10px 12px;
+  }
+  
+  .navbar-brand .logo {
+    height: 32px;
+  }
+  
+  .menu-toggle {
+    width: 24px;
+    height: 18px;
+  }
+  
+  .nav-container {
+    width: 90%;
+    padding: 55px 16px 16px;
+  }
+  
+  .nav-menu a {
+    font-size: 15px;
+    padding: 12px;
+  }
+  
+  .user-info {
+    padding: 8px 10px;
+  }
+  
+  .profile-picture {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .user-name {
+    font-size: 14px;
+  }
+  
+  .user-role {
+    font-size: 12px;
+    padding: 2px 8px;
+  }
+}
+
+/* Ajustes para el Safari en iOS */
+@supports (-webkit-touch-callout: none) {
+  .nav-container {
+    padding-bottom: 120px; /* Espacio adicional para evitar problemas con la barra de navegación del iPhone */
+  }
+  
+  .topbar.hidden {
+    transform: translateY(-120%); /* Asegurar que se oculta completamente */
   }
 }
