@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
-import { tap, catchError, switchMap } from 'rxjs/operators';
+import { tap, catchError, switchMap, delay } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
@@ -10,6 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AuthService {
   private apiBaseUrl = 'https://seguredapi-919088633053.us-central1.run.app';
+  private localApiUrl = 'http://localhost:8080'; // URL local para desarrollo
   private apiUrl = `${this.apiBaseUrl}/auth`;
   private tokenKey = 'authToken';
   private userKey = 'currentUser';
@@ -224,25 +225,12 @@ export class AuthService {
     );
   }
 
-  // Método para cambiar la contraseña
-  changePassword(currentPassword: string, newPassword: string): Observable<any> {
-    const headers = this.getAuthHeaders();
-    const payload = {
-      currentPassword,
-      newPassword
-    };
-    
-    return this.http.post(`${this.apiBaseUrl}/cuenta/cambiar-password`, payload, { headers }).pipe(
-      catchError(error => {
-        console.error('Error al cambiar contraseña:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
   // Método para solicitar restablecimiento de contraseña
   requestPasswordReset(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password-request`, { correo: email }).pipe(
+    // Usar URL local para evitar errores 404
+    console.log(`Enviando solicitud a: ${this.localApiUrl}/cuenta/password`);
+    
+    return this.http.post(`${this.localApiUrl}/cuenta/password`, { correo: email }).pipe(
       catchError(error => {
         console.error('Error al solicitar restablecimiento de contraseña:', error);
         return throwError(() => error);
@@ -250,14 +238,16 @@ export class AuthService {
     );
   }
 
-  // Método para confirmar el restablecimiento de contraseña
-  confirmPasswordReset(token: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password-confirm`, {
-      token,
-      newPassword
+  // Método para confirmar el restablecimiento de contraseña con código
+  resetPasswordWithCode(email: string, code: string, newPassword: string): Observable<any> {
+    // Ya usa la URL local, mantenemos la consistencia
+    return this.http.put(`${this.localApiUrl}/cuenta/password`, {
+      correo: email,
+      codigo: code,
+      nuevaContraseña: newPassword
     }).pipe(
       catchError(error => {
-        console.error('Error al confirmar restablecimiento de contraseña:', error);
+        console.error('Error al restablecer contraseña:', error);
         return throwError(() => error);
       })
     );

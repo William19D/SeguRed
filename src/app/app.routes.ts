@@ -11,6 +11,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { TestMapComponent } from './pages/test-map/test-map.component';
 import { VerificationCodeComponent } from './pages/verification-code/verification-code.component';
 import { VerificationCompleteComponent } from './pages/verification-complete/verification-complete.component';
+import { PasswordCodeVerificationComponent } from './pages/password-code-verification/password-code-verification.component';
 
 export const routes: Routes = [
   // Redirección específica para la ruta raíz - DEBE ESTAR PRIMERO
@@ -24,7 +25,8 @@ export const routes: Routes = [
   { path: 'recover-password', component: RecoverPasswordComponent },
   { path: 'mapbox', component: TestMapComponent },
   { path: 'verification-complete', component: VerificationCompleteComponent },
-  
+  { path: 'password-code-verification', component: PasswordCodeVerificationComponent },
+
   // Remove this standalone route:
   // { path: 'create-report', component: CreateReportComponent },
   
