@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
+import { AuthService } from '../../core/services/authentication.service';
 
 @Component({
   selector: 'app-recover-password',
@@ -15,9 +15,9 @@ import { TopbarComponent } from '../../shared/components/topbar/general/topbar.c
 })
 export class RecoverPasswordComponent {
   email: string = '';
-  apiUrl = 'https://api.example.com/recover-password'; 
+  loading: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
     if (!this.email.trim()) {
@@ -25,18 +25,27 @@ export class RecoverPasswordComponent {
       return;
     }
 
-    this.http.post(this.apiUrl, { email: this.email }).subscribe({
+    this.loading = true;
+    this.authService.requestPasswordReset(this.email).subscribe({
       next: (response) => {
-        console.log('Respuesta de la API:', response);
-        alert('Se ha enviado un enlace de recuperación a tu correo.');
-        this.router.navigate(['/login']); // Redirige al login tras el envío
+        console.log('Respuesta del servidor:', response);
+        alert('Se ha enviado un código de verificación a tu correo.');
+        // Redirigir a la página de verificación de código, pasando el correo
+        this.router.navigate(['/password-code-verification', { email: encodeURIComponent(this.email) }]);
+        this.loading = false;
       },
       error: (error) => {
         console.error('Error en la recuperación:', error);
-        alert('Ocurrió un error al enviar el correo. Inténtalo de nuevo.');
+        let errorMessage = 'Ocurrió un error al enviar el correo. Inténtalo de nuevo.';
+        if (error.error && error.error.error) {
+          errorMessage = error.error.error;
+        }
+        alert(errorMessage);
+        this.loading = false;
       }
     });
   }
+  
   goToLogin() {
     this.router.navigate(['/login']);
   }
