@@ -10,7 +10,7 @@ import { catchError, map } from 'rxjs/operators';
 })
 export class ReporteService {
   // URL fija de la API según lo solicitado
-  private apiUrl = 'http://localhost:8080';
+  private apiUrl = 'https://seguredapi-919088633053.us-central1.run.app';
 
   constructor(
     private http: HttpClient,

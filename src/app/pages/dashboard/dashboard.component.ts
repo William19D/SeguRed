@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
   reports: any[] = [];
   reportsLoading = true;
   reportsError = false;
-  apiUrl = 'http://localhost:8080';
+  apiUrl = 'https://seguredapi-919088633053.us-central1.run.app';
 
   constructor(
     private router: Router, 
@@ -98,7 +98,7 @@ transformReportes(reportes: any[]): any[] {
       // Procesar imágenes si existen
       if (reporte.imagenes && Array.isArray(reporte.imagenes) && reporte.imagenes.length > 0) {
         // Usar la URL correcta para obtener la imagen del backend
-        imageUrl = `${this.apiUrl}/reportes-imagenes/${reporte.id}/imagen/0`;
+          imageUrl = `${this.apiUrl}/api/reportes-imagenes/${reporte.id}/imagen/0`;
       }
       
       // Procesar ubicación - Estructura actual: {lat, lng}
