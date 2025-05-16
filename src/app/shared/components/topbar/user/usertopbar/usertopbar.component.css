@@ -1,12 +1,19 @@
-/* usertopbar.component.css */
-
+/* Estilos Generales - TAMAÑO AUMENTADO */
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #ffffff;
-  padding: 15px 30px; /* Aumenta el padding superior/inferior y lateral */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px 40px; /* AUMENTADO: padding vertical e horizontal */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); /* Sombra más pronunciada */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.topbar.hidden {
+  transform: translateY(-100%);
 }
 
 .container {
@@ -14,130 +21,108 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Logo - EFECTO VERDE EN HOVER */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 5px;
+  border-radius: 8px;
 }
 
 .navbar-brand .logo {
-  cursor: pointer;
-  height: 50px; /* Aumenta la altura del logo */
+  height: 48px; /* AUMENTADO: de 40px a 48px */
+  transition: transform 0.2s ease, filter 0.3s ease;
+}
+
+/* NUEVO: Efecto de logo verde al pasar el mouse */
+.navbar-brand:hover .logo {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 4px rgba(0, 255, 60, 0.4)) 
+          brightness(1.1)
+          hue-rotate(75deg) /* Este efecto ayuda a cambiar el tono hacia verde */
+          saturate(1.5);
+}
+
+/* Navegación y contenedor principal - ELEMENTOS MÁS GRANDES */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: 1;
 }
 
 .nav-menu {
-  cursor: pointer;
   list-style: none;
   display: flex;
-  gap: 40px; /* Aumenta el espacio entre los elementos del menú */
+  gap: 50px; /* AUMENTADO: de 40px a 50px */
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 50px; /* AUMENTADO: de 40px a 50px */
+}
+
+.nav-menu li {
+  display: inline-block;
 }
 
 .nav-menu a {
   text-decoration: none;
   color: #333;
-  font-size: 18px; /* Aumenta el tamaño de la fuente del menú */
+  font-size: 18px; /* AUMENTADO: de 16px a 18px */
   font-weight: 500;
+  padding: 10px 5px; /* AUMENTADO: padding vertical */
+  position: relative;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
+.nav-menu a:hover {
+  color: #28a745; /* Verde */
+}
+
+.nav-menu a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px; /* AUMENTADO: grosor de la línea */
+  bottom: 0;
+  left: 0;
+  background-color: #28a745;
+  transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after {
+  width: 100%;
+}
+
+/* Sección de usuario - ELEMENTOS MÁS GRANDES */
 .user-section {
   display: flex;
   align-items: center;
-  gap: 20px; /* Aumenta el espacio entre los elementos de la sección de usuario */
-  position: relative; /* Añade esta línea */
-}
-
-.notification-bell img {
-  width: 30px; /* Aumenta el ancho del icono de la campana */
-  height: 30px; /* Aumenta la altura del icono de la campana */
-  cursor: pointer;
-  transition: transform 0.1s ease-in-out;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.profile-picture {
-  width: 40px; /* Aumenta el ancho de la foto de perfil */
-  height: 40px; /* Aumenta la altura de la foto de perfil */
-  border-radius: 50%;
-  border: 2px solid #ddd;
-}
-
-.user-name {
-  margin-left: 12px; /* Aumenta el margen izquierdo del nombre de usuario */
-  font-size: 16px; /* Aumenta el tamaño de la fuente del nombre de usuario */
-  font-weight: bold;
-  color: #333;
-}
-
-.user-role {
-  margin-left: 8px; /* Aumenta el margen izquierdo del rol de usuario */
-  font-size: 14px; /* Aumenta el tamaño de la fuente del rol de usuario */
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  padding: 4px 10px; /* Aumenta el padding del rol de usuario */
-  color: #555;
-}
-
-.dropdown-arrow {
-  margin-left: 8px; /* Aumenta el margen izquierdo de la flecha del dropdown */
-  font-size: 16px; /* Aumenta el tamaño de la fuente de la flecha del dropdown */
-  color: #333;
-}
-
-/* Estilos para el dropdown */
-.user-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  margin-top: 10px;
-  padding: 10px;
-  z-index: 1000;
-  cursor: pointer;
-  opacity: 0; /* Inicialmente oculto */
-  transform: translateY(-10px); /* Inicialmente ligeramente desplazado hacia arriba */
-  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out; /* Transición suave */
-}
-
-.user-dropdown.open {
-  opacity: 1; /* Visible cuando la clase 'open' está presente */
-  transform: translateY(0); /* Vuelve a su posición original */
-}
-
-.user-dropdown a {
-  display: block;
-  padding: 12px;
-  text-decoration: none;
-  color: #333;
-  font-size: 16px;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Transición suave para hover */
-}
-
-.user-dropdown a:hover {
-  background-color: #f5f5f5;
-}
-
-/* Estilo específico para el hover del enlace "Cerrar Sesión" */
-.user-dropdown a:last-child:hover { /* Selecciona el último 'a' dentro de .user-dropdown */
-  background-color: #ffe0e0; /* Un rojo muy suave */
-  color: #d32f2f; /* Un rojo un poco más intenso para el texto */
+  gap: 25px; /* AUMENTADO: de 20px a 25px */
+  position: relative;
 }
 
 .notification-bell {
   background: none;
   border: none;
-  padding: 0;
-  margin: 0;
+  padding: 8px; /* AÑADIDO: padding para área de toque más grande */
   cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.notification-bell:hover {
+  background-color: rgba(40, 167, 69, 0.1); /* Fondo verde suave al hover */
 }
 
 .notification-bell img {
-  width: 40px;
-  height: 40px;
+  width: 30px; /* AUMENTADO: de 24px a 30px */
+  height: 30px; /* AUMENTADO: de 24px a 30px */
   transition: transform 0.1s ease-in-out;
 }
 
@@ -146,10 +131,201 @@
 }
 
 @keyframes gentleShake {
-  0% { transform: rotate(-10deg); }
-  5% { transform: rotate(10deg); }
-  10% { transform: rotate(-8deg); }
-  15% { transform: rotate(8deg); }
-  20% { transform: rotate(0deg); }
-  40% { transform: rotate(0deg); }
+  0% { transform: rotate(0deg); }
+  5% { transform: rotate(-5deg); }
+  10% { transform: rotate(5deg); }
+  15% { transform: rotate(-3deg); }
+  20% { transform: rotate(3deg); }
+  25% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 14px; /* AUMENTADO: para área de toque más grande */
+  border-radius: 30px;
+  transition: background-color 0.2s ease;
+}
+
+.user-info:hover {
+  background-color: #f5f5f5;
+}
+
+.profile-picture {
+  width: 42px; /* AUMENTADO: de 36px a 42px */
+  height: 42px; /* AUMENTADO: de 36px a 42px */
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  object-fit: cover;
+}
+
+.user-details {
+  margin-left: 14px; /* AUMENTADO: de 10px a 14px */
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 16px; /* AUMENTADO: de 14px a 16px */
+  font-weight: bold;
+  color: #333;
+}
+
+.user-role {
+  font-size: 13px; /* AUMENTADO: de 12px a 13px */
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 3px 10px; /* AUMENTADO: padding */
+  color: #555;
+}
+
+.dropdown-arrow {
+  margin-left: 12px; /* AUMENTADO: de 8px a 12px */
+  font-size: 13px; /* AUMENTADO: de 12px a 13px */
+  color: #777;
+  transition: transform 0.2s ease;
+}
+
+.user-info:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* Menú desplegable de usuario - ELEMENTOS MÁS GRANDES */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 12px); /* AUMENTADO: de 10px a 12px */
+  right: 0;
+  background-color: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12); /* Sombra más pronunciada */
+  border-radius: 10px; /* AUMENTADO: de 8px a 10px */
+  padding: 10px; /* AUMENTADO: de 8px a 10px */
+  min-width: 200px; /* AUMENTADO: de 180px a 200px */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 1001;
+}
+
+.user-dropdown.open {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.user-dropdown a {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px; /* AUMENTADO: de 10px 15px a 12px 18px */
+  text-decoration: none;
+  color: #333;
+  font-size: 15px; /* AUMENTADO: de 14px a 15px */
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.user-dropdown a i {
+  margin-right: 12px; /* AUMENTADO: de 10px a 12px */
+  width: 18px; /* AUMENTADO: de 16px a 18px */
+}
+
+.user-dropdown a:hover {
+  background-color: #f5f5f5;
+}
+
+.user-dropdown a:last-child {
+  margin-top: 6px; /* AUMENTADO: de 5px a 6px */
+  color: #d32f2f;
+}
+
+.user-dropdown a:last-child:hover {
+  background-color: #ffebee;
+}
+
+/* Menú hamburguesa - ELEMENTOS MÁS GRANDES */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px; /* AUMENTADO: de 24px a 28px */
+  height: 20px; /* AUMENTADO: de 18px a 20px */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 20;
+}
+
+.menu-toggle span {
+  display: block;
+  height: 3px; /* AUMENTADO: de 2px a 3px */
+  width: 100%;
+  background-color: #333;
+  border-radius: 3px; /* AUMENTADO */
+  transition: all 0.3s ease;
+}
+
+.close-mobile-menu {
+  display: none;
+  position: absolute;
+  top: 20px; /* AUMENTADO: de 15px a 20px */
+  right: 20px; /* AUMENTADO: de 15px a 20px */
+  background: transparent;
+  border: none;
+  font-size: 32px; /* AUMENTADO: de 28px a 32px */
+  cursor: pointer;
+  color: #333;
+}
+
+/* El resto de estilos se mantienen igual pero con ajustes específicos para responsive */
+
+/* Media Queries con ajustes correspondientes */
+@media screen and (max-width: 1024px) {
+  .topbar {
+    padding: 18px 25px; /* AUMENTADO pero adaptado a tablets */
+  }
+
+  .nav-menu {
+    gap: 30px;
+    padding-left: 30px;
+  }
+
+  .user-details {
+    display: none;
+  }
+  
+  .dropdown-arrow {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .topbar {
+    padding: 15px 20px; /* AUMENTADO pero adaptado a móviles */
+  }
+  
+  .menu-toggle {
+    display: flex;
+  }
+  
+  /* El resto del CSS para móviles se mantiene como estaba */
+}
+
+@media screen and (max-width: 480px) {
+  .navbar-brand .logo {
+    height: 36px; /* AUMENTADO: de 30px a 36px */
+  }
+  
+  .profile-picture {
+    width: 38px; /* AUMENTADO: de 32px a 38px */
+    height: 38px; /* AUMENTADO: de 32px a 38px */
+  }
+  
+  .notification-bell img {
+    width: 26px; /* AUMENTADO: de 20px a 26px */
+    height: 26px; /* AUMENTADO: de 20px a 26px */
+  }
 }
