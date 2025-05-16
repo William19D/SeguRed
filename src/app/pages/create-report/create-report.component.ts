@@ -1,0 +1,402 @@
+import { Component, AfterViewInit, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/services/authentication.service';
+import { LocationService } from '../../core/services/location.service';
+import { NominatimService } from '../../core/services/nominatim.service';
+import { ReporteService } from '../../core/services/reporte.service';
+import * as L from 'leaflet';
+import { finalize } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-create-report',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './create-report.component.html',
+  styleUrl: './create-report.component.css'
+})
+export class CreateReportComponent implements OnInit, AfterViewInit {
+  reportForm!: FormGroup;
+  submitted = false;
+  
+  // Cambios para múltiples archivos
+  selectedFiles: File[] = [];
+  imagePreviews: string[] = [];
+  
+  useCurrentLocationValue = false;
+  currentLocation: { lat: number, lng: number, address?: string } | null = null;
+  isLoading = false;
+  errorMessage: string | null = null;
+  
+  // Variables para el mapa - Corregido para evitar error 'never'
+  map: L.Map | null = null;
+  marker: L.Marker | null = null;
+  showMap = false;
+
+  // Máximo tamaño de archivo en bytes (10MB)
+  maxFileSize = 10 * 1024 * 1024;
+  // Máximo número de imágenes permitidas
+  maxImageCount = 5;
+
+  categorias = [
+    { nombre: 'Seguridad', descripcion: 'Problemas relacionados con seguridad ciudadana' },
+    { nombre: 'Infraestructura', descripcion: 'Problemas relacionados con infraestructura urbana' },
+    { nombre: 'Medio Ambiente', descripcion: 'Problemas relacionados con medio ambiente' },
+    { nombre: 'Transporte', descripcion: 'Problemas relacionados con transporte público' },
+    { nombre: 'Servicios Públicos', descripcion: 'Problemas relacionados con servicios públicos' },
+    { nombre: 'Otros', descripcion: 'Otras situaciones que requieran atención' }
+  ];
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+    private locationService: LocationService,
+    private nominatimService: NominatimService,
+    private reporteService: ReporteService
+  ) {}
+
+  ngOnInit() {
+    // Check if user is authenticated
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/create-report' } });
+      return;
+    }
+
+    this.reportForm = this.formBuilder.group({
+      titulo: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
+      descripcion: ['', [Validators.required, Validators.minLength(20), Validators.maxLength(500)]],
+      categoria: [this.categorias[0], [Validators.required]],
+      useCurrentLocation: [false],
+      direccion: [''],
+      declaration: [false, [Validators.requiredTrue]],
+      locations: [[]]
+    });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.showMap) {
+      setTimeout(() => {
+        this.initMap();
+      }, 100);
+    }
+  }
+
+  // Getter para acceder fácilmente a los controles del formulario
+  get f() {
+    return this.reportForm.controls;
+  }
+
+  private initMap(): void {
+    try {
+      // Asegurarnos que el elemento del mapa existe
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        console.error('Elemento del mapa no encontrado');
+        return;
+      }
+
+      // Usar aserciones de tipo explícitas para resolver el problema de 'never'
+      this.map = L.map('map') as L.Map;
+      this.map.setView([4.7110, -74.0721], 16);
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(this.map);
+
+      // Crear un marcador inicial en el centro de Bogotá
+      this.marker = L.marker([4.7110, -74.0721], { draggable: true }) as L.Marker;
+      this.marker.addTo(this.map);
+      this.marker.bindPopup('Arrastra el marcador para actualizar la ubicación de tu reporte.').openPopup();
+
+      // Cuando se arrastra el marcador, actualizar las coordenadas y la dirección
+      this.marker.on('dragend', () => {
+        if (this.marker) {
+          const position = this.marker.getLatLng();
+          this.currentLocation = { lat: position.lat, lng: position.lng };
+          this.reportForm.patchValue({
+            locations: [{ lat: position.lat, lng: position.lng }]
+          });
+          this.updateAddress(position.lat, position.lng);
+        }
+      });
+
+      // Al hacer clic en cualquier parte del mapa, mover el marcador allí
+      this.map.on('click', (e: L.LeafletMouseEvent) => {
+        if (this.marker && this.map) {
+          this.marker.setLatLng(e.latlng);
+          this.currentLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+          this.reportForm.patchValue({
+            locations: [{ lat: e.latlng.lat, lng: e.latlng.lng }]
+          });
+          this.updateAddress(e.latlng.lat, e.latlng.lng);
+        }
+      });
+    } catch (error) {
+      console.error('Error al inicializar el mapa', error);
+      this.errorMessage = 'Error al cargar el mapa. Inténtalo de nuevo.';
+    }
+  }
+
+  toggleUseCurrentLocation() {
+    this.useCurrentLocationValue = this.reportForm.get('useCurrentLocation')?.value;
+    
+    if (this.useCurrentLocationValue) {
+      this.showMap = true;
+      setTimeout(() => {
+        if (!this.map) {
+          this.initMap();
+        }
+        this.getCurrentLocation();
+      }, 100);
+      this.reportForm.get('direccion')?.disable();
+    } else {
+      this.reportForm.get('direccion')?.enable();
+    }
+  }
+
+toggleMapVisibility() {
+  this.showMap = !this.showMap;
+  
+  if (this.showMap) {
+    // Necesitamos destruir el mapa anterior si existe y crear uno nuevo
+    setTimeout(() => {
+      try {
+        // Si hay un mapa existente, destrúyelo primero
+        if (this.map) {
+          this.map.remove();
+          this.map = null;
+          this.marker = null;
+        }
+        
+        // Inicializa un mapa nuevo
+        this.initMap();
+        
+        // Si ya teníamos ubicación, reposicionamos el mapa después
+        // guardando la referencia para uso posterior
+        const savedLocation = this.currentLocation ? 
+          { lat: this.currentLocation.lat, lng: this.currentLocation.lng } : null;
+          
+        // Posicionamos el mapa en una función separada para evitar problemas de tipado
+        if (savedLocation) {
+          setTimeout(() => this.centerMapAt(savedLocation.lat, savedLocation.lng), 100);
+        }
+      } catch (error) {
+        console.error('Error al actualizar el mapa', error);
+      }
+    }, 200);
+  }
+}
+
+// Método auxiliar para centrar el mapa y evitar problemas de tipado
+private centerMapAt(lat: number, lng: number): void {
+  if (this.map) {
+    try {
+      // Uso explícito de métodos con verificación de tipo en una función separada
+      const m = this.map as L.Map;
+      m.setView([lat, lng], 16);
+      
+      if (this.marker) {
+        this.marker.setLatLng([lat, lng]);
+      }
+    } catch (err) {
+      console.error('Error al centrar el mapa', err);
+    }
+  }
+}
+
+  getCurrentLocation() {
+    this.isLoading = true;
+    this.locationService.getCurrentLocation()
+      .then((lngLat) => {
+        this.currentLocation = {
+          lat: lngLat.lat,
+          lng: lngLat.lng
+        };
+        
+        this.reportForm.patchValue({
+          locations: [{ lat: lngLat.lat, lng: lngLat.lng }]
+        });
+        
+        if (this.map && this.marker) {
+          this.map.setView([lngLat.lat, lngLat.lng], 16);
+          this.marker.setLatLng([lngLat.lat, lngLat.lng]);
+        }
+        
+        this.updateAddress(lngLat.lat, lngLat.lng);
+        this.isLoading = false;
+      })
+      .catch((error) => {
+        console.error('Error getting location', error);
+        this.errorMessage = 'No se pudo obtener tu ubicación. Por favor, selecciona manualmente en el mapa.';
+        this.isLoading = false;
+      });
+  }
+
+  private updateAddress(lat: number, lng: number): void {
+    this.isLoading = true;
+    this.nominatimService.reverseGeocode(lat, lng).subscribe({
+      next: (response) => {
+        if (response && response.display_name) {
+          const address = this.extractPartialAddress(response.display_name);
+          
+          if (this.currentLocation) {
+            this.currentLocation.address = address;
+          }
+          
+          this.reportForm.patchValue({
+            direccion: address
+          });
+        } else {
+          if (this.currentLocation) {
+            this.currentLocation.address = `${lat}, ${lng}`;
+          }
+          this.reportForm.patchValue({
+            direccion: `${lat}, ${lng}` // Fallback en caso de error
+          });
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error getting address', error);
+        if (this.currentLocation) {
+          this.currentLocation.address = `${lat}, ${lng}`;
+        }
+        this.reportForm.patchValue({
+          direccion: `${lat}, ${lng}` // Fallback en caso de error
+        });
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private extractPartialAddress(fullAddress: string): string {
+    const parts = fullAddress.split(',');
+    return parts.slice(0, 2).join(','); // Obtener solo hasta la segunda coma
+  }
+
+  // Método modificado para manejar múltiples archivos
+  onFileChange(event: any) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    this.errorMessage = null;
+    
+    // Verificar si excede el límite de archivos
+    if (this.selectedFiles.length + files.length > this.maxImageCount) {
+      this.errorMessage = `Puedes subir un máximo de ${this.maxImageCount} imágenes`;
+      return;
+    }
+    
+    // Procesar cada archivo seleccionado
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // Validar tamaño
+      if (file.size > this.maxFileSize) {
+        this.errorMessage = `La imagen "${file.name}" excede el tamaño máximo de 10MB`;
+        continue;
+      }
+      
+      // Añadir archivo a la lista
+      this.selectedFiles.push(file);
+      
+      // Crear vista previa para este archivo
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreviews.push(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  
+  // Método para eliminar una imagen
+  removeImage(index: number) {
+    this.selectedFiles.splice(index, 1);
+    this.imagePreviews.splice(index, 1);
+  }
+
+  async onSubmit() {
+    this.submitted = true;
+    this.errorMessage = null;
+
+    // Detener si el formulario es inválido
+    if (this.reportForm.invalid) {
+      return;
+    }
+
+    // Validar ubicación
+    if (!this.currentLocation) {
+      this.errorMessage = 'Debes proporcionar una ubicación (usando tu ubicación actual o seleccionando en el mapa)';
+      return;
+    }
+
+    // Validar al menos una imagen
+    if (this.selectedFiles.length === 0) {
+      this.errorMessage = 'Debes subir al menos una foto';
+      return;
+    }
+
+    this.isLoading = true;
+
+    try {
+      // Procesar todas las imágenes a Base64
+      const imagePromises = this.selectedFiles.map(file => this.fileToBase64(file));
+      const imageBase64Array = await Promise.all(imagePromises);
+      
+      // Crear array de objetos de imagen
+      const imagenes = imageBase64Array.map((base64, index) => ({
+        url: base64,
+        descripcion: `Imagen ${index + 1} del reporte`
+      }));
+      
+      // Preparar los datos para la API
+      const reporteRequest = {
+        titulo: this.reportForm.get('titulo')?.value,
+        descripcion: this.reportForm.get('descripcion')?.value,
+        categoria: [this.reportForm.get('categoria')?.value],
+        locations: {
+          latitude: this.currentLocation.lat,
+          longitude: this.currentLocation.lng,
+          name: this.currentLocation.address || `${this.currentLocation.lat}, ${this.currentLocation.lng}`
+        },
+        imagenes: imagenes
+      };
+
+      // Enviar el reporte usando el servicio
+      this.reporteService.createReporte(reporteRequest)
+        .pipe(
+          finalize(() => {
+            this.isLoading = false;
+          })
+        )
+        .subscribe({
+          next: (response: any) => {
+            console.log('Reporte creado exitosamente:', response);
+            alert('Reporte enviado correctamente');
+            this.router.navigate(['/dashboard']);
+          },
+          error: (error) => {
+            console.error('Error al crear el reporte:', error);
+            this.errorMessage = error.error?.error || error.error?.message || 'Error al crear el reporte. Por favor, inténtalo de nuevo.';
+          }
+        });
+    } catch (error) {
+      console.error('Error al procesar las imágenes:', error);
+      this.errorMessage = 'Error al procesar las imágenes. Por favor, inténtalo de nuevo.';
+      this.isLoading = false;
+    }
+  }
+
+  // Función auxiliar para convertir archivo a Base64
+  fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  }
+}

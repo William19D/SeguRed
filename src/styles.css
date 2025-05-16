@@ -1,0 +1,18 @@
+/* Global fix for scrollbar-induced layout shifts */
+html {
+  overflow-y: scroll; /* Always show vertical scrollbar */
+  margin-right: 0 !important; /* Prevent auto margin adjustments */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+*, *:before, *:after {
+  box-sizing: inherit; /* Ensure all elements use the same box-sizing model */
+}

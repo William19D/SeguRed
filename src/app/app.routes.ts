@@ -9,6 +9,7 @@ import { VerificationCompleteComponent } from './pages/verification-complete/ver
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { CreateReportComponent } from './pages/create-report/create-report.component';
 
 export const routes: Routes = [
   // Redirección específica para la ruta raíz - DEBE ESTAR PRIMERO
@@ -23,13 +24,16 @@ export const routes: Routes = [
   { path: 'mapbox', component: TestMapComponent },
   { path: 'verification-complete', component: VerificationCompleteComponent },
   
-  // MainLayoutComponent con rutas protegidas
+  // Remove this standalone route:
+  // { path: 'create-report', component: CreateReportComponent },
+  
   {
     path: '',
     component: MainLayoutComponent,
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'profile', component: ProfileComponent }
+      { path: 'profile', component: ProfileComponent },
+      { path: 'create-report', component: CreateReportComponent },
     ]
   },
   

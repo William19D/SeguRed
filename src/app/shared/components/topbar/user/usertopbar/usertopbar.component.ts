@@ -77,6 +77,10 @@ export class UsertopbarComponent implements OnInit {
     this.router.navigate(['/dashboard']);
   }
 
+  goToCreateReport() {
+    this.router.navigate(['/create-report']);
+  }
+
   goToProfile() {
     this.router.navigate(['/profile']);
   }

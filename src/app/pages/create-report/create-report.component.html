@@ -1,0 +1,154 @@
+<div class="create-report-container">
+  <div class="left-section">
+    <h1>Crear un <span class="highlight">Reporte.</span></h1>
+    <p class="subtitle">Comparte información importante con la comunidad. Completa los detalles a continuación</p>
+    
+    <div class="illustration">
+      <img src="report.svg" alt="Personas colaborando">
+    </div>
+  </div>
+  
+  <div class="right-section">
+    <!-- Error message display -->
+    <div class="error-banner" *ngIf="errorMessage">
+      <div class="error-message">{{ errorMessage }}</div>
+    </div>
+
+    <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="titulo">Título del Reporte</label>
+        <input 
+          type="text" 
+          id="titulo" 
+          formControlName="titulo" 
+          placeholder="Ejemplo: Perro labrador encontrado en el parque" 
+          class="form-control"
+        >
+        <div *ngIf="submitted && f['titulo'].errors" class="error-message">
+          <div *ngIf="f['titulo'].errors['required']">El título es obligatorio</div>
+          <div *ngIf="f['titulo'].errors['minlength']">El título debe tener al menos 5 caracteres</div>
+          <div *ngIf="f['titulo'].errors['maxlength']">El título no debe exceder los 100 caracteres</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion">Descripción</label>
+        <textarea 
+          id="descripcion" 
+          formControlName="descripcion" 
+          placeholder="Describe lo sucedido con más detalles. Ejemplo: Se encontró un perro labrador amarillo en el parque principal a las 10:30 AM. Tiene collar rojo y parece asustado" 
+          class="form-control"
+          rows="5"
+        ></textarea>
+        <div *ngIf="submitted && f['descripcion'].errors" class="error-message">
+          <div *ngIf="f['descripcion'].errors['required']">La descripción es obligatoria</div>
+          <div *ngIf="f['descripcion'].errors['minlength']">La descripción debe tener al menos 20 caracteres</div>
+          <div *ngIf="f['descripcion'].errors['maxlength']">La descripción no debe exceder los 500 caracteres</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" formControlName="categoria" class="form-control">
+          <option *ngFor="let cat of categorias" [ngValue]="cat">{{cat.nombre}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Ubicación</label>
+        <div class="location-options">
+          <label class="checkbox-container">
+            <input type="checkbox" formControlName="useCurrentLocation" (change)="toggleUseCurrentLocation()">
+            <span class="custom-checkbox"></span>
+            Usar mi ubicación actual
+          </label>
+          <button type="button" class="btn-secondary" (click)="toggleMapVisibility()">
+            {{ showMap ? 'Ocultar Mapa' : 'Mostrar Mapa' }}
+          </button>
+        </div>
+
+        <!-- Loading indicator -->
+        <div class="loading-indicator" *ngIf="isLoading">
+          <div class="spinner"></div>
+          <span>Cargando ubicación...</span>
+        </div>
+
+        <!-- Map container -->
+        <div class="form-group map-group" *ngIf="showMap">
+          <div id="map" class="map-container"></div>
+          <p class="map-instructions">Haz clic en el mapa o arrastra el marcador para seleccionar la ubicación</p>
+        </div>
+
+        <!-- Display selected location -->
+        <div class="selected-location" *ngIf="currentLocation && currentLocation.address">
+          <p><strong>Ubicación seleccionada:</strong> {{ currentLocation.address }}</p>
+        </div>
+
+        <!-- Manual address input when map is not used -->
+        <div *ngIf="!useCurrentLocationValue && !showMap">
+          <p class="location-alternative">O si prefieres, escribe la dirección manualmente</p>
+          <input 
+            type="text" 
+            formControlName="direccion" 
+            class="form-control" 
+            placeholder="Ejemplo: Calle 123 # 45-67"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Sube fotos de tu reporte (Mínimo 1 foto, máximo {{ maxImageCount }})</label>
+        
+        <!-- Fotos seleccionadas -->
+        <div class="photos-grid" *ngIf="imagePreviews.length > 0">
+          <div class="photo-item" *ngFor="let preview of imagePreviews; let i = index">
+            <div class="photo-preview">
+              <img [src]="preview" alt="Imagen {{ i+1 }}">
+              <button type="button" class="remove-photo" (click)="removeImage(i)">×</button>
+            </div>
+            <span class="photo-name">{{ selectedFiles[i]?.name }}</span>
+          </div>
+        </div>
+        
+        <!-- Contenedor para subir fotos -->
+        <div class="upload-container">
+          <div class="photo-preview" *ngIf="imagePreviews.length === 0">
+            <img src="imagenotfound.png" alt="Placeholder">
+          </div>
+          <div class="upload-info">
+            <p class="upload-note">Por favor sube tus imágenes, cada una no debe superar los 10MB</p>
+            <div class="upload-actions">
+              <button type="button" class="btn-secondary" (click)="fileInput.click()" [disabled]="selectedFiles.length >= maxImageCount">
+                {{ selectedFiles.length > 0 ? 'Añadir más fotos' : 'Escoger Fotos' }}
+              </button>
+              <input #fileInput type="file" (change)="onFileChange($event)" style="display: none" accept="image/*" multiple>
+              <span *ngIf="selectedFiles.length === 0" class="no-file">No has seleccionado ninguna foto</span>
+              <span *ngIf="selectedFiles.length > 0" class="selected-file">{{ selectedFiles.length }} foto(s) seleccionada(s)</span>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="submitted && selectedFiles.length === 0" class="error-message">
+          <div>Debes subir al menos una foto</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-container declaration">
+          <input type="checkbox" formControlName="declaration">
+          <span class="custom-checkbox"></span>
+          Declaro, bajo la gravedad de juramento, que la información suministrada en este reporte es veraz y corresponde a los hechos ocurridos, asumiendo la responsabilidad de su contenido
+        </label>
+        <div *ngIf="submitted && f['declaration'].errors" class="error-message">
+          <div *ngIf="f['declaration'].errors['required']">Debes aceptar la declaración</div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Reportar</span>
+          <span *ngIf="isLoading">Enviando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
