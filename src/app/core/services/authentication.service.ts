@@ -241,7 +241,7 @@ export class AuthService {
   // Método para confirmar el restablecimiento de contraseña con código
   resetPasswordWithCode(email: string, code: string, newPassword: string): Observable<any> {
     // Ya usa la URL local, mantenemos la consistencia
-    return this.http.put(`${this.localApiUrl}/cuenta/password`, {
+    return this.http.put(`${this.localApiUrl}/cuenta/nueva-password`, {
       correo: email,
       codigo: code,
       nuevaContraseña: newPassword
