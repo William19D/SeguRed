@@ -147,20 +147,42 @@ private initMap(): void {
     }
   }
 
-  toggleMapVisibility() {
-    this.showMap = !this.showMap;
-    
-    if (this.showMap) {
-      setTimeout(() => {
-        if (!this.map) {
-          this.initMap();
-        } else {
-          // Leaflet necesita una actualización del tamaño cuando el contenedor cambia
-          this.map.invalidateSize();
-        }
-      }, 100);
+ toggleMapVisibility() {
+  this.showMap = !this.showMap;
+  
+  if (this.showMap) {
+    // Primero, destruir el mapa existente (si hay) para evitar problemas
+    if (this.map) {
+      this.map.remove();
+      this.map = undefined;
+      this.marker = undefined;
     }
+    
+    // Usamos un timeout más largo para asegurar que el DOM se ha renderizado
+    setTimeout(() => {
+      // Intentar inicializar el mapa solo cuando el elemento del DOM exista
+      const mapContainer = document.getElementById('map');
+      if (mapContainer) {
+        try {
+          this.initMap();
+          
+          // Si ya teníamos una ubicación, centrar el mapa en ella
+          if (this.currentLocation && this.map) {
+            this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
+            if (this.marker) {
+              this.marker.setLatLng([this.currentLocation.lat, this.currentLocation.lng]);
+            }
+          }
+        } catch (error) {
+          console.error('Error al inicializar el mapa:', error);
+          this.errorMessage = 'Hubo un problema al cargar el mapa. Por favor, intenta nuevamente.';
+        }
+      } else {
+        console.error('Contenedor del mapa no encontrado');
+      }
+    }, 300); // Aumentado a 300ms para asegurar que el DOM esté completamente renderizado
   }
+}
 
   getCurrentLocation() {
     this.isLoading = true;
