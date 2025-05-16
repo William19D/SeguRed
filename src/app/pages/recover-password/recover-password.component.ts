@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
 
 @Component({
   selector: 'app-recover-password',
@@ -15,7 +15,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
 })
 export class RecoverPasswordComponent {
   email: string = '';
-  apiUrl = 'https://api.example.com/recover-password'; // Cambiar por la API real
+  apiUrl = 'https://api.example.com/recover-password'; 
 
   constructor(private http: HttpClient, private router: Router) {}
 

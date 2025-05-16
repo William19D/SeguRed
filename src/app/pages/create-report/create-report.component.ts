@@ -29,9 +29,9 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
   isLoading = false;
   errorMessage: string | null = null;
   
-  // Variables para el mapa - Corregido para evitar error 'never'
-  map: L.Map | null = null;
-  marker: L.Marker | null = null;
+  // Variables para el mapa
+  map: L.Map | undefined;
+  marker: L.Marker | undefined;
   showMap = false;
 
   // Máximo tamaño de archivo en bytes (10MB)
@@ -77,9 +77,7 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.showMap) {
-      setTimeout(() => {
-        this.initMap();
-      }, 100);
+      this.initMap();
     }
   }
 
@@ -88,57 +86,49 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
     return this.reportForm.controls;
   }
 
-  private initMap(): void {
-    try {
-      // Asegurarnos que el elemento del mapa existe
-      const mapElement = document.getElementById('map');
-      if (!mapElement) {
-        console.error('Elemento del mapa no encontrado');
-        return;
-      }
-
-      // Usar aserciones de tipo explícitas para resolver el problema de 'never'
-      this.map = L.map('map') as L.Map;
-      this.map.setView([4.7110, -74.0721], 16);
-
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(this.map);
-
-      // Crear un marcador inicial en el centro de Bogotá
-      this.marker = L.marker([4.7110, -74.0721], { draggable: true }) as L.Marker;
-      this.marker.addTo(this.map);
-      this.marker.bindPopup('Arrastra el marcador para actualizar la ubicación de tu reporte.').openPopup();
-
-      // Cuando se arrastra el marcador, actualizar las coordenadas y la dirección
-      this.marker.on('dragend', () => {
-        if (this.marker) {
-          const position = this.marker.getLatLng();
-          this.currentLocation = { lat: position.lat, lng: position.lng };
-          this.reportForm.patchValue({
-            locations: [{ lat: position.lat, lng: position.lng }]
-          });
-          this.updateAddress(position.lat, position.lng);
-        }
-      });
-
-      // Al hacer clic en cualquier parte del mapa, mover el marcador allí
-      this.map.on('click', (e: L.LeafletMouseEvent) => {
-        if (this.marker && this.map) {
-          this.marker.setLatLng(e.latlng);
-          this.currentLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
-          this.reportForm.patchValue({
-            locations: [{ lat: e.latlng.lat, lng: e.latlng.lng }]
-          });
-          this.updateAddress(e.latlng.lat, e.latlng.lng);
-        }
-      });
-    } catch (error) {
-      console.error('Error al inicializar el mapa', error);
-      this.errorMessage = 'Error al cargar el mapa. Inténtalo de nuevo.';
-    }
+private initMap(): void {
+  // Asegurarse de que el elemento del mapa existe
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('Elemento del mapa no encontrado');
+    return;
   }
+  
+  // Establecer las coordenadas iniciales a Bogotá, Colombia
+  this.map = L.map('map').setView([4.7110, -74.0721], 16);
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(this.map);
+
+  // Crear un marcador inicial en el centro de Bogotá
+  this.marker = L.marker([4.7110, -74.0721], { draggable: true }).addTo(this.map)
+    .bindPopup('Arrastra el marcador para actualizar la ubicación de tu reporte.')
+    .openPopup();
+
+  // Cuando se arrastra el marcador, actualizar las coordenadas y la dirección
+  this.marker.on('dragend', () => {
+    const position = this.marker!.getLatLng();
+    this.currentLocation = { lat: position.lat, lng: position.lng };
+    this.reportForm.patchValue({
+      locations: [{ lat: position.lat, lng: position.lng }]
+    });
+    this.updateAddress(position.lat, position.lng);
+  });
+
+  // Al hacer clic en cualquier parte del mapa, mover el marcador allí
+  this.map.on('click', (e: L.LeafletMouseEvent) => {
+    if (this.marker && this.map) {
+      this.marker.setLatLng(e.latlng);
+      this.currentLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+      this.reportForm.patchValue({
+        locations: [{ lat: e.latlng.lat, lng: e.latlng.lng }]
+      });
+      this.updateAddress(e.latlng.lat, e.latlng.lng);
+    }
+  });
+}
 
   toggleUseCurrentLocation() {
     this.useCurrentLocationValue = this.reportForm.get('useCurrentLocation')?.value;
@@ -157,55 +147,20 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
     }
   }
 
-toggleMapVisibility() {
-  this.showMap = !this.showMap;
-  
-  if (this.showMap) {
-    // Necesitamos destruir el mapa anterior si existe y crear uno nuevo
-    setTimeout(() => {
-      try {
-        // Si hay un mapa existente, destrúyelo primero
-        if (this.map) {
-          this.map.remove();
-          this.map = null;
-          this.marker = null;
+  toggleMapVisibility() {
+    this.showMap = !this.showMap;
+    
+    if (this.showMap) {
+      setTimeout(() => {
+        if (!this.map) {
+          this.initMap();
+        } else {
+          // Leaflet necesita una actualización del tamaño cuando el contenedor cambia
+          this.map.invalidateSize();
         }
-        
-        // Inicializa un mapa nuevo
-        this.initMap();
-        
-        // Si ya teníamos ubicación, reposicionamos el mapa después
-        // guardando la referencia para uso posterior
-        const savedLocation = this.currentLocation ? 
-          { lat: this.currentLocation.lat, lng: this.currentLocation.lng } : null;
-          
-        // Posicionamos el mapa en una función separada para evitar problemas de tipado
-        if (savedLocation) {
-          setTimeout(() => this.centerMapAt(savedLocation.lat, savedLocation.lng), 100);
-        }
-      } catch (error) {
-        console.error('Error al actualizar el mapa', error);
-      }
-    }, 200);
-  }
-}
-
-// Método auxiliar para centrar el mapa y evitar problemas de tipado
-private centerMapAt(lat: number, lng: number): void {
-  if (this.map) {
-    try {
-      // Uso explícito de métodos con verificación de tipo en una función separada
-      const m = this.map as L.Map;
-      m.setView([lat, lng], 16);
-      
-      if (this.marker) {
-        this.marker.setLatLng([lat, lng]);
-      }
-    } catch (err) {
-      console.error('Error al centrar el mapa', err);
+      }, 100);
     }
   }
-}
 
   getCurrentLocation() {
     this.isLoading = true;

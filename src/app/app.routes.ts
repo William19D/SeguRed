@@ -1,15 +1,16 @@
 import { Routes } from '@angular/router';
-import { LandingComponent } from './pages/landing/landing.component';
-import { RegisterComponent } from './pages/register/register.component';
-import { LoginComponent } from './pages/login/login.component';
-import { RecoverPasswordComponent } from './pages/recover-password/recover-password.component';
-import { VerificationCodeComponent } from './pages/verification-code/verification-code.component';
-import { TestMapComponent } from './pages/test-map/test-map.component';
-import { VerificationCompleteComponent } from './pages/verification-complete/verification-complete.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { ProfileComponent } from './pages/profile/profile.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { CreateReportComponent } from './pages/create-report/create-report.component';
+
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { LandingComponent } from './pages/landing/landing.component';
+import { LoginComponent } from './pages/login/login.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { RecoverPasswordComponent } from './pages/recover-password/recover-password.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { TestMapComponent } from './pages/test-map/test-map.component';
+import { VerificationCodeComponent } from './pages/verification-code/verification-code.component';
+import { VerificationCompleteComponent } from './pages/verification-complete/verification-complete.component';
 
 export const routes: Routes = [
   // Redirección específica para la ruta raíz - DEBE ESTAR PRIMERO
@@ -34,6 +35,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'create-report', component: CreateReportComponent },
+
     ]
   },
   
