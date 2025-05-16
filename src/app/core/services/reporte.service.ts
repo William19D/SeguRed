@@ -1,8 +1,7 @@
-// src/app/core/services/reporte.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, switchMap, of } from 'rxjs';
+// Actualiza esta línea para incluir throwError
+import { Observable, switchMap, of, throwError } from 'rxjs';
 import { AuthService } from './authentication.service';
 import { catchError, map } from 'rxjs/operators';
 
@@ -11,7 +10,7 @@ import { catchError, map } from 'rxjs/operators';
 })
 export class ReporteService {
   // URL fija de la API según lo solicitado
-  private apiUrl = 'https://seguredapi-919088633053.us-central1.run.app';
+  private apiUrl = 'http://localhost:8080';
 
   constructor(
     private http: HttpClient,
@@ -50,14 +49,47 @@ export class ReporteService {
   }
 
   private sendReporteRequest(reporteData: any): Observable<any> {
-    const url = `${this.apiUrl}/reportes`;
-    const headers = this.getAuthHeaders();
-    
-    console.log('Enviando reporte a:', url);
-    console.log('Datos del reporte:', reporteData);
-    
-    return this.http.post(url, reporteData, { headers });
-  }
+  const url = `${this.apiUrl}/reportes`;
+  const headers = this.getAuthHeaders();
+  
+  console.log('Enviando reporte a:', url);
+  
+  // Limitar el logging para no llenar la consola
+  const reporteDataLog = {
+    ...reporteData,
+    imagenes: reporteData.imagenes ? 
+      `[${reporteData.imagenes.length} imágenes]` : 'ninguna'
+  };
+  console.log('Datos del reporte:', reporteDataLog);
+  
+  return this.http.post(url, reporteData, { headers })
+    .pipe(
+      catchError(error => {
+        console.error('Error en la solicitud HTTP:', error);
+        
+        // Intentar proporcionar información más útil sobre el error
+        let errorMsg = 'Error al enviar el reporte';
+        
+        if (error.error && error.error.message) {
+          errorMsg = `Error del servidor: ${error.error.message}`;
+        } else if (error.status === 0) {
+          errorMsg = 'No se pudo conectar al servidor. Verifique su conexión a Internet.';
+        } else if (error.status === 400) {
+          errorMsg = 'Datos de reporte incorrectos. Verifique e intente de nuevo.';
+        } else if (error.status === 413) {
+          errorMsg = 'El tamaño del reporte es demasiado grande. Intente con menos imágenes o de menor tamaño.';
+        }
+        
+        // Devolver un observable con el error mejorado
+        return throwError(() => {
+          return {
+            ...error,
+            userMessage: errorMsg
+          };
+        });
+      })
+    );
+}
 
   getReporteById(id: string): Observable<any> {
     const url = `${this.apiUrl}/reportes/${id}`;
