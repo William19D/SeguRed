@@ -52,10 +52,9 @@
   <div class="main-content">
     <section class="reports" *ngIf="!reportsLoading && !reportsError && reports.length > 0">
       <div *ngFor="let report of reports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
-        <!-- Mapa a la izquierda -->
+        <!-- Aquí es donde cambiamos la imagen por un mapa real -->
         <div class="report-map">
-          <img [src]="report.mapUrl" alt="Ubicación" 
-               onerror="this.src='imagenotfound.jpg'">
+          <div [id]="report.mapId" class="map-container"></div>
         </div>
         
         <!-- Contenido central -->
@@ -80,17 +79,14 @@
           </div>
         </div>
         
-        <!-- Imagen a la derecha -->
         <!-- Imagen a la derecha con spinner de carga -->
         <div class="report-image">
-          <!-- Spinner de carga verde -->
           <div class="image-loading-spinner"></div>
-          
           <img [src]="report.imageUrl" 
-              alt="{{ report.title }}" 
-              (load)="hideSpinner($event)"
-              (error)="handleImageError($event)"
-              class="report-img">
+               alt="{{ report.title }}" 
+               (load)="hideSpinner($event)"
+               (error)="handleImageError($event)"
+               class="report-img">
         </div>
       </div>
     </section>
@@ -133,6 +129,5 @@
       </div>
     </aside>
   </div>
-
 </div>
 <app-footer></app-footer>

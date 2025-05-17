@@ -1,18 +1,20 @@
+import { Component, OnInit, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router'; // Añadir RouterLink aquí
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/authentication.service';
 import { ReporteService } from '../../core/services/reporte.service';
+import { NominatimService } from '../../core/services/nominatim.service'; // Importar el servicio Nominatim
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  imports: [FooterComponent, CommonModule, RouterLink], // Añadir RouterLink aquí también
+  imports: [FooterComponent, CommonModule, RouterLink],
   standalone: true,
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewChecked {
   user: any = null;
   loading = true;
   error = false;
@@ -22,11 +24,15 @@ export class DashboardComponent implements OnInit {
   reportsLoading = true;
   reportsError = false;
   apiUrl = 'https://seguredapi-919088633053.us-central1.run.app';
+  mapsToInitialize: string[] = [];
+  mapInstances: Map<string, L.Map> = new Map(); // Para mantener referencias a las instancias de los mapas
+  markerInstances: Map<string, L.Marker> = new Map(); // Para mantener referencias a los marcadores
 
   constructor(
     private router: Router, 
     private authService: AuthService,
-    private reporteService: ReporteService
+    private reporteService: ReporteService,
+    private nominatimService: NominatimService // Inyectar el servicio Nominatim
   ) {}
 
   ngOnInit() {
@@ -64,6 +70,13 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  ngAfterViewChecked() {
+    // Inicializar mapas pendientes
+    if (this.mapsToInitialize.length > 0) {
+      this.initMaps();
+    }
+  }
+
   loadReports() {
     this.reportsLoading = true;
     this.reportsError = false;
@@ -73,6 +86,11 @@ export class DashboardComponent implements OnInit {
         console.log('Reportes obtenidos de la API:', data);
         this.reports = this.transformReportes(data);
         this.reportsLoading = false;
+        
+        // Programar inicialización de mapas después de renderizar
+        setTimeout(() => {
+          this.prepareMapInitialization();
+        }, 100);
       },
       error: (err) => {
         console.error('Error al cargar reportes:', err);
@@ -82,93 +100,198 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-transformReportes(reportes: any[]): any[] {
-  if (!Array.isArray(reportes)) {
-    console.error('Los datos recibidos no son un array:', reportes);
-    return [];
+  transformReportes(reportes: any[]): any[] {
+    if (!Array.isArray(reportes)) {
+      console.error('Los datos recibidos no son un array:', reportes);
+      return [];
+    }
+    
+    return reportes.map(reporte => {
+      try {
+        console.log('Procesando reporte:', reporte.id || 'sin ID');
+        
+        // URL de imagen por defecto
+        let imageUrl = 'imagenotfound.png';
+        
+        // Procesar imágenes si existen
+        if (reporte.imagenes && Array.isArray(reporte.imagenes) && reporte.imagenes.length > 0) {
+          imageUrl = `${this.apiUrl}/api/reportes-imagenes/${reporte.id}/imagen/0`;
+        }
+        
+        // Extraer ubicación
+        let location = { lat: null as number | null, lng: null as number | null };
+        let direccion = 'Sin ubicación';
+        
+        if (reporte.locations && reporte.locations.lat !== undefined && reporte.locations.lng !== undefined) {
+          location = {
+            lat: reporte.locations.lat,
+            lng: reporte.locations.lng
+          };
+          direccion = `Lat: ${location.lat?.toFixed(6) || 'N/A'}, Lng: ${location.lng?.toFixed(6) || 'N/A'}`;
+        }
+        
+        // Formato correcto de fecha
+        const fechaPublicacion = new Date(reporte.fechaPublicacion);
+        const tiempoTranscurrido = this.calcularTiempoTranscurrido(fechaPublicacion);
+        
+        // Procesar categoría
+        let nombreCategoria = 'General';
+        let descripcionCategoria = '';
+        
+        if (reporte.categoria && Array.isArray(reporte.categoria) && reporte.categoria.length > 0) {
+          const cat = reporte.categoria[0];
+          
+          if (cat.descripcion) {
+            nombreCategoria = this.obtenerNombreCategoria(cat.descripcion);
+            descripcionCategoria = cat.descripcion;
+          }
+        }
+        
+        return {
+          id: reporte.id || 'sin-id',
+          title: reporte.titulo || 'Sin título',
+          distance: '200m', // Valor predeterminado
+          address: direccion,
+          description: reporte.descripcion || 'Sin descripción',
+          generatedTime: tiempoTranscurrido,
+          category: nombreCategoria,
+          categoryDescription: descripcionCategoria,
+          categoryClass: this.obtenerClaseCategoria(nombreCategoria),
+          stars: typeof reporte.likes === 'number' ? reporte.likes : 0,
+          imageUrl: imageUrl,
+          mapId: `map-${reporte.id || Math.random().toString(36).substring(2, 11)}`,
+          location: location,
+          estado: reporte.estado || 'Desconocido'
+        };
+      } catch (error) {
+        console.error('Error al transformar reporte:', error, reporte);
+        return this.crearReporteDefault();
+      }
+    });
+  }
+
+  prepareMapInitialization() {
+    // Recopilar todos los reportes con coordenadas válidas
+    this.mapsToInitialize = this.reports
+      .filter(report => report.location && report.location.lat && report.location.lng)
+      .map(report => report.mapId);
+    
+    if (this.mapsToInitialize.length > 0) {
+      this.initMaps();
+    }
+  }
+
+initMaps() {
+  const initializedMaps: string[] = [];
+  
+  for (const mapId of this.mapsToInitialize) {
+    const mapElement = document.getElementById(mapId);
+    if (mapElement) {
+      const report = this.reports.find(r => r.mapId === mapId);
+      
+      if (report && report.location && report.location.lat && report.location.lng) {
+        try {
+          // Limpiar mapa si ya existía
+          if (this.mapInstances.has(mapId)) {
+            this.mapInstances.get(mapId)?.remove();
+          }
+
+          // Optimizado para espacio cuadrado pequeño
+          const map = L.map(mapId, {
+            center: [report.location.lat, report.location.lng],
+            zoom: 16, // Mayor zoom para espacio reducido
+            zoomControl: true, // Activamos controles por defecto
+            attributionControl: true,
+            dragging: true,
+            scrollWheelZoom: true,
+            doubleClickZoom: true
+          });
+          
+          // Añadir controles de zoom pequeños en esquina inferior derecha
+          L.control.zoom({
+            position: 'bottomright',
+            zoomInTitle: '+',
+            zoomOutTitle: '-'
+          }).addTo(map);
+          
+          // Guardar referencia
+          this.mapInstances.set(mapId, map);
+          
+          // Añadir tiles de OpenStreetMap
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+          }).addTo(map);
+          
+          // Marcador más pequeño y centrado
+          const marker = L.marker([report.location.lat, report.location.lng], { 
+            draggable: false
+          }).addTo(map);
+          
+          // No abrimos popup automáticamente para ahorrar espacio
+          marker.bindPopup(`<strong>${report.title}</strong><br>${report.address}`);
+          
+          this.markerInstances.set(mapId, marker);
+          this.updateAddressForReport(report);
+          
+          initializedMaps.push(mapId);
+        } catch (error) {
+          console.error(`Error al inicializar mapa ${mapId}:`, error);
+        }
+      }
+    }
   }
   
-  return reportes.map(reporte => {
-    try {
-      console.log('Procesando reporte:', reporte.id || 'sin ID');
-      
-      // URL de imagen por defecto
-      let imageUrl = 'imagenotfound.png';
-      
-      // Procesar imágenes si existen
-      if (reporte.imagenes && Array.isArray(reporte.imagenes) && reporte.imagenes.length > 0) {
-        // Usar la URL correcta para obtener la imagen del backend
-          imageUrl = `${this.apiUrl}/api/reportes-imagenes/${reporte.id}/imagen/0`;
-      }
-      
-      // Procesar ubicación - Estructura actual: {lat, lng}
-      let direccion = 'Sin ubicación';
-      if (reporte.location) {
-        if (reporte.location.direccion) {
-          direccion = reporte.location.direccion;
-        } else if (reporte.location.lat !== undefined && reporte.location.lng !== undefined) {
-          direccion = `Lat: ${reporte.location.lat}, Lng: ${reporte.location.lng}`;
+  this.mapsToInitialize = this.mapsToInitialize.filter(id => !initializedMaps.includes(id));
+}
+
+  // Método para actualizar la dirección usando nominatim (como en el componente de registro)
+  updateAddressForReport(report: any): void {
+    if (report && report.location && report.location.lat && report.location.lng) {
+      this.nominatimService.reverseGeocode(report.location.lat, report.location.lng).subscribe({
+        next: (response) => {
+          if (response && response.display_name) {
+            // Extraer una dirección más legible
+            const address = this.extractPartialAddress(response.display_name);
+            
+            // Actualizar la dirección en el reporte
+            report.address = address;
+            
+            // Actualizar el popup del marcador con la nueva dirección
+            const marker = this.markerInstances.get(report.mapId);
+            if (marker) {
+              marker.setPopupContent(`<strong>${report.title}</strong><br>${address}`);
+            }
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener la dirección:', error);
         }
-      }
-      
-      // Formato correcto de fecha
-      const fechaPublicacion = new Date(reporte.fechaPublicacion);
-      const tiempoTranscurrido = this.calcularTiempoTranscurrido(fechaPublicacion);
-      
-      // Procesar categoría
-      let nombreCategoria = 'General';
-      let descripcionCategoria = '';
-      
-      if (reporte.categoria && Array.isArray(reporte.categoria) && reporte.categoria.length > 0) {
-        const cat = reporte.categoria[0];
-        
-        // El campo relevante ahora es descripcion, no name
-        if (cat.descripcion) {
-          nombreCategoria = this.obtenerNombreCategoria(cat.descripcion);
-          descripcionCategoria = cat.descripcion;
-        }
-      }
-      
-      return {
-        id: reporte.id || 'sin-id',
-        title: reporte.titulo || 'Sin título',
-        distance: '200m', // Valor predeterminado
-        address: direccion,
-        description: reporte.descripcion || 'Sin descripción',
-        generatedTime: tiempoTranscurrido,
-        category: nombreCategoria,
-        categoryDescription: descripcionCategoria,
-        categoryClass: this.obtenerClaseCategoria(nombreCategoria),
-        stars: typeof reporte.likes === 'number' ? reporte.likes : 0,
-        imageUrl: imageUrl,
-        mapUrl: 'imagenotfound.png',
-        estado: reporte.estado || 'Desconocido'
-      };
-    } catch (error) {
-      console.error('Error al transformar reporte:', error, reporte);
-      return this.crearReporteDefault();
+      });
     }
-  });
-}
+  }
 
-// Método auxiliar para extraer un nombre de categoría legible desde la descripción
-obtenerNombreCategoria(descripcion: string): string {
-  if (!descripcion) return 'General';
-  
-  if (descripcion.includes('seguridad')) return 'Seguridad';
-  if (descripcion.includes('infraestructura')) return 'Infraestructura';
-  if (descripcion.includes('medio ambiente')) return 'Medio Ambiente';
-  if (descripcion.includes('transporte')) return 'Transporte';
-  if (descripcion.includes('servicios públicos')) return 'Servicios';
-  
-  return 'General';
-}
+  // Extraer una dirección más legible, similar al componente de registro
+  private extractPartialAddress(fullAddress: string): string {
+    const parts = fullAddress.split(',');
+    return parts.slice(0, 3).join(',').trim(); // Tomar solo las 3 primeras partes
+  }
 
-  // Método para limpiar campos que podrían tener valores extraños (como "image/jpeg")
+  // Resto de métodos sin cambios...
+  obtenerNombreCategoria(descripcion: string): string {
+    if (!descripcion) return 'General';
+    
+    if (descripcion.includes('seguridad')) return 'Seguridad';
+    if (descripcion.includes('infraestructura')) return 'Infraestructura';
+    if (descripcion.includes('medio ambiente')) return 'Medio Ambiente';
+    if (descripcion.includes('transporte')) return 'Transporte';
+    if (descripcion.includes('servicios públicos')) return 'Servicios';
+    
+    return 'General';
+  }
+
   limpiarCampo(valor: any): string {
     if (!valor) return '';
     
-    // Si el valor parece ser un MIME type, lo consideramos inválido
     if (typeof valor === 'string' && (
       valor.includes('/') || 
       valor === 'image/jpeg' || 
@@ -180,23 +303,6 @@ obtenerNombreCategoria(descripcion: string): string {
     return String(valor);
   }
 
-  // Método para extraer un nombre de categoría desde una descripción
-  extraerNombreDesdeDescripcion(descripcion: string): string {
-    if (!descripcion) return 'General';
-    
-    // Extraer palabras clave
-    if (descripcion.toLowerCase().includes('seguridad')) return 'Seguridad';
-    if (descripcion.toLowerCase().includes('mascota')) return 'Mascotas';
-    if (descripcion.toLowerCase().includes('infraestructura')) return 'Infraestructura';
-    if (descripcion.toLowerCase().includes('servicio')) return 'Servicios';
-    if (descripcion.toLowerCase().includes('ambiente')) return 'Medio Ambiente';
-    if (descripcion.toLowerCase().includes('comun')) return 'Comunidad';
-    
-    // Si no se encuentra una categoría específica
-    return 'General';
-  }
-
-  // Crear un reporte default para casos de error
   crearReporteDefault(): any {
     return {
       id: 'error',
@@ -209,7 +315,8 @@ obtenerNombreCategoria(descripcion: string): string {
       categoryClass: 'error',
       stars: 0,
       imageUrl: 'imagenotfound.png',
-      mapUrl: 'imagenotfound.png',
+      mapId: `map-error-${Math.random().toString(36).substring(2, 11)}`,
+      location: { lat: null, lng: null },
       estado: 'Error'
     };
   }
@@ -253,15 +360,13 @@ obtenerNombreCategoria(descripcion: string): string {
   retryLoadReports() {
     this.loadReports();
   }
-  // Método para ocultar spinner cuando la imagen se carga
-hideSpinner(event: any): void {
-  // Añadir clase loaded para hacer visible la imagen y ocultar el spinner
-  event.target.classList.add('loaded');
-}
 
-// Método para manejar errores de carga de imágenes
-handleImageError(event: any): void {
-  event.target.src = 'imagenotfound.png';
-  event.target.classList.add('loaded');
-}
+  hideSpinner(event: any): void {
+    event.target.classList.add('loaded');
+  }
+
+  handleImageError(event: any): void {
+    event.target.src = 'imagenotfound.png';
+    event.target.classList.add('loaded');
+  }
 }

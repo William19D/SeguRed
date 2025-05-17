@@ -196,16 +196,17 @@ header button:hover {
   gap: 16px;
 }
 
-/* Card de Reporte - Nueva estructura */
+/* Card de Reporte - Nueva estructura con mapa más grande */
 .report-card {
   display: grid;
-  grid-template-columns: 120px 1fr 150px;
+  grid-template-columns: 240px 1fr 150px; /* Aumentado de 120px a 240px */
   gap: 15px;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 240px; /* Asegurar altura mínima para el contenido */
 }
 
 .report-card:hover {
@@ -213,12 +214,53 @@ header button:hover {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Mapa a la izquierda */
+/* Mapa a la izquierda - AHORA CUADRADO Y GRANDE */
 .report-map {
+  width: 240px; /* Igual al ancho definido en grid-template-columns */
+  height: 240px; /* Altura igual al ancho para mantener cuadrado */
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 240px; /* Asegurar que no se reduzca */
+  align-self: stretch; /* Estirar para ocupar todo el alto */
+}
+
+/* Contenedor del mapa estilo Leaflet */
+.map-container {
   width: 100%;
   height: 100%;
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+/* Personalizar controles de zoom para que ocupen menos espacio */
+.leaflet-control-zoom {
+  margin: 8px !important;
+}
+
+.leaflet-control-zoom a {
+  width: 26px !important; /* Ligeramente más grande para el mapa más grande */
+  height: 26px !important;
+  line-height: 24px !important;
+  font-size: 14px !important;
+}
+
+/* Ocultar la atribución de OpenStreetMap para ahorrar espacio */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* Personalizar el popup para mejor legibilidad en mapa más grande */
+.leaflet-popup-content {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; /* Un poco más grande para mejor legibilidad */
+  line-height: 1.4;
+  margin: 8px 12px;
+}
+
+.leaflet-popup-content strong {
+  color: #FBC02D; /* Color amarillo consistente con la app */
+  font-weight: 600;
 }
 
 .report-map img {
@@ -346,8 +388,25 @@ header button:hover {
 .report-image {
   width: 100%;
   height: 100%;
+  min-height: 240px; /* Igual al mapa para mantener proporción */
   border-radius: 8px;
   overflow: hidden;
+  position: relative;
+}
+
+/* Spinner de carga de imagen */
+.image-loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(0,0,0,0.1);
+  border-left: 3px solid #FBC02D;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1;
 }
 
 .report-image img {
@@ -356,6 +415,12 @@ header button:hover {
   object-fit: cover;
   border-radius: 8px;
   transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.report-image img.loaded + .image-loading-spinner {
+  display: none;
 }
 
 .report-image img:hover {
@@ -364,7 +429,7 @@ header button:hover {
 
 /* Estilos para las imágenes que fallan */
 .report-image img[src="imagenotfound.png"],
-.report-image img[src="assets/no-image.jpg"] {
+.report-image img[src="assets/imagenotfound.jpg"] {
   object-fit: contain;
   background-color: #f5f5f5;
   padding: 10px;
@@ -424,6 +489,22 @@ aside label {
 }
 
 /* Media Queries para Responsive */
+@media (max-width: 1024px) {
+  .report-card {
+    grid-template-columns: 200px 1fr 150px; /* Un poco más pequeño en tablets grandes */
+  }
+  
+  .report-map {
+    width: 200px;
+    height: 200px;
+    min-width: 200px;
+  }
+  
+  .report-image {
+    min-height: 200px;
+  }
+}
+
 @media (max-width: 992px) {
   .main-content {
     grid-template-columns: 1fr;
@@ -432,6 +513,20 @@ aside label {
   aside {
     order: -1;
     margin-bottom: 20px;
+  }
+  
+  .report-card {
+    grid-template-columns: 180px 1fr 150px; /* Más pequeño en tablets */
+  }
+  
+  .report-map {
+    width: 180px;
+    height: 180px;
+    min-width: 180px;
+  }
+  
+  .report-image {
+    min-height: 180px;
   }
 }
 
@@ -480,7 +575,9 @@ aside label {
   
   .report-map {
     grid-area: map;
-    height: 120px;
+    width: 100%;
+    height: 200px; /* Altura fija en móvil */
+    min-width: auto;
   }
   
   .report-content {
@@ -489,7 +586,8 @@ aside label {
   
   .report-image {
     grid-area: image;
-    height: 180px;
+    height: 200px;
+    min-height: auto;
   }
 }
 
@@ -511,5 +609,13 @@ aside label {
   .report-card,
   aside {
     padding: 12px;
+  }
+  
+  .report-map {
+    height: 180px;
+  }
+  
+  .report-image {
+    height: 180px;
   }
 }
