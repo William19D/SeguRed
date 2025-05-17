@@ -1,0 +1,127 @@
+<div class="my-reports-container">
+  <div class="header-section">
+    <div class="header-content">
+      <h1>Mis <span class="highlight">Reportes</span>.</h1>
+      <p>
+        Aquí puedes ver y gestionar todos los reportes que has creado. Revisa su estado,
+        edítalos si es necesario y sigue su evolución en tiempo real.
+      </p>
+    </div>
+    <div class="header-image">
+      <img src="my-reports.svg" alt="Reportes Ilustración" />
+    </div>
+  </div>
+
+  <!-- Sección de búsqueda y filtros -->
+  <div class="search-section">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" placeholder="Buscar" [(ngModel)]="searchTerm" (input)="filterReports()" />
+    </div>
+    <div class="filters">
+        <label for="status-filter">Estado:</label>
+        <select id="status-filter" [(ngModel)]="statusFilter" (change)="filterReports()">
+            <option value="all">Todos</option>
+            <option value="Espera">Espera</option>
+            <option value="Completado">Completado</option>
+            <option value="Eliminado">Eliminado</option>
+            <option value="Denegado">Denegado</option>
+        </select>
+        </div>
+  </div>
+
+  <!-- Estado de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando tus reportes...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>No se pudieron cargar tus reportes. Por favor intenta nuevamente.</p>
+    <button (click)="loadUserReports()" class="retry-button">Reintentar</button>
+  </div>
+
+  <!-- Sin reportes -->
+  <div *ngIf="!loading && !error && filteredReports.length === 0" class="no-reports-container">
+    <img src="assets/images/no-reports.svg" alt="Sin reportes" class="no-reports-image" />
+    <p>No tienes reportes {{searchTerm ? 'que coincidan con tu búsqueda' : 'creados todavía'}}.</p>
+    <button (click)="createNewReport()" class="create-report-button">Crear un reporte</button>
+  </div>
+
+  <!-- Lista de reportes -->
+  <div *ngIf="!loading && filteredReports.length > 0" class="reports-grid">
+    <div *ngFor="let report of filteredReports" class="report-card">
+      <div class="report-header">
+        <h3>{{ report.titulo }}</h3>
+        <div class="status-badge" [ngClass]="getStatusClass(report.estado)">{{ report.estado }}</div>
+      </div>
+
+      <div class="report-body">
+        <div class="report-image">
+          <img 
+            [src]="report.imageUrl" 
+            [alt]="report.titulo" 
+            (load)="hideSpinner($event)"
+            (error)="handleImageError($event)"
+            class="report-img"
+          />
+          <div class="image-loading-spinner"></div>
+        </div>
+
+        <div class="report-details">
+          <div class="report-description">
+            <h4>Descripción</h4>
+            <p>{{ report.descripcion }}</p>
+          </div>
+
+          <div class="report-location">
+            <h4>Dirección:</h4>
+            <p>{{ report.direccion }}</p>
+          </div>
+
+          <div class="report-date">
+            <p>Generado el {{ formatDate(report.fechaPublicacion) }}</p>
+          </div>
+        </div>
+
+        <div class="report-map">
+          <div [id]="'map-' + report.id" class="map-container"></div>
+        </div>
+      </div>
+
+      <div class="report-actions">
+        <button class="view-button" [routerLink]="['/reporte', report.id]">Ver detalles</button>
+        
+        <button *ngIf="report.estado === 'Rechazado' && canAppeal(report)" 
+                class="appeal-button"
+                (click)="appealReport(report)">
+          Apelar
+        </button>
+        
+        <button *ngIf="report.estado !== 'Resuelto'" 
+                class="delete-button"
+                (click)="confirmDeleteReport(report)">
+          <i class="fas fa-trash"></i>
+        </button>
+        
+        <span *ngIf="report.estado === 'Rechazado' && !canAppeal(report)" class="appeal-message">
+          Ya no se puede apelar este reporte
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div *ngIf="filteredReports.length > 0" class="pagination">
+    <button [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)" class="page-button">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <span class="page-info">Página {{ currentPage }} de {{ totalPages }}</span>
+    <button [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)" class="page-button">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+</div>

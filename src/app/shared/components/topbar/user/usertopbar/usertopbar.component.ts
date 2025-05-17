@@ -21,7 +21,7 @@ export class UsertopbarComponent implements OnInit {
 
   user = {
     name: 'Usuario', 
-    profilePicture: 'assets/default-profile.png',
+    profilePicture: 'default-profile.png',
     role: 'Usuario'
   };
 
@@ -90,7 +90,7 @@ export class UsertopbarComponent implements OnInit {
   mapUserData(userData: any): void {
     this.user = {
       name: userData.nombreCom?.split(' ')[0] || 'Usuario',
-      profilePicture: userData.profilePicture || 'assets/default-profile.png',
+      profilePicture: userData.profilePicture || 'default-profile.png',
       role: userData.role || 'Usuario'
     };
   }
@@ -124,6 +124,12 @@ export class UsertopbarComponent implements OnInit {
 
   goToProfile() {
     this.router.navigate(['/profile']);
+    this.closeMobileMenu();
+    this.isUserMenuOpen = false;
+  }
+
+  goToMyReports() {
+    this.router.navigate(['/my-reports']);
     this.closeMobileMenu();
     this.isUserMenuOpen = false;
   }

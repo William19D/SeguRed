@@ -18,7 +18,7 @@
     <div class="nav-container" [ngClass]="{'mobile-open': isMobileMenuOpen}">
       <ul class="nav-menu">
         <li><a routerLink="/" (click)="goToDashboard()">Inicio</a></li>
-        <li><a routerLink="/mis-reportes">Mis Reportes</a></li>
+        <li><a (click)="goToMyReports()">Mis Reportes</a></li>
         <li><a (click)="goToCreateReport()">Crear Reporte</a></li>
       </ul>
 

@@ -12,7 +12,7 @@ import { TestMapComponent } from './pages/test-map/test-map.component';
 import { VerificationCodeComponent } from './pages/verification-code/verification-code.component';
 import { VerificationCompleteComponent } from './pages/verification-complete/verification-complete.component';
 import { PasswordCodeVerificationComponent } from './pages/password-code-verification/password-code-verification.component';
-
+import { MyReportsComponent } from './pages/my-reports/my-reports.component';
 export const routes: Routes = [
   // Redirección específica para la ruta raíz - DEBE ESTAR PRIMERO
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -27,6 +27,7 @@ export const routes: Routes = [
   { path: 'verification-complete', component: VerificationCompleteComponent },
   { path: 'password-code-verification', component: PasswordCodeVerificationComponent },
 
+
   // Remove this standalone route:
   // { path: 'create-report', component: CreateReportComponent },
   
@@ -37,7 +38,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'create-report', component: CreateReportComponent },
-
+      { path: 'my-reports', component: MyReportsComponent }
     ]
   },
   
