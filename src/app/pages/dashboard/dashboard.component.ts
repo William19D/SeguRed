@@ -207,13 +207,6 @@ initMaps() {
             doubleClickZoom: true
           });
           
-          // Añadir controles de zoom pequeños en esquina inferior derecha
-          L.control.zoom({
-            position: 'bottomright',
-            zoomInTitle: '+',
-            zoomOutTitle: '-'
-          }).addTo(map);
-          
           // Guardar referencia
           this.mapInstances.set(mapId, map);
           
