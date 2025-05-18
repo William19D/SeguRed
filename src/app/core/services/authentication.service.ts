@@ -282,4 +282,17 @@ export class AuthService {
       })
     );
   }
+  resetPasswordWithCode(email: string, code: string, newPassword: string): Observable<any> {
+    // Ya usa la URL local, mantenemos la consistencia
+    return this.http.put(`${this.localApiUrl}/cuenta/password`, {
+      correo: email,
+      codigo: code,
+      nuevaContraseña: newPassword
+    }).pipe(
+      catchError(error => {
+        console.error('Error al restablecer contraseña:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }
