@@ -441,20 +441,30 @@ header button:hover {
   margin-bottom: 10px;
 }
 
+/* Estilos para múltiples categorías */
+.report-categories-container {
+  display: flex;
+  flex-direction: row; /* Asegúrate que sea row (horizontal) */
+  flex-wrap: nowrap; /* No permitir que las etiquetas se envuelvan */
+  gap: 5px;
+  margin-bottom: 10px;
+  justify-content: flex-end; /* Alinear a la derecha ya que está en report-right-section */
+}
+
 .category {
-  display: inline-block;
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  color: #fff;
-  border-radius: 20px;
-  text-transform: uppercase;
-  font-weight: 600;
+  display: inline-flex; /* Usar inline-flex para mejor alineación */
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap; 
+  margin-bottom: 0; /* Eliminar el margen que podría causar saltos de línea */
+  align-items: center; /* Centrar el texto verticalmente */
 }
 
 .category.mascotas { background-color: #4caf50; }
 .category.seguridad { background-color: #f44336; }
 .category.comunidad { background-color: #2196f3; }
-.category.general { background-color: #9e9e9e; }
+.category.transporte  { background-color: #9e9e9e; }
 .category.servicios { background-color: #ff9800; }
 .category.infraestructura { background-color: #607d8b; }
 .category.error { background-color: #f44336; }

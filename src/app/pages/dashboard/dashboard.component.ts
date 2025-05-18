@@ -136,7 +136,7 @@ applyFilters(): void {
       report.title?.toLowerCase().includes(search) || 
       report.description?.toLowerCase().includes(search) ||
       report.address?.toLowerCase().includes(search) ||
-      report.category?.toLowerCase().includes(search)
+      report.allCategories?.some((cat: string) => cat.toLowerCase().includes(search))
     );
   }
   
@@ -148,13 +148,12 @@ applyFilters(): void {
     console.log("Categorías seleccionadas:", selectedCategories);
     
     filtered = filtered.filter(report => {
-      // Verificar si la categoría del reporte está entre las seleccionadas
-      const match = selectedCategories.includes(report.categoryClass);
+      // El reporte se muestra si alguna de sus categorías está en los filtros seleccionados
+      const match = report.allCategoryClasses?.some((cls: string) => selectedCategories.includes(cls));
+      console.log(`Reporte "${report.title}" - Categorías: ${report.allCategories?.join(', ')} - Clases: ${report.allCategoryClasses?.join(', ')} -> Coincide: ${match}`);
       return match;
     });
   }
-  
-  // Ya no aplicamos filtros de estado
   
   // Actualizar los reportes filtrados
   this.filteredReports = filtered;
@@ -299,40 +298,51 @@ resetFilters(): void {
   }
 
   // Sobrescribir loadReports para guardar reportes originales
-  loadReports() {
-    this.reportsLoading = true;
-    this.reportsError = false;
-    
-    this.reporteService.getAllReportes().subscribe({
-      next: (data) => {
-        console.log('Reportes obtenidos de la API:', data);
-        this.originalReports = this.transformReportes(data);
-        
-        // Simplemente asignar todos los reportes a filtered sin filtrar inicialmente
-        this.filteredReports = [...this.originalReports];
-        
-        // Si ya tenemos la ubicación del usuario, calcular distancias
-        if (this.currentUserLocation) {
-          this.updateReportsWithDistance();
-        }
-        
-        this.reportsLoading = false;
-        
-        // Ordenar por la opción predeterminada
-        this.sortReports();
-        
-        // Programar inicialización de mapas después de renderizar
-        setTimeout(() => {
-          this.prepareMapInitialization();
-        }, 100);
-      },
-      error: (err) => {
-        console.error('Error al cargar reportes:', err);
-        this.reportsError = true;
-        this.reportsLoading = false;
+loadReports() {
+  this.reportsLoading = true;
+  this.reportsError = false;
+  
+  this.reporteService.getAllReportes().subscribe({
+    next: (data) => {
+      console.log('Reportes obtenidos de la API:', data);
+      
+      // Filtrar reportes eliminados antes de procesarlos
+      const filteredData = data.filter((reporte: any) => {
+        const estado = (reporte.estado || '').toUpperCase();
+        return estado !== 'ELIMINADO' && estado !== 'DELETED';
+      });
+      
+      console.log(`Filtrados ${data.length - filteredData.length} reportes eliminados`);
+      
+      this.originalReports = this.transformReportes(filteredData);
+      
+      // Simplemente asignar todos los reportes a filtered sin filtrar inicialmente
+      this.filteredReports = [...this.originalReports];
+      
+      // Si ya tenemos la ubicación del usuario, calcular distancias
+      if (this.currentUserLocation) {
+        this.updateReportsWithDistance();
       }
-    });
-  }
+      
+      this.reportsLoading = false;
+      
+      // Ordenar por la opción predeterminada
+      this.sortReports();
+      
+      // Programar inicialización de mapas después de renderizar
+      setTimeout(() => {
+        if (this.filteredReports.length > 0) {
+          this.prepareMapInitialization();
+        }
+      }, 100);
+    },
+    error: (err) => {
+      console.error('Error al cargar reportes:', err);
+      this.reportsError = true;
+      this.reportsLoading = false;
+    }
+  });
+}
 
   // Método para actualizar los reportes con la distancia desde la ubicación actual
   updateReportsWithDistance() {
@@ -432,30 +442,35 @@ resetFilters(): void {
       const fechaPublicacion = new Date(reporte.fechaPublicacion);
       const tiempoTranscurrido = this.calcularTiempoTranscurrido(fechaPublicacion);
       
-      // Procesar categoría - ahora con soporte para name o descripcion
-      let nombreCategoria = 'General';
-      let descripcionCategoria = '';
+      // Procesar categorías - NUEVO: extraer todas las categorías del reporte
+      let nombreCategorias: string[] = [];
+      let descripcionCategorias: string[] = [];
+      let categoryClasses: string[] = [];
       
-      if (reporte.categoria && Array.isArray(reporte.categoria) && reporte.categoria.length > 0) {
-        const cat = reporte.categoria[0];
-        
-        // Primero intentar con name (nuevo formato)
-        if (cat.name) {
-          nombreCategoria = cat.name;
-          descripcionCategoria = cat.descripcion || '';
-          console.log(`Reporte ${reporte.id}: Usando name para categoría: ${nombreCategoria}`);
-        } 
-        // Si no hay name, intentar con descripción (formato anterior)
-        else if (cat.descripcion) {
-          nombreCategoria = this.obtenerNombreCategoria(cat.descripcion);
-          descripcionCategoria = cat.descripcion;
-          console.log(`Reporte ${reporte.id}: Inferiendo nombre desde descripción: ${nombreCategoria}`);
-        }
+      if (reporte.categoria && Array.isArray(reporte.categoria)) {
+        // Procesar todas las categorías del reporte
+        reporte.categoria.forEach((cat: { name: string; descripcion: string; }) => {
+          if (cat.name) {
+            nombreCategorias.push(cat.name);
+            descripcionCategorias.push(cat.descripcion || '');
+          } else if (cat.descripcion) {
+            const nombre = this.obtenerNombreCategoria(cat.descripcion);
+            nombreCategorias.push(nombre);
+            descripcionCategorias.push(cat.descripcion);
+          }
+        });
       }
       
-      // Obtener la clase CSS para la categoría
-      const categoryClass = this.obtenerClaseCategoria(nombreCategoria);
-      console.log(`Reporte ${reporte.id}: Categoría ${nombreCategoria} -> Clase CSS: ${categoryClass}`);
+      // Si no hay categorías, asignar una por defecto
+      if (nombreCategorias.length === 0) {
+        nombreCategorias = ['General'];
+        descripcionCategorias = [''];
+      }
+      
+      // Obtener las clases CSS para todas las categorías
+      categoryClasses = nombreCategorias.map(nombre => this.obtenerClaseCategoria(nombre));
+      
+      console.log(`Reporte ${reporte.id}: Categorías: ${nombreCategorias.join(', ')} -> Clases: ${categoryClasses.join(', ')}`);
       
       // Inicializar la distancia como "Calculando..." - se actualizará después
       const distanceText = this.currentUserLocation ? 'Calculando...' : 'Ubicación no disponible';
@@ -473,9 +488,13 @@ resetFilters(): void {
         address: direccion,
         description: reporte.descripcion || 'Sin descripción',
         generatedTime: tiempoTranscurrido,
-        category: nombreCategoria,
-        categoryDescription: descripcionCategoria,
-        categoryClass: categoryClass,
+        // Usar la primera categoría como categoría principal para mostrar
+        category: nombreCategorias[0], 
+        categoryDescription: descripcionCategorias[0],
+        categoryClass: categoryClasses[0],
+        // Guardar todas las categorías para filtrado
+        allCategories: nombreCategorias,
+        allCategoryClasses: categoryClasses,
         stars: typeof reporte.likes === 'number' ? reporte.likes : 0,
         imageUrl: imageUrl,
         mapId: `map-${reporte.id || Math.random().toString(36).substring(2, 11)}`,
@@ -625,22 +644,24 @@ resetFilters(): void {
   }
 
   crearReporteDefault(): any {
-    return {
-      id: 'error',
-      title: 'Error al cargar reporte',
-      distance: 'N/A',
-      address: 'Sin dirección',
-      description: 'No se pudo cargar la información del reporte correctamente.',
-      generatedTime: 'Fecha desconocida',
-      category: 'Error',
-      categoryClass: 'error',
-      stars: 0,
-      imageUrl: 'imagenotfound.png',
-      mapId: `map-error-${Math.random().toString(36).substring(2, 11)}`,
-      location: { lat: null, lng: null },
-      estado: 'Error'
-    };
-  }
+  return {
+    id: 'error',
+    title: 'Error al cargar reporte',
+    distance: 'N/A',
+    address: 'Sin dirección',
+    description: 'No se pudo cargar la información del reporte correctamente.',
+    generatedTime: 'Fecha desconocida',
+    category: 'Error',
+    categoryClass: 'error',
+    allCategories: ['Error'],
+    allCategoryClasses: ['error'],
+    stars: 0,
+    imageUrl: 'imagenotfound.png',
+    mapId: `map-error-${Math.random().toString(36).substring(2, 11)}`,
+    location: { lat: null, lng: null },
+    estado: 'Error'
+  };
+}
 
   calcularTiempoTranscurrido(fecha: Date): string {
     const ahora = new Date();

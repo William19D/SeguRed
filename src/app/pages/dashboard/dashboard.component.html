@@ -97,10 +97,17 @@
             </div>
           </div>
           
-          <!-- Sección derecha: Categoría arriba y botón detalles abajo -->
+          <!-- Sección derecha: Categorías arriba y botón detalles abajo -->
           <div class="report-right-section">
             <div class="report-category">
-              <span class="category {{ report.categoryClass }}" [title]="report.categoryDescription || ''">{{ report.category }}</span>
+              <!-- Mostrar todas las categorías del reporte -->
+              <div class="report-categories-container">
+                <span *ngFor="let cat of report.allCategories; let i = index" 
+                      class="category {{ report.allCategoryClasses[i] }}" 
+                      title="{{ cat }}">
+                  {{ cat }}
+                </span>
+              </div>
             </div>
             
             <div class="report-image">
