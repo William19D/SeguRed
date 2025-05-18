@@ -283,8 +283,8 @@ export class AuthService {
     );
   }
   resetPasswordWithCode(email: string, code: string, newPassword: string): Observable<any> {
-    // Ya usa la URL local, mantenemos la consistencia
-    return this.http.put(`${this.localApiUrl}/cuenta/password`, {
+    // Corregir la URL para que coincida con el endpoint en el backend
+    return this.http.put(`${this.localApiUrl}/cuenta/nueva-password`, {
       correo: email,
       codigo: code,
       nuevaContraseña: newPassword
