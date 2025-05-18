@@ -33,6 +33,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   errorMessage = '';
   submitted = false;
+  isModeratorLogin = false; // Nueva propiedad para controlar el tipo de login
 
   constructor(
     private router: Router, 
@@ -62,6 +63,13 @@ export class LoginComponent implements OnInit {
 
   // Getters for easy access to form fields in template
   get f() { return this.loginForm.controls; }
+
+  // Método para cambiar el tipo de login
+  setLoginType(isModerator: boolean): void {
+    this.isModeratorLogin = isModerator;
+    // Limpiar mensajes de error al cambiar de tipo
+    this.errorMessage = '';
+  }
 
   onCaptchaResolved(token: string) {
     this.recaptchaToken = token;
@@ -97,10 +105,12 @@ export class LoginComponent implements OnInit {
       next: (res: any) => {
         if (res.success) {
           // CAPTCHA validado, proceder con autenticación
-          this.authService.login(
-            this.f['email'].value,
-            this.f['password'].value
-          ).pipe(
+          // Según el tipo de login, llamamos al método correspondiente
+          const loginObservable = this.isModeratorLogin 
+            ? this.authService.loginAsModerator(this.f['email'].value, this.f['password'].value)
+            : this.authService.login(this.f['email'].value, this.f['password'].value);
+
+          loginObservable.pipe(
             finalize(() => {
               // This ensures loading is set to false whether login succeeds or fails
               if (!this.authService.isAuthenticated()) {
@@ -113,11 +123,19 @@ export class LoginComponent implements OnInit {
                 this.authService.setRememberMe(true);
               }
               console.log('Inicio de sesión exitoso');
-              this.router.navigate(['/dashboard']);
+              
+              // Redirigir según tipo de usuario
+              const redirectUrl = this.isModeratorLogin ? '/moderator-dashboard' : '/dashboard';
+              this.router.navigate([redirectUrl]);
               // Loading will be hidden after navigation
             },
             error: (err) => {
-              this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
+              // Mensaje de error específico para moderador
+              if (this.isModeratorLogin) {
+                this.errorMessage = err.error?.error || 'Acceso denegado. Verifica tus credenciales de moderador.';
+              } else {
+                this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
+              }
               // Loading is set to false in finalize()
             }
           });

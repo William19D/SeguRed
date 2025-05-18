@@ -45,7 +45,7 @@
 
   <!-- Sin reportes -->
   <div *ngIf="!loading && !error && filteredReports.length === 0" class="no-reports-container">
-    <img src="assets/images/no-reports.svg" alt="Sin reportes" class="no-reports-image" />
+    <img src="noreports.svg" alt="Sin reportes" class="no-reports-image" />
     <p>No tienes reportes {{searchTerm ? 'que coincidan con tu búsqueda' : 'creados todavía'}}.</p>
     <button (click)="createNewReport()" class="create-report-button">Crear un reporte</button>
   </div>

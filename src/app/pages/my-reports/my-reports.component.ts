@@ -129,7 +129,7 @@ export class MyReportsComponent implements OnInit, AfterViewChecked {
     return reports.map(report => {
       try {
         // URL de imagen por defecto
-        let imageUrl = 'assets/imagenotfound.jpg';
+        let imageUrl = 'imagenotfound.png';
         
         // Procesar imágenes si existen
         if (report.imagenes && Array.isArray(report.imagenes) && report.imagenes.length > 0) {

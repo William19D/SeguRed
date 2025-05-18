@@ -9,12 +9,13 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiBaseUrl = 'https://seguredapi-919088633053.us-central1.run.app';
+  private apiBaseUrl = 'http://localhost:8080';
   private localApiUrl = 'http://localhost:8080'; // URL local para desarrollo
   private apiUrl = `${this.apiBaseUrl}/auth`;
   private tokenKey = 'authToken';
   private userKey = 'currentUser';
   private rememberMeKey = 'rememberMe';
+  private userRoleKey = 'user_role';
   
   private authStatus = new BehaviorSubject<boolean>(this.isAuthenticated());
   public authStatus$ = this.authStatus.asObservable();
@@ -45,7 +46,7 @@ export class AuthService {
 
   // MÉTODOS NUEVOS JWT
 
-  // Método para iniciar sesión
+  // Método para iniciar sesión (usuario regular)
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, {
       correo: email,
@@ -55,6 +56,8 @@ export class AuthService {
         console.log('Login response received:', response);
         if (response && response.token) {
           this.setAuthToken(response.token);
+          // Guardar rol de usuario regular
+          localStorage.setItem(this.userRoleKey, 'USUARIO');
           // Inmediatamente después de recibir el token, obtener los datos del usuario
           this.getUserInfo().subscribe({
             next: (userData) => {
@@ -71,6 +74,43 @@ export class AuthService {
         return throwError(() => error);
       })
     );
+  }
+
+  // Método para iniciar sesión como moderador
+  loginAsModerator(email: string, password: string): Observable<any> {
+    // Construir las credenciales con el roleType de MODERADOR
+    return this.http.post<any>(`${this.apiUrl}/login`, {
+      correo: email,
+      contraseña: password,
+      roleType: 'MODERADOR'
+    }).pipe(
+      tap(response => {
+        console.log('Moderator login response received:', response);
+        if (response && response.token) {
+          this.setAuthToken(response.token);
+          // Guardar rol de moderador
+          localStorage.setItem(this.userRoleKey, 'MODERADOR');
+          // Obtener información del moderador
+          this.getUserInfo().subscribe({
+            next: (userData) => {
+              console.log('Moderator data fetched successfully');
+            },
+            error: (err) => {
+              console.error('Failed to fetch moderator data:', err);
+            }
+          });
+        }
+      }),
+      catchError(error => {
+        console.error('Moderator login error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Verificar si el usuario actual es un moderador
+  isModerator(): boolean {
+    return localStorage.getItem(this.userRoleKey) === 'MODERADOR';
   }
 
   // Guardar token JWT
@@ -131,6 +171,10 @@ export class AuthService {
 
     console.log('Fetching user data with token...');
     
+    // La URL puede ser diferente según el tipo de usuario
+    const userType = this.isModerator() ? 'moderador' : 'usuario';
+    console.log(`Fetching data for user type: ${userType}`);
+    
     return this.http.post(`${this.apiUrl}/usuario-datos`, {}, { headers }).pipe(
       tap((user: any) => {
         console.log('User info received:', user);
@@ -174,6 +218,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
+    localStorage.removeItem(this.userRoleKey); // Limpiar también el rol de usuario
     this.authStatus.next(false);
     this.router.navigate(['/login']);
   }

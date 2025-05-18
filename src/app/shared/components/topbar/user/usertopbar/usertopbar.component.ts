@@ -22,7 +22,6 @@ export class UsertopbarComponent implements OnInit {
   user = {
     name: 'Usuario', 
     profilePicture: 'default-profile.png',
-    role: 'Usuario'
   };
 
   constructor(private router: Router, private authService: AuthService) {}
@@ -91,7 +90,6 @@ export class UsertopbarComponent implements OnInit {
     this.user = {
       name: userData.nombreCom?.split(' ')[0] || 'Usuario',
       profilePicture: userData.profilePicture || 'default-profile.png',
-      role: userData.role || 'Usuario'
     };
   }
 
