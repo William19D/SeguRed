@@ -95,6 +95,40 @@ header button:hover {
   color: #333;
 }
 
+/* Alerta de error de ubicación */
+.location-error-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background-color: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #e65100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.location-error-alert i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.retry-location-btn {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.retry-location-btn:hover {
+  background-color: #f57c00;
+}
+
 .filters {
   display: flex;
   align-items: center;
@@ -196,17 +230,17 @@ header button:hover {
   gap: 16px;
 }
 
-/* Card de Reporte - Nueva estructura con mapa más grande */
+/* Card de Reporte - Nueva estructura con tres columnas */
 .report-card {
   display: grid;
-  grid-template-columns: 240px 1fr 150px; /* Aumentado de 120px a 240px */
+  grid-template-columns: 240px 1fr 150px; /* Mapa, contenido, acciones */
   gap: 15px;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  min-height: 240px; /* Asegurar altura mínima para el contenido */
+  min-height: 240px;
 }
 
 .report-card:hover {
@@ -214,14 +248,19 @@ header button:hover {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Sección izquierda con mapa y distancia */
+.report-left-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* Mapa a la izquierda - AHORA CUADRADO Y GRANDE */
 .report-map {
-  width: 240px; /* Igual al ancho definido en grid-template-columns */
-  height: 240px; /* Altura igual al ancho para mantener cuadrado */
+  width: 100%;
+  height: 200px; /* Altura ajustada para dejar espacio para la distancia */
   border-radius: 8px;
   overflow: hidden;
-  min-width: 240px; /* Asegurar que no se reduzca */
-  align-self: stretch; /* Estirar para ocupar todo el alto */
 }
 
 /* Contenedor del mapa estilo Leaflet */
@@ -239,7 +278,7 @@ header button:hover {
 }
 
 .leaflet-control-zoom a {
-  width: 26px !important; /* Ligeramente más grande para el mapa más grande */
+  width: 26px !important;
   height: 26px !important;
   line-height: 24px !important;
   font-size: 14px !important;
@@ -253,21 +292,33 @@ header button:hover {
 /* Personalizar el popup para mejor legibilidad en mapa más grande */
 .leaflet-popup-content {
   font-family: 'Inter', sans-serif;
-  font-size: 13px; /* Un poco más grande para mejor legibilidad */
+  font-size: 13px;
   line-height: 1.4;
   margin: 8px 12px;
 }
 
 .leaflet-popup-content strong {
-  color: #FBC02D; /* Color amarillo consistente con la app */
+  color: #FBC02D;
   font-weight: 600;
 }
 
-.report-map img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
+/* Indicador de distancia debajo del mapa */
+.report-distance {
+  text-align: center;
+  background-color: rgba(66, 133, 244, 0.1);
+  color: #4285f4;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.report-distance i {
+  font-size: 0.8rem;
 }
 
 /* Contenido central */
@@ -291,18 +342,13 @@ header button:hover {
   margin: 0;
 }
 
-.distance {
-  font-size: 0.9rem;
-  color: #888;
-  background-color: #f0f0f0;
-  padding: 3px 8px;
-  border-radius: 12px;
-}
-
 .report-address {
   font-size: 0.9rem;
   color: #555;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .report-description {
@@ -320,8 +366,14 @@ header button:hover {
 
 .report-footer {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timestamp-likes {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .timestamp {
@@ -329,18 +381,39 @@ header button:hover {
   color: #888;
 }
 
-.category-stars {
+.likes {
   display: flex;
   align-items: center;
+  gap: 5px;
+  color: #555;
+  font-weight: 500;
+}
+
+.likes i {
+  color: #0d6efd;
+}
+
+/* Sección derecha con categoría, imagen y botones */
+.report-right-section {
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
+}
+
+/* Categoría en la esquina superior derecha */
+.report-category {
+  text-align: right;
+  margin-bottom: 10px;
 }
 
 .category {
   display: inline-block;
-  padding: 3px 8px;
+  padding: 4px 10px;
   font-size: 0.8rem;
   color: #fff;
-  border-radius: 4px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .category.mascotas { background-color: #4caf50; }
@@ -352,46 +425,13 @@ header button:hover {
 .category.error { background-color: #f44336; }
 .category.medio-ambiente { background-color: #4caf50; }
 
-.stars {
-  color: #ffc107;
-  font-size: 0.9rem;
-}
-
-.view-report, .error-button {
-  padding: 6px 12px;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
-  align-self: flex-start;
-}
-
-.view-report {
-  background-color: #4a76ff;
-}
-
-.view-report:hover {
-  background-color: #3a66ff;
-}
-
-.error-button {
-  background-color: #f44336;
-}
-
-.error-button:hover {
-  background-color: #d32f2f;
-}
-
-/* Imagen a la derecha */
+/* Imagen en el centro de la columna derecha */
 .report-image {
-  width: 100%;
-  height: 100%;
-  min-height: 240px; /* Igual al mapa para mantener proporción */
+  position: relative;
   border-radius: 8px;
   overflow: hidden;
-  position: relative;
+  height: 120px;
+  margin: 5px 0;
 }
 
 /* Spinner de carga de imagen */
@@ -435,6 +475,39 @@ header button:hover {
   padding: 10px;
 }
 
+/* Botones de acción en la parte inferior derecha */
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.view-report, .error-button {
+  padding: 8px 15px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.view-report {
+  background-color: #4a76ff;
+}
+
+.view-report:hover {
+  background-color: #3a66ff;
+}
+
+.error-button {
+  background-color: #f44336;
+}
+
+.error-button:hover {
+  background-color: #d32f2f;
+}
+
 /* Estilos para mensajes de error en las tarjetas */
 .report-card.error {
   border: 1px solid #ffcdd2;
@@ -462,7 +535,7 @@ aside h4 {
   margin-top: 0;
 }
 
-aside div {
+.filter-option {
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -488,20 +561,72 @@ aside label {
   margin: 15px 0;
 }
 
+/* Información de ubicación del usuario */
+.user-location-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.current-location {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.current-location i {
+  color: #4a76ff;
+  margin-right: 5px;
+}
+
+.location-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.mini-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0,0,0,0.1);
+  border-left: 2px solid #4a76ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.refresh-location-btn {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: none;
+  border-radius: 4px;
+  color: #333;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.2s;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.refresh-location-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.refresh-location-btn i {
+  font-size: 0.8rem;
+}
+
 /* Media Queries para Responsive */
 @media (max-width: 1024px) {
   .report-card {
-    grid-template-columns: 200px 1fr 150px; /* Un poco más pequeño en tablets grandes */
-  }
-  
-  .report-map {
-    width: 200px;
-    height: 200px;
-    min-width: 200px;
-  }
-  
-  .report-image {
-    min-height: 200px;
+    grid-template-columns: 200px 1fr 150px;
   }
 }
 
@@ -516,17 +641,7 @@ aside label {
   }
   
   .report-card {
-    grid-template-columns: 180px 1fr 150px; /* Más pequeño en tablets */
-  }
-  
-  .report-map {
-    width: 180px;
-    height: 180px;
-    min-width: 180px;
-  }
-  
-  .report-image {
-    min-height: 180px;
+    grid-template-columns: 180px 1fr 150px;
   }
 }
 
@@ -567,27 +682,41 @@ aside label {
   
   .report-card {
     grid-template-columns: 1fr;
-    grid-template-areas:
-      "content"
-      "map"
-      "image";
+    grid-template-rows: auto auto auto;
   }
   
-  .report-map {
-    grid-area: map;
-    width: 100%;
-    height: 200px; /* Altura fija en móvil */
-    min-width: auto;
+  .report-left-section {
+    order: 2;
   }
   
   .report-content {
-    grid-area: content;
+    order: 1;
+  }
+  
+  .report-right-section {
+    order: 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "category actions"
+      "image image";
+    align-items: start;
+  }
+  
+  .report-category {
+    grid-area: category;
+    text-align: left;
+  }
+  
+  .report-actions {
+    grid-area: actions;
+    justify-content: flex-end;
   }
   
   .report-image {
     grid-area: image;
-    height: 200px;
-    min-height: auto;
+    height: 180px;
+    margin-top: 10px;
   }
 }
 
@@ -611,11 +740,16 @@ aside label {
     padding: 12px;
   }
   
-  .report-map {
-    height: 180px;
+  .report-right-section {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "category"
+      "image"
+      "actions";
   }
   
-  .report-image {
-    height: 180px;
+  .report-actions {
+    margin-top: 10px;
+    justify-content: flex-start;
   }
 }

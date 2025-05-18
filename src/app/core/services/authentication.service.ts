@@ -9,7 +9,7 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiBaseUrl = 'http://localhost:8080';
+  private apiBaseUrl = 'https://seguredapi-919088633053.us-central1.run.app';
   private localApiUrl = 'http://localhost:8080'; // URL local para desarrollo
   private apiUrl = `${this.apiBaseUrl}/auth`;
   private tokenKey = 'authToken';

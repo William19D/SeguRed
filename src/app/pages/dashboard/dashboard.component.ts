@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/authentication.service';
 import { ReporteService } from '../../core/services/reporte.service';
-import { NominatimService } from '../../core/services/nominatim.service'; // Importar el servicio Nominatim
+import { NominatimService } from '../../core/services/nominatim.service';
+import { LocationService } from '../../core/services/location.service'; // Importar LocationService
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import * as L from 'leaflet';
 
@@ -25,14 +26,19 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   reportsError = false;
   apiUrl = 'https://seguredapi-919088633053.us-central1.run.app';
   mapsToInitialize: string[] = [];
-  mapInstances: Map<string, L.Map> = new Map(); // Para mantener referencias a las instancias de los mapas
-  markerInstances: Map<string, L.Marker> = new Map(); // Para mantener referencias a los marcadores
+  mapInstances: Map<string, L.Map> = new Map();
+  markerInstances: Map<string, L.Marker> = new Map();
+  
+  // Nueva propiedad para almacenar la ubicación actual del usuario
+  currentUserLocation: { lat: number; lng: number } | null = null;
+  locationError: string | null = null;
 
   constructor(
     private router: Router, 
     private authService: AuthService,
     private reporteService: ReporteService,
-    private nominatimService: NominatimService // Inyectar el servicio Nominatim
+    private nominatimService: NominatimService,
+    private locationService: LocationService // Inyectar LocationService
   ) {}
 
   ngOnInit() {
@@ -41,6 +47,9 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
       this.router.navigate(['/login']);
       return;
     }
+
+    // Obtener ubicación actual del usuario
+    this.getUserLocation();
 
     // Obtener datos del usuario
     this.user = this.authService.getCurrentUser();
@@ -70,6 +79,23 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  // Método para obtener la ubicación actual del usuario
+  getUserLocation() {
+    this.locationService.getCurrentLocation()
+      .then(location => {
+        console.log('Ubicación obtenida:', location);
+        this.currentUserLocation = location;
+        // Si ya tenemos reportes cargados, actualizar las distancias
+        if (this.reports.length > 0) {
+          this.updateReportsWithDistance();
+        }
+      })
+      .catch(error => {
+        console.error('Error al obtener ubicación:', error);
+        this.locationError = 'No se pudo obtener tu ubicación. Verifica los permisos del navegador.';
+      });
+  }
+
   ngAfterViewChecked() {
     // Inicializar mapas pendientes
     if (this.mapsToInitialize.length > 0) {
@@ -85,6 +111,12 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
       next: (data) => {
         console.log('Reportes obtenidos de la API:', data);
         this.reports = this.transformReportes(data);
+        
+        // Si ya tenemos la ubicación del usuario, calcular distancias
+        if (this.currentUserLocation) {
+          this.updateReportsWithDistance();
+        }
+        
         this.reportsLoading = false;
         
         // Programar inicialización de mapas después de renderizar
@@ -98,6 +130,60 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
         this.reportsLoading = false;
       }
     });
+  }
+
+  // Método para actualizar los reportes con la distancia desde la ubicación actual
+  updateReportsWithDistance() {
+  if (!this.currentUserLocation) return;
+  
+  // Crear una constante local para capturar el valor no nulo
+  const userLocation = this.currentUserLocation;
+  
+  this.reports.forEach(report => {
+    if (report.location && report.location.lat && report.location.lng) {
+      const distance = this.calculateDistance(
+        userLocation.lat,  // Usar la constante local
+        userLocation.lng,  // Usar la constante local
+        report.location.lat,
+        report.location.lng
+      );
+      
+      // Actualizar la propiedad distance del reporte con un formato legible
+      report.distance = this.formatDistance(distance);
+    } else {
+      report.distance = 'Distancia desconocida';
+    }
+  });
+}
+
+  // Calcular distancia entre dos puntos usando la fórmula de Haversine
+  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radio de la Tierra en km
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    const d = R * c; // Distancia en km
+    return d;
+  }
+  
+  // Convertir grados a radianes
+  deg2rad(deg: number): number {
+    return deg * (Math.PI/180);
+  }
+  
+  // Formatear la distancia para mostrarla de forma legible
+  formatDistance(distance: number): string {
+    if (distance < 1) {
+      // Si es menos de 1km, mostrar en metros
+      return `${Math.round(distance * 1000)}m`;
+    } else {
+      // Si es más de 1km, mostrar en km con un decimal
+      return `${distance.toFixed(1)}km`;
+    }
   }
 
   transformReportes(reportes: any[]): any[] {
@@ -147,10 +233,13 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
           }
         }
         
+        // Inicializar la distancia como "Calculando..." - se actualizará después
+        const distanceText = this.currentUserLocation ? 'Calculando...' : 'Ubicación no disponible';
+        
         return {
           id: reporte.id || 'sin-id',
           title: reporte.titulo || 'Sin título',
-          distance: '200m', // Valor predeterminado
+          distance: distanceText, // Inicialmente sin calcular
           address: direccion,
           description: reporte.descripcion || 'Sin descripción',
           generatedTime: tiempoTranscurrido,
@@ -181,61 +270,66 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
     }
   }
 
-initMaps() {
-  const initializedMaps: string[] = [];
+  initMaps() {
+    const initializedMaps: string[] = [];
+    
+    for (const mapId of this.mapsToInitialize) {
+      const mapElement = document.getElementById(mapId);
+      if (mapElement) {
+        const report = this.reports.find(r => r.mapId === mapId);
+        
+        if (report && report.location && report.location.lat && report.location.lng) {
+          try {
+            // Limpiar mapa si ya existía
+            if (this.mapInstances.has(mapId)) {
+              this.mapInstances.get(mapId)?.remove();
+            }
   
-  for (const mapId of this.mapsToInitialize) {
-    const mapElement = document.getElementById(mapId);
-    if (mapElement) {
-      const report = this.reports.find(r => r.mapId === mapId);
-      
-      if (report && report.location && report.location.lat && report.location.lng) {
-        try {
-          // Limpiar mapa si ya existía
-          if (this.mapInstances.has(mapId)) {
-            this.mapInstances.get(mapId)?.remove();
+            // Optimizado para espacio cuadrado pequeño
+            const map = L.map(mapId, {
+              center: [report.location.lat, report.location.lng],
+              zoom: 16, // Mayor zoom para espacio reducido
+              zoomControl: true, // Activamos controles por defecto
+              attributionControl: true,
+              dragging: true,
+              scrollWheelZoom: true,
+              doubleClickZoom: true
+            });
+            
+            // Guardar referencia
+            this.mapInstances.set(mapId, map);
+            
+            // Añadir tiles de OpenStreetMap
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19
+            }).addTo(map);
+            
+            // Marcador más pequeño y centrado
+            const marker = L.marker([report.location.lat, report.location.lng], { 
+              draggable: false
+            }).addTo(map);
+            
+            // Incluir la distancia en el popup si está disponible
+            let popupContent = `<strong>${report.title}</strong><br>${report.address}`;
+            if (report.distance && report.distance !== 'Calculando...' && report.distance !== 'Ubicación no disponible') {
+              popupContent += `<br><span style="color: #4285f4;">A ${report.distance} de tu ubicación</span>`;
+            }
+            
+            marker.bindPopup(popupContent);
+            
+            this.markerInstances.set(mapId, marker);
+            this.updateAddressForReport(report);
+            
+            initializedMaps.push(mapId);
+          } catch (error) {
+            console.error(`Error al inicializar mapa ${mapId}:`, error);
           }
-
-          // Optimizado para espacio cuadrado pequeño
-          const map = L.map(mapId, {
-            center: [report.location.lat, report.location.lng],
-            zoom: 16, // Mayor zoom para espacio reducido
-            zoomControl: true, // Activamos controles por defecto
-            attributionControl: true,
-            dragging: true,
-            scrollWheelZoom: true,
-            doubleClickZoom: true
-          });
-          
-          // Guardar referencia
-          this.mapInstances.set(mapId, map);
-          
-          // Añadir tiles de OpenStreetMap
-          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-          }).addTo(map);
-          
-          // Marcador más pequeño y centrado
-          const marker = L.marker([report.location.lat, report.location.lng], { 
-            draggable: false
-          }).addTo(map);
-          
-          // No abrimos popup automáticamente para ahorrar espacio
-          marker.bindPopup(`<strong>${report.title}</strong><br>${report.address}`);
-          
-          this.markerInstances.set(mapId, marker);
-          this.updateAddressForReport(report);
-          
-          initializedMaps.push(mapId);
-        } catch (error) {
-          console.error(`Error al inicializar mapa ${mapId}:`, error);
         }
       }
     }
+    
+    this.mapsToInitialize = this.mapsToInitialize.filter(id => !initializedMaps.includes(id));
   }
-  
-  this.mapsToInitialize = this.mapsToInitialize.filter(id => !initializedMaps.includes(id));
-}
 
   // Método para actualizar la dirección usando nominatim (como en el componente de registro)
   updateAddressForReport(report: any): void {
@@ -249,10 +343,14 @@ initMaps() {
             // Actualizar la dirección en el reporte
             report.address = address;
             
-            // Actualizar el popup del marcador con la nueva dirección
+            // Actualizar el popup del marcador con la nueva dirección y distancia
             const marker = this.markerInstances.get(report.mapId);
             if (marker) {
-              marker.setPopupContent(`<strong>${report.title}</strong><br>${address}`);
+              let popupContent = `<strong>${report.title}</strong><br>${address}`;
+              if (report.distance && report.distance !== 'Calculando...' && report.distance !== 'Ubicación no disponible') {
+                popupContent += `<br><span style="color: #4285f4;">A ${report.distance} de tu ubicación</span>`;
+              }
+              marker.setPopupContent(popupContent);
             }
           }
         },

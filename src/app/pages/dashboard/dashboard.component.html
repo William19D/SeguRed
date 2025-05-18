@@ -18,6 +18,12 @@
     </div>
   </section>
 
+  <!-- Alerta de ubicación si hay error -->
+  <div *ngIf="locationError" class="location-error-alert">
+    <i class="fas fa-exclamation-circle"></i> {{ locationError }}
+    <button (click)="getUserLocation()" class="retry-location-btn">Reintentar</button>
+  </div>
+
   <section class="filters">
     <input type="text" placeholder="Buscar" />
     <div class="sort-by">
@@ -52,80 +58,112 @@
   <div class="main-content">
     <section class="reports" *ngIf="!reportsLoading && !reportsError && reports.length > 0">
       <div *ngFor="let report of reports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
-        <!-- Aquí es donde cambiamos la imagen por un mapa real -->
-        <div class="report-map">
-          <div [id]="report.mapId" class="map-container"></div>
+        <!-- Sección izquierda: Mapa con distancia debajo -->
+        <div class="report-left-section">
+          <div class="report-map">
+            <div [id]="report.mapId" class="map-container"></div>
+          </div>
+          <div class="report-distance" *ngIf="report.distance !== 'Ubicación no disponible'">
+            <i class="fas fa-location-arrow"></i> {{ report.distance }}
+          </div>
         </div>
         
         <!-- Contenido central -->
         <div class="report-content">
           <div class="report-header">
             <h3>{{ report.title }}</h3>
-            <span class="distance">{{ report.distance }}</span>
+            <!-- Categoría movida a la esquina superior derecha -->
           </div>
-          <div class="report-address">{{ report.address }}</div>
+          <div class="report-address">
+            <i class="fas fa-map-marker-alt"></i> {{ report.address }}
+          </div>
           <p class="report-description">{{ report.description }}</p>
           <div class="report-footer">
-            <span class="timestamp">{{ report.generatedTime }}</span>
-            <div class="category-stars">
-              <span class="category {{ report.categoryClass }}" [title]="report.categoryDescription || ''">{{ report.category }}</span>
-              <div class="stars">
-                <span *ngFor="let star of [].constructor(report.stars)">&#9733;</span>
-                <span *ngFor="let star of [].constructor(5 - report.stars)">&#9734;</span>
-              </div>
+            <div class="timestamp-likes">
+              <span class="timestamp">{{ report.generatedTime }}</span>
+              <!-- Cambio de estrellas a likes -->
+              <span class="likes"><i class="fas fa-thumbs-up"></i> {{ report.stars }}</span>
             </div>
-            <button *ngIf="report.id !== 'error'" class="view-report" [routerLink]="['/reporte', report.id]">Ver detalles</button>
-            <button *ngIf="report.id === 'error'" class="error-button" (click)="retryLoadReports()">Actualizar</button>
+            <!-- Botón ver detalles se moverá a la derecha por CSS -->
           </div>
         </div>
         
-        <!-- Imagen a la derecha con spinner de carga -->
-        <div class="report-image">
-          <div class="image-loading-spinner"></div>
-          <img [src]="report.imageUrl" 
-               alt="{{ report.title }}" 
-               (load)="hideSpinner($event)"
-               (error)="handleImageError($event)"
-               class="report-img">
+        <!-- Sección derecha: Categoría arriba y botón detalles abajo -->
+        <div class="report-right-section">
+          <div class="report-category">
+            <span class="category {{ report.categoryClass }}" [title]="report.categoryDescription || ''">{{ report.category }}</span>
+          </div>
+          
+          <div class="report-image">
+            <div class="image-loading-spinner"></div>
+            <img [src]="report.imageUrl" 
+                alt="{{ report.title }}" 
+                (load)="hideSpinner($event)"
+                (error)="handleImageError($event)"
+                class="report-img">
+          </div>
+          
+          <div class="report-actions">
+            <button *ngIf="report.id !== 'error'" class="view-report" [routerLink]="['/reporte', report.id]">Ver detalles</button>
+            <button *ngIf="report.id === 'error'" class="error-button" (click)="retryLoadReports()">Actualizar</button>
+          </div>
         </div>
       </div>
     </section>
 
     <aside>
       <h4>Solo ver:</h4>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="mascotas" />
         <label for="mascotas">Mascotas</label>
       </div>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="seguridad" />
         <label for="seguridad">Seguridad</label>
       </div>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="comunidad" />
         <label for="comunidad">Comunidad</label>
       </div>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="emergencia-medica" />
         <label for="emergencia-medica">Emergencia Médica</label>
       </div>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="medio-ambiente" />
         <label for="medio-ambiente">Medio Ambiente</label>
       </div>
       <hr class="filter-divider">
       <h4>Estado:</h4>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="espera" checked />
         <label for="espera">En espera</label>
       </div>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="completado" checked />
         <label for="completado">Completado</label>
       </div>
-      <div>
+      <div class="filter-option">
         <input type="checkbox" id="denegado" />
         <label for="denegado">Denegado</label>
+      </div>
+      
+      <!-- Sección para mostrar tu ubicación actual -->
+      <hr class="filter-divider">
+      <h4>Tu ubicación:</h4>
+      <div class="user-location-info">
+        <div *ngIf="currentUserLocation" class="current-location">
+          <i class="fas fa-map-pin"></i>
+          <span>Lat: {{ currentUserLocation.lat | number:'1.6-6' }}</span>
+          <span>Lng: {{ currentUserLocation.lng | number:'1.6-6' }}</span>
+        </div>
+        <div *ngIf="!currentUserLocation && !locationError" class="location-loading">
+          <div class="mini-spinner"></div>
+          <span>Obteniendo ubicación...</span>
+        </div>
+        <button (click)="getUserLocation()" class="refresh-location-btn">
+          <i class="fas fa-sync-alt"></i> Actualizar ubicación
+        </button>
       </div>
     </aside>
   </div>
