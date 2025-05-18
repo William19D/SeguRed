@@ -1,21 +1,23 @@
-import { Component, OnInit, AfterViewInit, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // Importar FormsModule
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/authentication.service';
 import { ReporteService } from '../../core/services/reporte.service';
 import { NominatimService } from '../../core/services/nominatim.service';
-import { LocationService } from '../../core/services/location.service'; // Importar LocationService
+import { LocationService } from '../../core/services/location.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import * as L from 'leaflet';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  imports: [FooterComponent, CommonModule, RouterLink],
+  imports: [FooterComponent, CommonModule, RouterLink, FormsModule], // Añadir FormsModule
   standalone: true,
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, AfterViewChecked {
+  // Propiedades existentes
   user: any = null;
   loading = true;
   error = false;
@@ -28,17 +30,42 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   mapsToInitialize: string[] = [];
   mapInstances: Map<string, L.Map> = new Map();
   markerInstances: Map<string, L.Marker> = new Map();
-  
-  // Nueva propiedad para almacenar la ubicación actual del usuario
   currentUserLocation: { lat: number; lng: number } | null = null;
   locationError: string | null = null;
+
+  // Nuevas propiedades para búsqueda y filtros
+  searchTerm: string = '';
+  filteredReports: any[] = [];
+  originalReports: any[] = [];
+  
+  // Propiedades para filtros de categoría
+  categoryFilters: { [key: string]: boolean } = {
+    'mascotas': false,
+    'seguridad': false,
+    'comunidad': false,
+    'emergencia-medica': false, 
+    'medio-ambiente': false,
+    'infraestructura': false,
+    'servicios': false,
+    'general': false
+  };
+  
+  // Propiedades para filtros de estado
+  statusFilters: { [key: string]: boolean } = {
+    'espera': true,
+    'completado': true,
+    'denegado': false
+  };
+  
+  // Propiedad para ordenamiento
+  sortBy: string = 'distance'; // Valor por defecto
 
   constructor(
     private router: Router, 
     private authService: AuthService,
     private reporteService: ReporteService,
     private nominatimService: NominatimService,
-    private locationService: LocationService // Inyectar LocationService
+    private locationService: LocationService
   ) {}
 
   ngOnInit() {
@@ -79,6 +106,178 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  // Métodos para búsqueda y filtrado
+  searchReports(): void {
+    this.applyFilters();
+  }
+  
+  updateSearchTerm(event: Event): void {
+    this.searchTerm = (event.target as HTMLInputElement).value;
+    this.searchReports();
+  }
+  
+  updateSortBy(event: Event): void {
+    this.sortBy = (event.target as HTMLSelectElement).value;
+    this.sortReports();
+  }
+  
+  toggleCategoryFilter(category: string): void {
+    this.categoryFilters[category] = !this.categoryFilters[category];
+    this.applyFilters();
+  }
+  
+  toggleStatusFilter(status: string): void {
+    this.statusFilters[status] = !this.statusFilters[status];
+    this.applyFilters();
+  }
+  
+  applyFilters(): void {
+    // Comenzar con todos los reportes
+    let filtered = [...this.originalReports];
+    
+    // Aplicar filtro de búsqueda por texto
+    if (this.searchTerm.trim()) {
+      const search = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(report => 
+        report.title?.toLowerCase().includes(search) || 
+        report.description?.toLowerCase().includes(search) ||
+        report.address?.toLowerCase().includes(search) ||
+        report.category?.toLowerCase().includes(search)
+      );
+    }
+    
+    // Aplicar filtros de categoría si hay alguno seleccionado
+    const selectedCategories = Object.keys(this.categoryFilters)
+      .filter(key => this.categoryFilters[key]);
+    
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(report => 
+        selectedCategories.includes(report.categoryClass)
+      );
+    }
+    
+    // Aplicar filtros de estado
+    const selectedStatuses = Object.keys(this.statusFilters)
+      .filter(key => this.statusFilters[key])
+      .map(key => {
+        // Mapear los estados del UI a los estados reales del backend
+        if (key === 'espera') return 'PENDIENTE';
+        if (key === 'completado') return 'COMPLETADO';
+        if (key === 'denegado') return 'DENEGADO';
+        return key.toUpperCase();
+      });
+    
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter(report => 
+        selectedStatuses.includes(report.estado)
+      );
+    }
+    
+    // Actualizar los reportes filtrados
+    this.filteredReports = filtered;
+    
+    // Aplicar ordenamiento
+    this.sortReports();
+
+    // Solo inicializar mapas cuando hay reportes filtrados
+    if (this.filteredReports.length > 0) {
+      this.prepareMapInitialization();
+    }
+  }
+  
+  sortReports(): void {
+    switch (this.sortBy) {
+      case 'distance':
+        this.filteredReports.sort((a, b) => {
+          // Convertir distancias a números para comparación
+          const distA = this.parseDistance(a.distance);
+          const distB = this.parseDistance(b.distance);
+          return distA - distB;
+        });
+        break;
+        
+      case 'date':
+        this.filteredReports.sort((a, b) => {
+          // Primero extraer el tiempo transcurrido
+          const timeA = this.extractTimeValue(a.generatedTime);
+          const timeB = this.extractTimeValue(b.generatedTime);
+          return timeA - timeB;
+        });
+        break;
+        
+      case 'category':
+        this.filteredReports.sort((a, b) => {
+          return a.category.localeCompare(b.category);
+        });
+        break;
+    }
+  }
+  
+  // Método para convertir distancias textuales a valores numéricos
+  parseDistance(distanceText: string): number {
+    if (!distanceText || distanceText === 'Ubicación no disponible' || distanceText === 'Distancia desconocida' || distanceText === 'Calculando...') {
+      return Infinity; // Poner al final de la lista
+    }
+    
+    // Extraer el número de la cadena
+    const match = distanceText.match(/^(\d+\.?\d*)(?:m|km)$/);
+    if (!match) return Infinity;
+    
+    const value = parseFloat(match[1]);
+    
+    // Convertir metros a kilómetros si es necesario
+    if (distanceText.endsWith('m')) {
+      return value / 1000;
+    }
+    
+    return value; // Ya está en kilómetros
+  }
+  
+  // Método para extraer el tiempo transcurrido como valor numérico
+  extractTimeValue(timeText: string): number {
+    if (!timeText || timeText === 'Fecha desconocida' || timeText === 'Fecha futura') {
+      return Infinity;
+    }
+    
+    const match = timeText.match(/hace (\d+) (?:minuto|minutos|hora|horas|día|días)/);
+    if (!match) return Infinity;
+    
+    const value = parseInt(match[1], 10);
+    
+    if (timeText.includes('minuto')) {
+      return value;
+    } else if (timeText.includes('hora')) {
+      return value * 60;
+    } else if (timeText.includes('día')) {
+      return value * 1440;
+    }
+    
+    return Infinity;
+  }
+  
+  // Método para resetear todos los filtros
+  resetFilters(): void {
+    this.searchTerm = '';
+    
+    // Resetear filtros de categoría
+    Object.keys(this.categoryFilters).forEach(key => {
+      this.categoryFilters[key] = false;
+    });
+    
+    // Resetear filtros de estado a sus valores por defecto
+    this.statusFilters = {
+      'espera': true,
+      'completado': true,
+      'denegado': false
+    };
+    
+    // Resetear ordenamiento
+    this.sortBy = 'distance';
+    
+    // Aplicar filtros (en este caso, mostrar todos)
+    this.applyFilters();
+  }
+
   // Método para obtener la ubicación actual del usuario
   getUserLocation() {
     this.locationService.getCurrentLocation()
@@ -86,8 +285,9 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
         console.log('Ubicación obtenida:', location);
         this.currentUserLocation = location;
         // Si ya tenemos reportes cargados, actualizar las distancias
-        if (this.reports.length > 0) {
+        if (this.originalReports.length > 0) {
           this.updateReportsWithDistance();
+          this.applyFilters(); // Reaplica los filtros para actualizar las distancias mostradas
         }
       })
       .catch(error => {
@@ -103,6 +303,7 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  // Sobrescribir loadReports para guardar reportes originales
   loadReports() {
     this.reportsLoading = true;
     this.reportsError = false;
@@ -110,7 +311,9 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
     this.reporteService.getAllReportes().subscribe({
       next: (data) => {
         console.log('Reportes obtenidos de la API:', data);
-        this.reports = this.transformReportes(data);
+        this.originalReports = this.transformReportes(data);
+        this.reports = [...this.originalReports];
+        this.filteredReports = [...this.originalReports];
         
         // Si ya tenemos la ubicación del usuario, calcular distancias
         if (this.currentUserLocation) {
@@ -118,6 +321,7 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
         }
         
         this.reportsLoading = false;
+        this.applyFilters(); // Aplicar filtros iniciales
         
         // Programar inicialización de mapas después de renderizar
         setTimeout(() => {
@@ -134,27 +338,27 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
 
   // Método para actualizar los reportes con la distancia desde la ubicación actual
   updateReportsWithDistance() {
-  if (!this.currentUserLocation) return;
-  
-  // Crear una constante local para capturar el valor no nulo
-  const userLocation = this.currentUserLocation;
-  
-  this.reports.forEach(report => {
-    if (report.location && report.location.lat && report.location.lng) {
-      const distance = this.calculateDistance(
-        userLocation.lat,  // Usar la constante local
-        userLocation.lng,  // Usar la constante local
-        report.location.lat,
-        report.location.lng
-      );
-      
-      // Actualizar la propiedad distance del reporte con un formato legible
-      report.distance = this.formatDistance(distance);
-    } else {
-      report.distance = 'Distancia desconocida';
-    }
-  });
-}
+    if (!this.currentUserLocation) return;
+    
+    // Crear una constante local para capturar el valor no nulo
+    const userLocation = this.currentUserLocation;
+    
+    this.originalReports.forEach(report => {
+      if (report.location && report.location.lat && report.location.lng) {
+        const distance = this.calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          report.location.lat,
+          report.location.lng
+        );
+        
+        // Actualizar la propiedad distance del reporte con un formato legible
+        report.distance = this.formatDistance(distance);
+      } else {
+        report.distance = 'Distancia desconocida';
+      }
+    });
+  }
 
   // Calcular distancia entre dos puntos usando la fórmula de Haversine
   calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -260,8 +464,8 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   }
 
   prepareMapInitialization() {
-    // Recopilar todos los reportes con coordenadas válidas
-    this.mapsToInitialize = this.reports
+    // Recopilar todos los reportes con coordenadas válidas de los reportes filtrados
+    this.mapsToInitialize = this.filteredReports
       .filter(report => report.location && report.location.lat && report.location.lng)
       .map(report => report.mapId);
     
@@ -276,7 +480,7 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
     for (const mapId of this.mapsToInitialize) {
       const mapElement = document.getElementById(mapId);
       if (mapElement) {
-        const report = this.reports.find(r => r.mapId === mapId);
+        const report = this.filteredReports.find(r => r.mapId === mapId);
         
         if (report && report.location && report.location.lat && report.location.lng) {
           try {

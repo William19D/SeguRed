@@ -128,7 +128,42 @@ header button:hover {
 .retry-location-btn:hover {
   background-color: #f57c00;
 }
+/* Estilos para la sección de acciones de filtros */
+.filter-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+}
 
+.reset-filters-btn {
+  background-color: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.reset-filters-btn:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.reset-filters-btn i {
+  font-size: 0.8rem;
+}
+
+/* Estilos para resaltar términos de búsqueda */
+.highlight {
+  background-color: rgba(255, 213, 79, 0.4);
+  padding: 0 2px;
+  border-radius: 2px;
+}
 .filters {
   display: flex;
   align-items: center;

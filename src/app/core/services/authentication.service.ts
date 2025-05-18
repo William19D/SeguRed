@@ -82,35 +82,35 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/login`, {
       correo: email,
       contraseña: password,
-      roleType: 'MODERADOR'
+      roleType: 'ADMINISTRADOR'
     }).pipe(
       tap(response => {
-        console.log('Moderator login response received:', response);
+        console.log('Administrator login response received:', response);
         if (response && response.token) {
           this.setAuthToken(response.token);
-          // Guardar rol de moderador
-          localStorage.setItem(this.userRoleKey, 'MODERADOR');
-          // Obtener información del moderador
+          // Guardar rol de administrador
+          localStorage.setItem(this.userRoleKey, 'ADMINISTRADOR');
+          // Obtener información del administrador
           this.getUserInfo().subscribe({
             next: (userData) => {
-              console.log('Moderator data fetched successfully');
+              console.log('Administrator data fetched successfully');
             },
             error: (err) => {
-              console.error('Failed to fetch moderator data:', err);
+              console.error('Failed to fetch administrator data:', err);
             }
           });
         }
       }),
       catchError(error => {
-        console.error('Moderator login error:', error);
+        console.error('Administrator login error:', error);
         return throwError(() => error);
       })
     );
   }
 
-  // Verificar si el usuario actual es un moderador
-  isModerator(): boolean {
-    return localStorage.getItem(this.userRoleKey) === 'MODERADOR';
+  // Verificar si el usuario actual es un administrador
+  isAdministrator(): boolean {
+    return localStorage.getItem(this.userRoleKey) === 'ADMINISTRADOR';
   }
 
   // Guardar token JWT
@@ -172,7 +172,7 @@ export class AuthService {
     console.log('Fetching user data with token...');
     
     // La URL puede ser diferente según el tipo de usuario
-    const userType = this.isModerator() ? 'moderador' : 'usuario';
+    const userType = this.isAdministrator() ? 'administrador' : 'usuario';
     console.log(`Fetching data for user type: ${userType}`);
     
     return this.http.post(`${this.apiUrl}/usuario-datos`, {}, { headers }).pipe(

@@ -13,7 +13,7 @@
   <section class="reports-summary">
     <h2>Reportes en las últimas 24 horas</h2>
     <div class="summary">
-      <span><strong>{{ reports.length || '0' }}</strong> Incidentes Reportados</span>
+      <span><strong>{{ filteredReports.length || '0' }}</strong> Incidentes Reportados</span>
       <span><strong>176</strong> Miembros Activos</span>
     </div>
   </section>
@@ -25,10 +25,10 @@
   </div>
 
   <section class="filters">
-    <input type="text" placeholder="Buscar" />
+    <input type="text" placeholder="Buscar" [(ngModel)]="searchTerm" (input)="updateSearchTerm($event)" />
     <div class="sort-by">
       <label for="sort">Ordenar por:</label>
-      <select id="sort">
+      <select id="sort" [(ngModel)]="sortBy" (change)="updateSortBy($event)">
         <option value="distance">Distancia</option>
         <option value="date">Fecha</option>
         <option value="category">Categoría</option>
@@ -50,14 +50,20 @@
   </div>
 
   <!-- Sin reportes disponibles -->
-  <div *ngIf="!reportsLoading && !reportsError && reports.length === 0" class="no-reports-container">
+  <div *ngIf="!reportsLoading && !reportsError && originalReports.length === 0" class="no-reports-container">
     <p>No hay reportes disponibles en este momento.</p>
     <button (click)="makeReport()" class="create-report-button">Crear un reporte</button>
   </div>
 
+  <!-- Sin resultados para los filtros actuales -->
+  <div *ngIf="!reportsLoading && !reportsError && originalReports.length > 0 && filteredReports.length === 0" class="no-reports-container">
+    <p>No hay reportes que coincidan con tus filtros.</p>
+    <button (click)="resetFilters()" class="retry-button">Limpiar filtros</button>
+  </div>
+
   <div class="main-content">
-    <section class="reports" *ngIf="!reportsLoading && !reportsError && reports.length > 0">
-      <div *ngFor="let report of reports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
+    <section class="reports" *ngIf="!reportsLoading && !reportsError && filteredReports.length > 0">
+      <div *ngFor="let report of filteredReports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
         <!-- Sección izquierda: Mapa con distancia debajo -->
         <div class="report-left-section">
           <div class="report-map">
@@ -114,38 +120,53 @@
     <aside>
       <h4>Solo ver:</h4>
       <div class="filter-option">
-        <input type="checkbox" id="mascotas" />
+        <input type="checkbox" id="mascotas" [checked]="categoryFilters['mascotas']" (change)="toggleCategoryFilter('mascotas')" />
         <label for="mascotas">Mascotas</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="seguridad" />
+        <input type="checkbox" id="seguridad" [checked]="categoryFilters['seguridad']" (change)="toggleCategoryFilter('seguridad')" />
         <label for="seguridad">Seguridad</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="comunidad" />
+        <input type="checkbox" id="comunidad" [checked]="categoryFilters['comunidad']" (change)="toggleCategoryFilter('comunidad')" />
         <label for="comunidad">Comunidad</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="emergencia-medica" />
+        <input type="checkbox" id="emergencia-medica" [checked]="categoryFilters['emergencia-medica']" (change)="toggleCategoryFilter('emergencia-medica')" />
         <label for="emergencia-medica">Emergencia Médica</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="medio-ambiente" />
+        <input type="checkbox" id="medio-ambiente" [checked]="categoryFilters['medio-ambiente']" (change)="toggleCategoryFilter('medio-ambiente')" />
         <label for="medio-ambiente">Medio Ambiente</label>
+      </div>
+      <div class="filter-option">
+        <input type="checkbox" id="infraestructura" [checked]="categoryFilters['infraestructura']" (change)="toggleCategoryFilter('infraestructura')" />
+        <label for="infraestructura">Infraestructura</label>
+      </div>
+      <div class="filter-option">
+        <input type="checkbox" id="servicios" [checked]="categoryFilters['servicios']" (change)="toggleCategoryFilter('servicios')" />
+        <label for="servicios">Servicios</label>
       </div>
       <hr class="filter-divider">
       <h4>Estado:</h4>
       <div class="filter-option">
-        <input type="checkbox" id="espera" checked />
+        <input type="checkbox" id="espera" [checked]="statusFilters['espera']" (change)="toggleStatusFilter('espera')" />
         <label for="espera">En espera</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="completado" checked />
+        <input type="checkbox" id="completado" [checked]="statusFilters['completado']" (change)="toggleStatusFilter('completado')" />
         <label for="completado">Completado</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="denegado" />
+        <input type="checkbox" id="denegado" [checked]="statusFilters['denegado']" (change)="toggleStatusFilter('denegado')" />
         <label for="denegado">Denegado</label>
+      </div>
+      
+      <!-- Botón para resetear filtros -->
+      <div class="filter-actions">
+        <button (click)="resetFilters()" class="reset-filters-btn">
+          <i class="fas fa-trash-alt"></i> Limpiar filtros
+        </button>
       </div>
       
       <!-- Sección para mostrar tu ubicación actual -->
