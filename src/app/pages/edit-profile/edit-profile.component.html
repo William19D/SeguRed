@@ -1,0 +1,71 @@
+<div class="edit-profile-container">
+  <div class="header">
+    <h1><strong>Editar</strong> <span> Perfil</span></h1>
+  </div>
+
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+    <!-- Mensaje de error o éxito -->
+    <div *ngIf="error" class="alert alert-error">
+      {{ error }}
+    </div>
+    <div *ngIf="success" class="alert alert-success">
+      {{ success }}
+    </div>
+    
+    <div class="form-group">
+      <label for="nombreCom">Nombre Completo</label>
+      <input type="text" id="nombreCom" formControlName="nombreCom" placeholder="Tu nombre completo">
+      <div *ngIf="profileForm.get('nombreCom')?.touched && profileForm.get('nombreCom')?.invalid" class="error-message">
+        <span *ngIf="profileForm.get('nombreCom')?.errors?.['required']">El nombre es obligatorio</span>
+        <span *ngIf="profileForm.get('nombreCom')?.errors?.['minlength']">El nombre debe tener al menos 3 caracteres</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="correo">Correo Electrónico</label>
+      <input type="email" id="correo" formControlName="correo" placeholder="Tu correo electrónico" readonly>
+      <small class="info-text">El correo electrónico no se puede modificar</small>
+    </div>
+
+    <div class="form-group">
+      <label for="telefono">Teléfono</label>
+      <input type="tel" id="telefono" formControlName="telefono" placeholder="Tu número de teléfono">
+      <div *ngIf="profileForm.get('telefono')?.touched && profileForm.get('telefono')?.invalid" class="error-message">
+        <span *ngIf="profileForm.get('telefono')?.errors?.['required']">El teléfono es obligatorio</span>
+        <span *ngIf="profileForm.get('telefono')?.errors?.['pattern']">El teléfono debe tener 10 dígitos numéricos</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="direccion">Dirección</label>
+      <input type="text" id="direccion" formControlName="direccion" placeholder="Tu dirección completa">
+      <div *ngIf="profileForm.get('direccion')?.touched && profileForm.get('direccion')?.invalid" class="error-message">
+        <span *ngIf="profileForm.get('direccion')?.errors?.['required']">La dirección es obligatoria</span>
+        <span *ngIf="profileForm.get('direccion')?.errors?.['minlength']">La dirección debe tener al menos 5 caracteres</span>
+      </div>
+    </div>
+
+    <!-- Mapa interactivo -->
+    <div class="form-group map-group">
+      <label>Selecciona tu ubicación en el mapa</label>
+      <div id="map" class="map-container"></div>
+      <small class="info-text">Puedes arrastrar el marcador para actualizar la dirección</small>
+    </div>
+
+    <div class="form-group">
+      <label for="ciudadResidencia">Ciudad de Residencia</label>
+      <input type="text" id="ciudadResidencia" formControlName="ciudadResidencia" placeholder="Tu ciudad de residencia">
+      <div *ngIf="profileForm.get('ciudadResidencia')?.touched && profileForm.get('ciudadResidencia')?.invalid" class="error-message">
+        <span *ngIf="profileForm.get('ciudadResidencia')?.errors?.['required']">La ciudad es obligatoria</span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="cancel-button" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="save-button" [disabled]="isLoading || profileForm.invalid">
+        {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </form>
+</div>
+<app-footer></app-footer>
