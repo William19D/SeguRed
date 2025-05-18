@@ -55,6 +55,9 @@ export class CreateReportComponent implements OnInit, AfterViewInit, OnDestroy {
     { nombre: 'Otros', descripcion: 'Otras situaciones que requieran atención' }
   ];
 
+  // Nueva propiedad para las categorías seleccionadas
+  selectedCategories: any[] = [];
+
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -83,7 +86,7 @@ export class CreateReportComponent implements OnInit, AfterViewInit, OnDestroy {
         Validators.minLength(20), 
         Validators.maxLength(500)
       ]],
-      categoria: [this.categorias[0], [Validators.required]],
+      // Ya no necesitamos el control 'categoria' porque usaremos selectedCategories
       useCurrentLocation: [false],
       direccion: [''],
       declaration: [false, [Validators.requiredTrue]],
@@ -92,6 +95,55 @@ export class CreateReportComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Verificar validez del token
     this.authService.checkTokenExpiration();
+  }
+
+  // Método para agregar una categoría desde el desplegable
+addCategoryFromDropdown(event: Event): void {
+  const selectElement = event.target as HTMLSelectElement;
+  const categoryName = selectElement.value;
+  
+  if (!categoryName || this.selectedCategories.length >= 2) {
+    // Reiniciar el selector al valor por defecto
+    selectElement.value = '';
+    return;
+  }
+  
+  // Buscar la categoría seleccionada
+  const category = this.categorias.find(cat => cat.nombre === categoryName);
+  
+  if (category && !this.isCategorySelected(category)) {
+    this.selectedCategories.push(category);
+  }
+  
+  // Reiniciar el selector al valor por defecto
+  selectElement.value = '';
+}
+
+// Método para eliminar una categoría seleccionada
+removeCategory(category: any): void {
+  const index = this.selectedCategories.findIndex(cat => cat.nombre === category.nombre);
+  if (index !== -1) {
+    this.selectedCategories.splice(index, 1);
+  }
+}
+
+  // Nuevos métodos para manejar selección múltiple de categorías
+  toggleCategory(category: any): void {
+    const index = this.selectedCategories.findIndex(cat => cat.nombre === category.nombre);
+    
+    if (index !== -1) {
+      // Si ya está seleccionada, quitarla
+      this.selectedCategories.splice(index, 1);
+    } else {
+      // Si no está seleccionada y no hemos alcanzado el límite, agregarla
+      if (this.selectedCategories.length < 2) {
+        this.selectedCategories.push(category);
+      }
+    }
+  }
+
+  isCategorySelected(category: any): boolean {
+    return this.selectedCategories.some(cat => cat.nombre === category.nombre);
   }
 
   ngAfterViewInit(): void {
@@ -356,6 +408,13 @@ export class CreateReportComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Validar que se haya seleccionado al menos una categoría
+    if (this.selectedCategories.length === 0) {
+      this.errorMessage = 'Debes seleccionar al menos una categoría';
+      this.scrollToFirstError();
+      return;
+    }
+
     if (!this.currentLocation) {
       this.errorMessage = 'Debes proporcionar una ubicación para el reporte';
       this.scrollToFirstError();
@@ -378,9 +437,6 @@ export class CreateReportComponent implements OnInit, AfterViewInit, OnDestroy {
       
       this.showProgressMessage('Preparando envío...');
       
-      // Obtener categoría seleccionada
-      const categoriaSeleccionada = this.reportForm.get('categoria')?.value;
-      
       // Estructura de imágenes en formato correcto para el backend
       const imagenes = imageBase64Array.map((base64, index) => {
         return {
@@ -388,25 +444,29 @@ export class CreateReportComponent implements OnInit, AfterViewInit, OnDestroy {
           content: base64
         };
       });
+
+      // Mapear categorías seleccionadas a formato API
+      const categoriasParaEnviar = this.selectedCategories.map(cat => ({ 
+        name: cat.nombre 
+      }));
       
-      // Estructura completa del reporte
+      // Estructura completa del reporte con múltiples categorías
       const reporteRequest = {
         titulo: this.reportForm.get('titulo')?.value,
         descripcion: this.reportForm.get('descripcion')?.value,
-        categoria: [{
-          descripcion: categoriaSeleccionada.descripcion
-        }],
+        categoria: categoriasParaEnviar, // Ahora enviamos array de categorías
         locations: {
           lat: this.currentLocation.lat,
           lng: this.currentLocation.lng,
           direccion: this.currentLocation.address || 
-                    `${this.currentLocation.lat}, ${this.currentLocation.lng}`
+                   `${this.currentLocation.lat}, ${this.currentLocation.lng}`
         },
         imagenes: imagenes
       };
 
       // Log de diagnóstico
-      console.log(`Enviando reporte: "${reporteRequest.titulo}" con ${imagenes.length} imágenes`);
+      console.log(`Enviando reporte: "${reporteRequest.titulo}" con ${imagenes.length} imágenes y ${categoriasParaEnviar.length} categorías`);
+      console.log('Categorías seleccionadas:', categoriasParaEnviar.map(c => c.name).join(', '));
       console.log('Tamaño total de datos aproximado:', this.calculateApproximateSize(reporteRequest), 'bytes');
 
       // Enviar reporte

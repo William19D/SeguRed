@@ -48,11 +48,41 @@
       </div>
 
       <div class="form-group">
-        <label for="categoria">Categoría</label>
-        <select id="categoria" formControlName="categoria" class="form-control">
-          <option *ngFor="let cat of categorias" [ngValue]="cat">{{cat.nombre}}</option>
-        </select>
-      </div>
+  <label for="categoria">Categoría (máximo 2)</label>
+  
+  <!-- Visualización de categorías seleccionadas como etiquetas -->
+  <div class="selected-tags" *ngIf="selectedCategories.length > 0">
+    <div class="tag" *ngFor="let cat of selectedCategories">
+      <span class="tag-text">{{ cat.nombre }}</span>
+      <button type="button" class="tag-remove" (click)="removeCategory(cat)">×</button>
+    </div>
+  </div>
+  
+  <!-- Desplegable para seleccionar categorías -->
+  <div class="dropdown-container">
+    <select 
+      id="categoria" 
+      class="form-control" 
+      (change)="addCategoryFromDropdown($event)"
+      [disabled]="selectedCategories.length >= 2">
+      <option value="" selected disabled>{{ selectedCategories.length >= 2 ? 'Máximo 2 categorías' : 'Selecciona una categoría' }}</option>
+      <option 
+        *ngFor="let cat of categorias" 
+        [value]="cat.nombre"
+        [disabled]="isCategorySelected(cat)">
+        {{cat.nombre}} - {{cat.descripcion}}
+      </option>
+    </select>
+  </div>
+  
+  <div *ngIf="submitted && selectedCategories.length === 0" class="error-message">
+    <div>Debes seleccionar al menos una categoría</div>
+  </div>
+  
+  <div class="category-hint" *ngIf="selectedCategories.length < 2">
+    <small>{{ selectedCategories.length === 0 ? 'Selecciona hasta 2 categorías' : 'Puedes seleccionar 1 categoría más' }}</small>
+  </div>
+</div>
 
       <div class="form-group">
         <label>Ubicación</label>

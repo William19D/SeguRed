@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Importar FormsModule
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/authentication.service';
 import { ReporteService } from '../../core/services/reporte.service';
@@ -12,7 +12,7 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  imports: [FooterComponent, CommonModule, RouterLink, FormsModule], // Añadir FormsModule
+  imports: [FooterComponent, CommonModule, RouterLink, FormsModule],
   standalone: true,
   styleUrls: ['./dashboard.component.css']
 })
@@ -38,24 +38,17 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   filteredReports: any[] = [];
   originalReports: any[] = [];
   
-  // Propiedades para filtros de categoría
-  categoryFilters: { [key: string]: boolean } = {
-    'mascotas': false,
-    'seguridad': false,
-    'comunidad': false,
-    'emergencia-medica': false, 
-    'medio-ambiente': false,
-    'infraestructura': false,
-    'servicios': false,
-    'general': false
-  };
+  // Propiedades para filtros de categoría - todos desactivados por defecto
+  // Propiedades para filtros de categoría - solo las categorías especificadas
+categoryFilters: { [key: string]: boolean } = {
+  'seguridad': true,
+  'infraestructura': true,
+  'medio-ambiente': true,
+  'transporte': true,
+  'servicios': true
+};
   
-  // Propiedades para filtros de estado
-  statusFilters: { [key: string]: boolean } = {
-    'espera': true,
-    'completado': true,
-    'denegado': false
-  };
+  // Propiedades para filtros de estado - todos activados por defecto
   
   // Propiedad para ordenamiento
   sortBy: string = 'distance'; // Valor por defecto
@@ -121,68 +114,74 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
     this.sortReports();
   }
   
-  toggleCategoryFilter(category: string): void {
-    this.categoryFilters[category] = !this.categoryFilters[category];
-    this.applyFilters();
-  }
+toggleCategoryFilter(category: string): void {
+  // Invertir el valor actual
+  this.categoryFilters[category] = !this.categoryFilters[category];
   
-  toggleStatusFilter(status: string): void {
-    this.statusFilters[status] = !this.statusFilters[status];
-    this.applyFilters();
-  }
-  
-  applyFilters(): void {
-    // Comenzar con todos los reportes
-    let filtered = [...this.originalReports];
-    
-    // Aplicar filtro de búsqueda por texto
-    if (this.searchTerm.trim()) {
-      const search = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(report => 
-        report.title?.toLowerCase().includes(search) || 
-        report.description?.toLowerCase().includes(search) ||
-        report.address?.toLowerCase().includes(search) ||
-        report.category?.toLowerCase().includes(search)
-      );
-    }
-    
-    // Aplicar filtros de categoría si hay alguno seleccionado
-    const selectedCategories = Object.keys(this.categoryFilters)
-      .filter(key => this.categoryFilters[key]);
-    
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter(report => 
-        selectedCategories.includes(report.categoryClass)
-      );
-    }
-    
-    // Aplicar filtros de estado
-    const selectedStatuses = Object.keys(this.statusFilters)
-      .filter(key => this.statusFilters[key])
-      .map(key => {
-        // Mapear los estados del UI a los estados reales del backend
-        if (key === 'espera') return 'PENDIENTE';
-        if (key === 'completado') return 'COMPLETADO';
-        if (key === 'denegado') return 'DENEGADO';
-        return key.toUpperCase();
-      });
-    
-    if (selectedStatuses.length > 0) {
-      filtered = filtered.filter(report => 
-        selectedStatuses.includes(report.estado)
-      );
-    }
-    
-    // Actualizar los reportes filtrados
-    this.filteredReports = filtered;
-    
-    // Aplicar ordenamiento
-    this.sortReports();
+  // Aplicar los filtros después del cambio
+  console.log(`Filtro de categoría "${category}" cambiado a: ${this.categoryFilters[category]}`);
+  this.applyFilters();
+}
 
-    // Solo inicializar mapas cuando hay reportes filtrados
+applyFilters(): void {
+  console.log("Aplicando filtros...");
+  
+  // Comenzar con todos los reportes
+  let filtered = [...this.originalReports];
+  
+  // Aplicar filtro de búsqueda por texto
+  if (this.searchTerm.trim()) {
+    const search = this.searchTerm.toLowerCase().trim();
+    filtered = filtered.filter(report => 
+      report.title?.toLowerCase().includes(search) || 
+      report.description?.toLowerCase().includes(search) ||
+      report.address?.toLowerCase().includes(search) ||
+      report.category?.toLowerCase().includes(search)
+    );
+  }
+  
+  // Aplicar filtros de categoría SOLO si hay alguno seleccionado
+  const selectedCategories = Object.keys(this.categoryFilters)
+    .filter(key => this.categoryFilters[key]);
+  
+  if (selectedCategories.length > 0) {
+    console.log("Categorías seleccionadas:", selectedCategories);
+    
+    filtered = filtered.filter(report => {
+      // Verificar si la categoría del reporte está entre las seleccionadas
+      const match = selectedCategories.includes(report.categoryClass);
+      return match;
+    });
+  }
+  
+  // Ya no aplicamos filtros de estado
+  
+  // Actualizar los reportes filtrados
+  this.filteredReports = filtered;
+  
+  // Aplicar ordenamiento
+  this.sortReports();
+
+  // Limpiar mapas existentes antes de inicializar nuevos
+  this.clearCurrentMaps();
+
+  // Programar inicialización de mapas después de renderizar
+  setTimeout(() => {
     if (this.filteredReports.length > 0) {
       this.prepareMapInitialization();
     }
+  }, 100);
+}
+  
+  // Limpiar mapas existentes
+  clearCurrentMaps(): void {
+    // Eliminar todas las instancias de mapas actuales
+    this.mapInstances.forEach((map, id) => {
+      map.remove();
+    });
+    this.mapInstances.clear();
+    this.markerInstances.clear();
+    this.mapsToInitialize = [];
   }
   
   sortReports(): void {
@@ -256,27 +255,23 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   }
   
   // Método para resetear todos los filtros
-  resetFilters(): void {
-    this.searchTerm = '';
-    
-    // Resetear filtros de categoría
-    Object.keys(this.categoryFilters).forEach(key => {
-      this.categoryFilters[key] = false;
-    });
-    
-    // Resetear filtros de estado a sus valores por defecto
-    this.statusFilters = {
-      'espera': true,
-      'completado': true,
-      'denegado': false
-    };
-    
-    // Resetear ordenamiento
-    this.sortBy = 'distance';
-    
-    // Aplicar filtros (en este caso, mostrar todos)
-    this.applyFilters();
-  }
+  // Método para resetear todos los filtros
+resetFilters(): void {
+  this.searchTerm = '';
+  
+  // Resetear filtros de categoría - todos a true para mostrar todos
+  Object.keys(this.categoryFilters).forEach(key => {
+    this.categoryFilters[key] = true;
+  });
+  
+  // Ya no hay que resetear statusFilters
+  
+  // Resetear ordenamiento
+  this.sortBy = 'distance';
+  
+  // Aplicar filtros (mostrar todos)
+  this.applyFilters();
+}
 
   // Método para obtener la ubicación actual del usuario
   getUserLocation() {
@@ -312,7 +307,8 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
       next: (data) => {
         console.log('Reportes obtenidos de la API:', data);
         this.originalReports = this.transformReportes(data);
-        this.reports = [...this.originalReports];
+        
+        // Simplemente asignar todos los reportes a filtered sin filtrar inicialmente
         this.filteredReports = [...this.originalReports];
         
         // Si ya tenemos la ubicación del usuario, calcular distancias
@@ -321,7 +317,9 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
         }
         
         this.reportsLoading = false;
-        this.applyFilters(); // Aplicar filtros iniciales
+        
+        // Ordenar por la opción predeterminada
+        this.sortReports();
         
         // Programar inicialización de mapas después de renderizar
         setTimeout(() => {
@@ -358,6 +356,12 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
         report.distance = 'Distancia desconocida';
       }
     });
+
+    // También actualizar las distancias en los reportes filtrados
+    this.filteredReports = [...this.originalReports];
+    
+    // Re-aplicar el ordenamiento
+    this.sortReports();
   }
 
   // Calcular distancia entre dos puntos usando la fórmula de Haversine
@@ -391,77 +395,99 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   }
 
   transformReportes(reportes: any[]): any[] {
-    if (!Array.isArray(reportes)) {
-      console.error('Los datos recibidos no son un array:', reportes);
-      return [];
-    }
-    
-    return reportes.map(reporte => {
-      try {
-        console.log('Procesando reporte:', reporte.id || 'sin ID');
-        
-        // URL de imagen por defecto
-        let imageUrl = 'imagenotfound.png';
-        
-        // Procesar imágenes si existen
-        if (reporte.imagenes && Array.isArray(reporte.imagenes) && reporte.imagenes.length > 0) {
-          imageUrl = `${this.apiUrl}/api/reportes-imagenes/${reporte.id}/imagen/0`;
-        }
-        
-        // Extraer ubicación
-        let location = { lat: null as number | null, lng: null as number | null };
-        let direccion = 'Sin ubicación';
-        
-        if (reporte.locations && reporte.locations.lat !== undefined && reporte.locations.lng !== undefined) {
-          location = {
-            lat: reporte.locations.lat,
-            lng: reporte.locations.lng
-          };
-          direccion = `Lat: ${location.lat?.toFixed(6) || 'N/A'}, Lng: ${location.lng?.toFixed(6) || 'N/A'}`;
-        }
-        
-        // Formato correcto de fecha
-        const fechaPublicacion = new Date(reporte.fechaPublicacion);
-        const tiempoTranscurrido = this.calcularTiempoTranscurrido(fechaPublicacion);
-        
-        // Procesar categoría
-        let nombreCategoria = 'General';
-        let descripcionCategoria = '';
-        
-        if (reporte.categoria && Array.isArray(reporte.categoria) && reporte.categoria.length > 0) {
-          const cat = reporte.categoria[0];
-          
-          if (cat.descripcion) {
-            nombreCategoria = this.obtenerNombreCategoria(cat.descripcion);
-            descripcionCategoria = cat.descripcion;
-          }
-        }
-        
-        // Inicializar la distancia como "Calculando..." - se actualizará después
-        const distanceText = this.currentUserLocation ? 'Calculando...' : 'Ubicación no disponible';
-        
-        return {
-          id: reporte.id || 'sin-id',
-          title: reporte.titulo || 'Sin título',
-          distance: distanceText, // Inicialmente sin calcular
-          address: direccion,
-          description: reporte.descripcion || 'Sin descripción',
-          generatedTime: tiempoTranscurrido,
-          category: nombreCategoria,
-          categoryDescription: descripcionCategoria,
-          categoryClass: this.obtenerClaseCategoria(nombreCategoria),
-          stars: typeof reporte.likes === 'number' ? reporte.likes : 0,
-          imageUrl: imageUrl,
-          mapId: `map-${reporte.id || Math.random().toString(36).substring(2, 11)}`,
-          location: location,
-          estado: reporte.estado || 'Desconocido'
-        };
-      } catch (error) {
-        console.error('Error al transformar reporte:', error, reporte);
-        return this.crearReporteDefault();
-      }
-    });
+  if (!Array.isArray(reportes)) {
+    console.error('Los datos recibidos no son un array:', reportes);
+    return [];
   }
+  
+  // Log para depuración - muestra los primeros reportes con sus categorías
+  if (reportes.length > 0) {
+    console.log('Estructura de categoría en primer reporte:', 
+      JSON.stringify(reportes[0].categoria));
+  }
+  
+  return reportes.map(reporte => {
+    try {
+      // URL de imagen por defecto
+      let imageUrl = 'imagenotfound.png';
+      
+      // Procesar imágenes si existen
+      if (reporte.imagenes && Array.isArray(reporte.imagenes) && reporte.imagenes.length > 0) {
+        imageUrl = `${this.apiUrl}/api/reportes-imagenes/${reporte.id}/imagen/0`;
+      }
+      
+      // Extraer ubicación
+      let location = { lat: null as number | null, lng: null as number | null };
+      let direccion = 'Sin ubicación';
+      
+      if (reporte.locations && reporte.locations.lat !== undefined && reporte.locations.lng !== undefined) {
+        location = {
+          lat: reporte.locations.lat,
+          lng: reporte.locations.lng
+        };
+        direccion = `Lat: ${location.lat?.toFixed(6) || 'N/A'}, Lng: ${location.lng?.toFixed(6) || 'N/A'}`;
+      }
+      
+      // Formato correcto de fecha
+      const fechaPublicacion = new Date(reporte.fechaPublicacion);
+      const tiempoTranscurrido = this.calcularTiempoTranscurrido(fechaPublicacion);
+      
+      // Procesar categoría - ahora con soporte para name o descripcion
+      let nombreCategoria = 'General';
+      let descripcionCategoria = '';
+      
+      if (reporte.categoria && Array.isArray(reporte.categoria) && reporte.categoria.length > 0) {
+        const cat = reporte.categoria[0];
+        
+        // Primero intentar con name (nuevo formato)
+        if (cat.name) {
+          nombreCategoria = cat.name;
+          descripcionCategoria = cat.descripcion || '';
+          console.log(`Reporte ${reporte.id}: Usando name para categoría: ${nombreCategoria}`);
+        } 
+        // Si no hay name, intentar con descripción (formato anterior)
+        else if (cat.descripcion) {
+          nombreCategoria = this.obtenerNombreCategoria(cat.descripcion);
+          descripcionCategoria = cat.descripcion;
+          console.log(`Reporte ${reporte.id}: Inferiendo nombre desde descripción: ${nombreCategoria}`);
+        }
+      }
+      
+      // Obtener la clase CSS para la categoría
+      const categoryClass = this.obtenerClaseCategoria(nombreCategoria);
+      console.log(`Reporte ${reporte.id}: Categoría ${nombreCategoria} -> Clase CSS: ${categoryClass}`);
+      
+      // Inicializar la distancia como "Calculando..." - se actualizará después
+      const distanceText = this.currentUserLocation ? 'Calculando...' : 'Ubicación no disponible';
+      
+      // Mapear estado para consistencia
+      let estado = reporte.estado || 'Desconocido';
+      if (estado.toUpperCase() === 'ESPERA' || estado.toUpperCase() === 'EN_ESPERA' || estado.toUpperCase() === 'EN ESPERA') {
+        estado = 'PENDIENTE';
+      }
+      
+      return {
+        id: reporte.id || 'sin-id',
+        title: reporte.titulo || 'Sin título',
+        distance: distanceText,
+        address: direccion,
+        description: reporte.descripcion || 'Sin descripción',
+        generatedTime: tiempoTranscurrido,
+        category: nombreCategoria,
+        categoryDescription: descripcionCategoria,
+        categoryClass: categoryClass,
+        stars: typeof reporte.likes === 'number' ? reporte.likes : 0,
+        imageUrl: imageUrl,
+        mapId: `map-${reporte.id || Math.random().toString(36).substring(2, 11)}`,
+        location: location,
+        estado: estado
+      };
+    } catch (error) {
+      console.error('Error al transformar reporte:', error, reporte);
+      return this.crearReporteDefault();
+    }
+  });
+}
 
   prepareMapInitialization() {
     // Recopilar todos los reportes con coordenadas válidas de los reportes filtrados
@@ -635,18 +661,33 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   }
 
   obtenerClaseCategoria(categoria: string): string {
-    const categoriaLowerCase = categoria.toLowerCase();
-    
-    if (categoriaLowerCase.includes('mascota')) return 'mascotas';
-    if (categoriaLowerCase.includes('seguridad')) return 'seguridad';
-    if (categoriaLowerCase.includes('infraestructura')) return 'infraestructura';
-    if (categoriaLowerCase.includes('servicio')) return 'servicios';
-    if (categoriaLowerCase.includes('ambiente')) return 'medio-ambiente';
-    if (categoriaLowerCase.includes('comunidad')) return 'comunidad';
-    if (categoriaLowerCase.includes('error')) return 'error';
-    
-    return 'general';
+  // Normalizar la categoría a minúsculas
+  const categoriaLowerCase = categoria.toLowerCase();
+  
+  // Mapeo exacto para las categorías específicas que queremos
+  const mapeoClases: {[key: string]: string} = {
+    'seguridad': 'seguridad',
+    'infraestructura': 'infraestructura',
+    'medio ambiente': 'medio-ambiente',
+    'transporte': 'transporte',  // Ahora transporte tiene su propia clase
+    'servicios públicos': 'servicios'
+  };
+  
+  // Primero, intentar un mapeo exacto
+  if (mapeoClases[categoriaLowerCase]) {
+    return mapeoClases[categoriaLowerCase];
   }
+  
+  // Si no hay mapeo exacto, usar comparaciones parciales
+  if (categoriaLowerCase.includes('seguri')) return 'seguridad';
+  if (categoriaLowerCase.includes('infraestructura')) return 'infraestructura';
+  if (categoriaLowerCase.includes('ambiente') || categoriaLowerCase.includes('medio')) return 'medio-ambiente';
+  if (categoriaLowerCase.includes('transport')) return 'transporte'; // Mapear a transporte
+  if (categoriaLowerCase.includes('servicio')) return 'servicios';
+  
+  // Por defecto, asignar a la categoría más cercana
+  return 'servicios'; // Por defecto asignar a servicios
+}
 
   makeReport() {
     this.router.navigate(['/create-report']);

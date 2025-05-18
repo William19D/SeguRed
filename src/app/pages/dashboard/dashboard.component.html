@@ -36,157 +36,139 @@
     </div>
   </section>
 
-  <!-- Estado de carga para reportes -->
-  <div *ngIf="reportsLoading" class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Cargando reportes...</p>
-  </div>
-
-  <!-- Estado de error para reportes -->
-  <div *ngIf="reportsError" class="error-container">
-    <div class="error-icon">⚠️</div>
-    <p>No se pudieron cargar los reportes. Por favor intente nuevamente.</p>
-    <button (click)="retryLoadReports()" class="retry-button">Reintentar</button>
-  </div>
-
-  <!-- Sin reportes disponibles -->
-  <div *ngIf="!reportsLoading && !reportsError && originalReports.length === 0" class="no-reports-container">
-    <p>No hay reportes disponibles en este momento.</p>
-    <button (click)="makeReport()" class="create-report-button">Crear un reporte</button>
-  </div>
-
-  <!-- Sin resultados para los filtros actuales -->
-  <div *ngIf="!reportsLoading && !reportsError && originalReports.length > 0 && filteredReports.length === 0" class="no-reports-container">
-    <p>No hay reportes que coincidan con tus filtros.</p>
-    <button (click)="resetFilters()" class="retry-button">Limpiar filtros</button>
-  </div>
-
   <div class="main-content">
-    <section class="reports" *ngIf="!reportsLoading && !reportsError && filteredReports.length > 0">
-      <div *ngFor="let report of filteredReports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
-        <!-- Sección izquierda: Mapa con distancia debajo -->
-        <div class="report-left-section">
-          <div class="report-map">
-            <div [id]="report.mapId" class="map-container"></div>
-          </div>
-          <div class="report-distance" *ngIf="report.distance !== 'Ubicación no disponible'">
-            <i class="fas fa-location-arrow"></i> {{ report.distance }}
-          </div>
-        </div>
-        
-        <!-- Contenido central -->
-        <div class="report-content">
-          <div class="report-header">
-            <h3>{{ report.title }}</h3>
-            <!-- Categoría movida a la esquina superior derecha -->
-          </div>
-          <div class="report-address">
-            <i class="fas fa-map-marker-alt"></i> {{ report.address }}
-          </div>
-          <p class="report-description">{{ report.description }}</p>
-          <div class="report-footer">
-            <div class="timestamp-likes">
-              <span class="timestamp">{{ report.generatedTime }}</span>
-              <!-- Cambio de estrellas a likes -->
-              <span class="likes"><i class="fas fa-thumbs-up"></i> {{ report.stars }}</span>
+    <!-- Sección de reportes - Siempre mantener este div, aunque cambie el contenido interno -->
+    <section class="reports-section">
+      <!-- Estado de carga para reportes -->
+      <div *ngIf="reportsLoading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando reportes...</p>
+      </div>
+
+      <!-- Estado de error para reportes -->
+      <div *ngIf="reportsError" class="error-container">
+        <div class="error-icon">⚠️</div>
+        <p>No se pudieron cargar los reportes. Por favor intente nuevamente.</p>
+        <button (click)="retryLoadReports()" class="retry-button">Reintentar</button>
+      </div>
+
+      <!-- Sin reportes disponibles -->
+      <div *ngIf="!reportsLoading && !reportsError && originalReports.length === 0" class="no-reports-container">
+        <p>No hay reportes disponibles en este momento.</p>
+        <button (click)="makeReport()" class="create-report-button">Crear un reporte</button>
+      </div>
+
+      <!-- Sin resultados para los filtros actuales -->
+      <div *ngIf="!reportsLoading && !reportsError && originalReports.length > 0 && filteredReports.length === 0" class="no-reports-container">
+        <p>No hay reportes que coincidan con tus filtros.</p>
+        <button (click)="resetFilters()" class="retry-button">Limpiar filtros</button>
+      </div>
+      
+      <!-- Lista de reportes -->
+      <div *ngIf="!reportsLoading && !reportsError && filteredReports.length > 0" class="reports">
+        <div *ngFor="let report of filteredReports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
+          <!-- Sección izquierda: Mapa con distancia debajo -->
+          <div class="report-left-section">
+            <div class="report-map">
+              <div [id]="report.mapId" class="map-container"></div>
             </div>
-            <!-- Botón ver detalles se moverá a la derecha por CSS -->
-          </div>
-        </div>
-        
-        <!-- Sección derecha: Categoría arriba y botón detalles abajo -->
-        <div class="report-right-section">
-          <div class="report-category">
-            <span class="category {{ report.categoryClass }}" [title]="report.categoryDescription || ''">{{ report.category }}</span>
+            <div class="report-distance" *ngIf="report.distance !== 'Ubicación no disponible'">
+              <i class="fas fa-location-arrow"></i> {{ report.distance }}
+            </div>
           </div>
           
-          <div class="report-image">
-            <div class="image-loading-spinner"></div>
-            <img [src]="report.imageUrl" 
-                alt="{{ report.title }}" 
-                (load)="hideSpinner($event)"
-                (error)="handleImageError($event)"
-                class="report-img">
+          <!-- Contenido central -->
+          <div class="report-content">
+            <div class="report-header">
+              <h3>{{ report.title }}</h3>
+              <!-- Categoría movida a la esquina superior derecha -->
+            </div>
+            <div class="report-address">
+              <i class="fas fa-map-marker-alt"></i> {{ report.address }}
+            </div>
+            <p class="report-description">{{ report.description }}</p>
+            <div class="report-footer">
+              <div class="timestamp-likes">
+                <span class="timestamp">{{ report.generatedTime }}</span>
+                <!-- Cambio de estrellas a likes -->
+                <span class="likes"><i class="fas fa-thumbs-up"></i> {{ report.stars }}</span>
+              </div>
+              <!-- Botón ver detalles se moverá a la derecha por CSS -->
+            </div>
           </div>
           
-          <div class="report-actions">
-            <button *ngIf="report.id !== 'error'" class="view-report" [routerLink]="['/reporte', report.id]">Ver detalles</button>
-            <button *ngIf="report.id === 'error'" class="error-button" (click)="retryLoadReports()">Actualizar</button>
+          <!-- Sección derecha: Categoría arriba y botón detalles abajo -->
+          <div class="report-right-section">
+            <div class="report-category">
+              <span class="category {{ report.categoryClass }}" [title]="report.categoryDescription || ''">{{ report.category }}</span>
+            </div>
+            
+            <div class="report-image">
+              <div class="image-loading-spinner"></div>
+              <img [src]="report.imageUrl" 
+                  alt="{{ report.title }}" 
+                  (load)="hideSpinner($event)"
+                  (error)="handleImageError($event)"
+                  class="report-img">
+            </div>
+            
+            <div class="report-actions">
+              <button *ngIf="report.id !== 'error'" class="view-report" [routerLink]="['/reporte', report.id]">Ver detalles</button>
+              <button *ngIf="report.id === 'error'" class="error-button" (click)="retryLoadReports()">Actualizar</button>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <aside>
-      <h4>Solo ver:</h4>
-      <div class="filter-option">
-        <input type="checkbox" id="mascotas" [checked]="categoryFilters['mascotas']" (change)="toggleCategoryFilter('mascotas')" />
-        <label for="mascotas">Mascotas</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="seguridad" [checked]="categoryFilters['seguridad']" (change)="toggleCategoryFilter('seguridad')" />
-        <label for="seguridad">Seguridad</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="comunidad" [checked]="categoryFilters['comunidad']" (change)="toggleCategoryFilter('comunidad')" />
-        <label for="comunidad">Comunidad</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="emergencia-medica" [checked]="categoryFilters['emergencia-medica']" (change)="toggleCategoryFilter('emergencia-medica')" />
-        <label for="emergencia-medica">Emergencia Médica</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="medio-ambiente" [checked]="categoryFilters['medio-ambiente']" (change)="toggleCategoryFilter('medio-ambiente')" />
-        <label for="medio-ambiente">Medio Ambiente</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="infraestructura" [checked]="categoryFilters['infraestructura']" (change)="toggleCategoryFilter('infraestructura')" />
-        <label for="infraestructura">Infraestructura</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="servicios" [checked]="categoryFilters['servicios']" (change)="toggleCategoryFilter('servicios')" />
-        <label for="servicios">Servicios</label>
-      </div>
-      <hr class="filter-divider">
-      <h4>Estado:</h4>
-      <div class="filter-option">
-        <input type="checkbox" id="espera" [checked]="statusFilters['espera']" (change)="toggleStatusFilter('espera')" />
-        <label for="espera">En espera</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="completado" [checked]="statusFilters['completado']" (change)="toggleStatusFilter('completado')" />
-        <label for="completado">Completado</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="denegado" [checked]="statusFilters['denegado']" (change)="toggleStatusFilter('denegado')" />
-        <label for="denegado">Denegado</label>
-      </div>
-      
-      <!-- Botón para resetear filtros -->
-      <div class="filter-actions">
-        <button (click)="resetFilters()" class="reset-filters-btn">
-          <i class="fas fa-trash-alt"></i> Limpiar filtros
-        </button>
-      </div>
-      
-      <!-- Sección para mostrar tu ubicación actual -->
-      <hr class="filter-divider">
-      <h4>Tu ubicación:</h4>
-      <div class="user-location-info">
-        <div *ngIf="currentUserLocation" class="current-location">
-          <i class="fas fa-map-pin"></i>
-          <span>Lat: {{ currentUserLocation.lat | number:'1.6-6' }}</span>
-          <span>Lng: {{ currentUserLocation.lng | number:'1.6-6' }}</span>
-        </div>
-        <div *ngIf="!currentUserLocation && !locationError" class="location-loading">
-          <div class="mini-spinner"></div>
-          <span>Obteniendo ubicación...</span>
-        </div>
-        <button (click)="getUserLocation()" class="refresh-location-btn">
-          <i class="fas fa-sync-alt"></i> Actualizar ubicación
-        </button>
-      </div>
-    </aside>
+  <aside>
+  <h4>Solo ver:</h4>
+  <div class="filter-option">
+    <input type="checkbox" id="seguridad" [checked]="categoryFilters['seguridad']" (change)="toggleCategoryFilter('seguridad')" />
+    <label for="seguridad">Seguridad</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="infraestructura" [checked]="categoryFilters['infraestructura']" (change)="toggleCategoryFilter('infraestructura')" />
+    <label for="infraestructura">Infraestructura</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="medio-ambiente" [checked]="categoryFilters['medio-ambiente']" (change)="toggleCategoryFilter('medio-ambiente')" />
+    <label for="medio-ambiente">Medio Ambiente</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="transporte" [checked]="categoryFilters['transporte']" (change)="toggleCategoryFilter('transporte')" />
+    <label for="transporte">Transporte</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="servicios" [checked]="categoryFilters['servicios']" (change)="toggleCategoryFilter('servicios')" />
+    <label for="servicios">Servicios Públicos</label>
+  </div>
+  
+  <!-- Botón para resetear filtros -->
+  <div class="filter-actions">
+    <button (click)="resetFilters()" class="reset-filters-btn">
+      <i class="fas fa-trash-alt"></i> Limpiar filtros
+    </button>
+  </div>
+  
+  <!-- Sección para mostrar tu ubicación actual -->
+  <hr class="filter-divider">
+  <h4>Tu ubicación:</h4>
+  <div class="user-location-info">
+    <div *ngIf="currentUserLocation" class="current-location">
+      <i class="fas fa-map-pin"></i>
+      <span>Lat: {{ currentUserLocation.lat | number:'1.6-6' }}</span>
+      <span>Lng: {{ currentUserLocation.lng | number:'1.6-6' }}</span>
+    </div>
+    <div *ngIf="!currentUserLocation && !locationError" class="location-loading">
+      <div class="mini-spinner"></div>
+      <span>Obteniendo ubicación...</span>
+    </div>
+    <button (click)="getUserLocation()" class="refresh-location-btn">
+      <i class="fas fa-sync-alt"></i> Actualizar ubicación
+    </button>
+  </div>
+</aside>
   </div>
 </div>
 <app-footer></app-footer>
