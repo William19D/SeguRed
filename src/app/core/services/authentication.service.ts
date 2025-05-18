@@ -273,9 +273,9 @@ export class AuthService {
   // Método para solicitar restablecimiento de contraseña
   requestPasswordReset(email: string): Observable<any> {
     // Usar URL local para evitar errores 404
-    console.log(`Enviando solicitud a: ${this.localApiUrl}/cuenta/password`);
+    console.log(`Enviando solicitud a: ${this.apiBaseUrl}/cuenta/password`);
     
-    return this.http.post(`${this.localApiUrl}/cuenta/password`, { correo: email }).pipe(
+    return this.http.post(`${this.apiBaseUrl}/cuenta/password`, { correo: email }).pipe(
       catchError(error => {
         console.error('Error al solicitar restablecimiento de contraseña:', error);
         return throwError(() => error);
@@ -284,7 +284,7 @@ export class AuthService {
   }
   resetPasswordWithCode(email: string, code: string, newPassword: string): Observable<any> {
     // Corregir la URL para que coincida con el endpoint en el backend
-    return this.http.put(`${this.localApiUrl}/cuenta/nueva-password`, {
+    return this.http.put(`${this.apiBaseUrl}/cuenta/nueva-password`, {
       correo: email,
       codigo: code,
       nuevaContraseña: newPassword

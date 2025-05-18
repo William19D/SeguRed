@@ -64,7 +64,7 @@ export class UsuarioService {
         console.log('Request data:', datos);
 
         // Agregar manejo de errores para obtener más detalles sobre lo que está mal
-        return this.http.patch(this.localApiUrl, datos, { headers })
+        return this.http.patch(this.updateApiUrl, datos, { headers })
             .pipe(
                 catchError(error => {
                     console.error('Error details:', error);
