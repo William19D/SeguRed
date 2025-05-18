@@ -1,6 +1,6 @@
 <div class="edit-profile-container">
   <div class="header">
-    <h1><strong>Editar</strong> <span>Perfil</span></h1>
+    <h1><strong>Editar</strong> <span> Perfil</span></h1>
   </div>
 
   <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
@@ -43,6 +43,13 @@
         <span *ngIf="profileForm.get('direccion')?.errors?.['required']">La dirección es obligatoria</span>
         <span *ngIf="profileForm.get('direccion')?.errors?.['minlength']">La dirección debe tener al menos 5 caracteres</span>
       </div>
+    </div>
+
+    <!-- Mapa interactivo -->
+    <div class="form-group map-group">
+      <label>Selecciona tu ubicación en el mapa</label>
+      <div id="map" class="map-container"></div>
+      <small class="info-text">Puedes arrastrar el marcador para actualizar la dirección</small>
     </div>
 
     <div class="form-group">
