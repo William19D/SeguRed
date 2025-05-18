@@ -364,13 +364,19 @@ loadReports() {
     next: (data) => {
       console.log('Reportes obtenidos de la API:', data);
       
-      // Filtrar reportes eliminados antes de procesarlos
+      // Filtrar reportes: solo mostrar aquellos con estado COMPLETADO/APROBADO
       const filteredData = data.filter((reporte: any) => {
         const estado = (reporte.estado || '').toUpperCase();
-        return estado !== 'ELIMINADO' && estado !== 'DELETED';
+        // Primero eliminar los reportes eliminados
+        if (estado === 'ELIMINADO' || estado === 'DELETED') {
+          return false;
+        }
+        
+        // Solo mantener los reportes con estado COMPLETADO/APROBADO
+        return estado === 'COMPLETADO' || estado === 'APROBADO';
       });
       
-      console.log(`Filtrados ${data.length - filteredData.length} reportes eliminados`);
+      console.log(`Se muestran ${filteredData.length} reportes aprobados de ${data.length} totales`);
       
       this.originalReports = this.transformReportes(filteredData);
       
