@@ -1,0 +1,201 @@
+<div class="dashboard">
+  <header>
+    <div class="header-content">
+      <h1>Bienvenido {{ user?.nombreCom || 'Administrador' }} a SeguRed</h1>
+      <p>Gestiona reportes, usuarios y contenido de la plataforma. Mantén la comunidad segura y actualizada.</p>
+      <div class="admin-actions">
+        <button (click)="openUserManagement()" class="btn-admin">
+          <i class="fas fa-users"></i> Gestionar Usuarios
+        </button>
+        <button (click)="generateReports()" class="btn-admin">
+          <i class="fas fa-file-alt"></i> Generar Informes
+        </button>
+      </div>
+    </div>
+    <div class="header-image">
+      <img src="illustration.svg" alt="Imagen Dashboard" onerror="this.src='Illustration.svg'" />
+    </div>
+  </header>
+
+  <section class="reports-summary">
+    <h2>Reportes en el sistema</h2>
+    <div class="summary">
+      <span><strong>{{ pendingReportsCount || '0' }}</strong> Pendientes de Aprobación</span>
+      <span><strong>{{ completedReportsCount || '0' }}</strong> Reportes Aprobados</span>
+      <span><strong>{{ usersCount || '0' }}</strong> Usuarios Registrados</span>
+    </div>
+  </section>
+
+  <section class="filters">
+    <input type="text" placeholder="Buscar" [(ngModel)]="searchTerm" (input)="updateSearchTerm($event)" />
+    <div class="sort-by">
+      <label for="sort">Estado:</label>
+      <select id="sort" [(ngModel)]="filterStatus" (change)="updateStatusFilter($event)">
+        <option value="all">Todos</option>
+        <option value="pending">Pendientes</option>
+        <option value="completed">Aprobados</option>
+        <option value="denied">Denegados</option>
+      </select>
+    </div>
+  </section>
+
+  <div class="main-content">
+    <section class="reports-section">
+      <!-- Estados de carga, error y sin reportes (igual que el dashboard de usuario) -->
+      <div *ngIf="reportsLoading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando reportes...</p>
+      </div>
+
+      <div *ngIf="reportsError" class="error-container">
+        <div class="error-icon">⚠️</div>
+        <p>No se pudieron cargar los reportes. Por favor intente nuevamente.</p>
+        <button (click)="loadReports()" class="retry-button">Reintentar</button>
+      </div>
+
+      <div *ngIf="!reportsLoading && !reportsError && filteredReports.length === 0" class="no-reports-container">
+        <p>No hay reportes que coincidan con los filtros seleccionados.</p>
+        <button (click)="resetFilters()" class="retry-button">Limpiar filtros</button>
+      </div>
+      
+      <!-- Lista de reportes - IDÉNTICA a la del usuario pero con botones admin -->
+      <div *ngIf="!reportsLoading && !reportsError && filteredReports.length > 0" class="reports">
+        <div *ngFor="let report of filteredReports" class="report-card" [ngClass]="{'report-pending': report.estado === 'PENDIENTE', 'report-approved': report.estado === 'COMPLETADO', 'report-denied': report.estado === 'DENEGADO'}">
+          <!-- Sección izquierda: Mapa con distancia debajo (idéntico al usuario) -->
+          <div class="report-left-section">
+            <div class="report-map">
+              <div [id]="report.mapId" class="map-container"></div>
+            </div>
+            <div class="report-distance" *ngIf="report.distance">
+              <i class="fas fa-location-arrow"></i> {{ report.distance }}
+            </div>
+            <!-- Solo para admin: info de usuario -->
+            <div class="report-user-info">
+              <i class="fas fa-user"></i> 
+              <span>{{ report.userName || 'Usuario anónimo' }}</span>
+            </div>
+          </div>
+          
+          <!-- Contenido central (idéntico al usuario) -->
+          <div class="report-content">
+            <div class="report-header">
+              <h3>{{ report.title }}</h3>
+            </div>
+            <div class="report-address">
+              <i class="fas fa-map-marker-alt"></i> {{ report.address }}
+            </div>
+            <p class="report-description">{{ report.description }}</p>
+            <div class="report-footer">
+              <div class="timestamp-likes">
+                <span class="timestamp">{{ report.generatedTime }}</span>
+                <span class="likes"><i class="fas fa-thumbs-up"></i> {{ report.stars }}</span>
+                <!-- Indicador de estado sólo para admin -->
+                <span class="report-status" [ngClass]="report.estado.toLowerCase()">
+                  {{ report.estado === 'COMPLETADO' ? 'APROBADO' : report.estado }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Sección derecha: Categorías arriba, imagen en medio y botones abajo (como usuario) -->
+          <div class="report-right-section">
+            <div class="report-category">
+              <div class="report-categories-container">
+                <span *ngFor="let cat of report.allCategories; let i = index" 
+                      class="category {{ report.allCategoryClasses[i] }}" 
+                      title="{{ cat }}">
+                  {{ cat }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="report-image">
+              <div class="image-loading-spinner"></div>
+              <img [src]="report.imageUrl" 
+                  alt="{{ report.title }}" 
+                  (load)="hideSpinner($event)"
+                  (error)="handleImageError($event)"
+                  class="report-img">
+            </div>
+            
+            <!-- Botones de admin (aquí está la diferencia principal) -->
+            <div class="report-actions admin-buttons">
+              <button *ngIf="report.estado === 'PENDIENTE'" class="admin-btn approve" (click)="approveReport(report.id)">
+                <i class="fas fa-check"></i> Aprobar
+              </button>
+              <button *ngIf="report.estado === 'PENDIENTE'" class="admin-btn deny" (click)="denyReport(report.id)">
+                <i class="fas fa-ban"></i> Denegar
+              </button>
+              <button class="view-report" [routerLink]="['/reporte', report.id]">
+                <i class="fas fa-eye"></i> Ver
+              </button>
+              <button class="admin-btn delete" (click)="confirmDelete(report.id)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sidebar: mantiene los filtros con categorías idénticos al usuario -->
+    <aside>
+      <h4>Solo ver:</h4>
+      <div class="filter-option">
+        <input type="checkbox" id="seguridad" [checked]="categoryFilters['seguridad']" (change)="toggleCategoryFilter('seguridad')" />
+        <label for="seguridad">Seguridad</label>
+      </div>
+      <div class="filter-option">
+        <input type="checkbox" id="infraestructura" [checked]="categoryFilters['infraestructura']" (change)="toggleCategoryFilter('infraestructura')" />
+        <label for="infraestructura">Infraestructura</label>
+      </div>
+      <div class="filter-option">
+        <input type="checkbox" id="medio-ambiente" [checked]="categoryFilters['medio-ambiente']" (change)="toggleCategoryFilter('medio-ambiente')" />
+        <label for="medio-ambiente">Medio Ambiente</label>
+      </div>
+      <div class="filter-option">
+        <input type="checkbox" id="transporte" [checked]="categoryFilters['transporte']" (change)="toggleCategoryFilter('transporte')" />
+        <label for="transporte">Transporte</label>
+      </div>
+      <div class="filter-option">
+        <input type="checkbox" id="servicios" [checked]="categoryFilters['servicios']" (change)="toggleCategoryFilter('servicios')" />
+        <label for="servicios">Servicios Públicos</label>
+      </div>
+      
+      <div class="filter-actions">
+        <button (click)="resetFilters()" class="reset-filters-btn">
+          <i class="fas fa-trash-alt"></i> Limpiar filtros
+        </button>
+      </div>
+      
+      <hr class="filter-divider">
+      
+      <!-- Sección específica para admin -->
+      <h4>Acciones rápidas</h4>
+      <div class="admin-quick-actions">
+        <button (click)="approveAllPending()" class="quick-action-btn">
+          <i class="fas fa-check-double"></i> Aprobar Pendientes
+        </button>
+        <button (click)="exportReports()" class="quick-action-btn">
+          <i class="fas fa-file-export"></i> Exportar Datos
+        </button>
+        <button (click)="refreshData()" class="quick-action-btn">
+          <i class="fas fa-sync-alt"></i> Actualizar Datos
+        </button>
+      </div>
+    </aside>
+  </div>
+  
+  <!-- Modal de confirmación para eliminar -->
+  <div *ngIf="showDeleteModal" class="admin-modal">
+    <div class="modal-content">
+      <h3>¿Está seguro?</h3>
+      <p>Esta acción eliminará permanentemente el reporte.</p>
+      <div class="modal-actions">
+        <button (click)="cancelDelete()" class="modal-btn cancel-btn">Cancelar</button>
+        <button (click)="deleteReport()" class="modal-btn confirm-btn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

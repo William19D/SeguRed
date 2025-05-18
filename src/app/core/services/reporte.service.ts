@@ -170,7 +170,7 @@ export class ReporteService {
     );
   }
 
-  markReporteAsDenied(id: string, motivo: string): Observable<any> {
+  markReporteAsDenied(id: string, motivo: string = ''): Observable<any> {
     const url = `${this.apiUrl}/reportes/${id}/denegar`;
     const headers = this.getAuthHeaders();
     return this.http.put(url, { motivo }, { headers }).pipe(
@@ -182,6 +182,32 @@ export class ReporteService {
         }));
       })
     );
+  }
+
+  /**
+   * Método genérico para actualizar el estado de un reporte
+   * @param id ID del reporte
+   * @param status Nuevo estado (PENDIENTE, COMPLETADO, DENEGADO)
+   * @returns Observable con la respuesta
+   */
+  updateReportStatus(id: string, status: string): Observable<any> {
+    // Validar el estado
+    const validStatuses = ['PENDIENTE', 'COMPLETADO', 'DENEGADO'];
+    if (!validStatuses.includes(status)) {
+      return throwError(() => ({
+        userMessage: `Estado "${status}" no válido. Debe ser uno de: ${validStatuses.join(', ')}`
+      }));
+    }
+
+    // Usar los métodos específicos según el estado
+    if (status === 'COMPLETADO') {
+      return this.markReporteAsCompleted(id);
+    } else if (status === 'DENEGADO') {
+      return this.markReporteAsDenied(id);
+    } else {
+      // Para otros estados, usar el método general de actualización
+      return this.updateReporte(id, { estado: status });
+    }
   }
 
   /**
@@ -255,6 +281,118 @@ export class ReporteService {
    */
   deleteReport(reportId: string): Observable<any> {
     return this.deleteReporte(reportId);
+  }
+
+  /**
+   * Obtiene estadísticas de reportes para el panel de administración
+   * @returns Observable con estadísticas de reportes
+   */
+  getReportStatistics(): Observable<any> {
+    return this.getAllReportes().pipe(
+      map(reports => {
+        const pendingReports = reports.filter(r => r.estado === 'PENDIENTE' || r.estado === 'EN_ESPERA');
+        const completedReports = reports.filter(r => r.estado === 'COMPLETADO');
+        const deniedReports = reports.filter(r => r.estado === 'DENEGADO');
+
+        return {
+          total: reports.length,
+          pending: pendingReports.length,
+          completed: completedReports.length,
+          denied: deniedReports.length,
+          byCategory: this.getReportsByCategory(reports)
+        };
+      }),
+      catchError(error => {
+        console.error('Error al obtener estadísticas:', error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudieron cargar las estadísticas'
+        }));
+      })
+    );
+  }
+
+  /**
+   * Método auxiliar para agrupar reportes por categoría
+   */
+  private getReportsByCategory(reports: any[]): {[key: string]: number} {
+    const categories: {[key: string]: number} = {};
+    
+    reports.forEach(report => {
+      if (report.categoria && Array.isArray(report.categoria)) {
+        report.categoria.forEach((cat: any) => {
+          const catName = cat.name || this.getCategoryNameFromDescription(cat.descripcion);
+          if (catName) {
+            categories[catName] = (categories[catName] || 0) + 1;
+          }
+        });
+      }
+    });
+    
+    return categories;
+  }
+
+  /**
+   * Extraer nombre de categoría a partir de descripción
+   */
+  private getCategoryNameFromDescription(descripcion: string): string {
+    if (!descripcion) return 'General';
+    
+    if (descripcion.includes('seguridad')) return 'Seguridad';
+    if (descripcion.includes('infraestructura')) return 'Infraestructura';
+    if (descripcion.includes('medio ambiente')) return 'Medio Ambiente';
+    if (descripcion.includes('transporte')) return 'Transporte';
+    if (descripcion.includes('servicios públicos')) return 'Servicios';
+    
+    return 'General';
+  }
+
+  /**
+   * Exporta reportes a formato CSV
+   * @returns String con datos en formato CSV
+   */
+  exportReportsToCSV(): Observable<string> {
+    return this.getAllReportes().pipe(
+      map(reports => {
+        // Definir las columnas del CSV
+        const headers = [
+          'ID', 'Título', 'Descripción', 'Estado', 
+          'Categoría', 'Fecha Publicación', 'Likes',
+          'ID Usuario', 'Dirección', 'Latitud', 'Longitud'
+        ];
+
+        // Crear filas de datos
+        const rows = reports.map(report => [
+          report.id || '',
+          `"${(report.titulo || '').replace(/"/g, '""')}"`,
+          `"${(report.descripcion || '').replace(/"/g, '""')}"`,
+          report.estado || '',
+          report.categoria && Array.isArray(report.categoria) ? 
+            `"${report.categoria.map((c: any) => c.name || '').join(', ')}"` : '',
+          report.fechaPublicacion || '',
+          report.likes || '0',
+          report.usuarioId || '',
+          `"${(report.direccion || '').replace(/"/g, '""')}"`,
+          report.locations?.lat || '',
+          report.locations?.lng || ''
+        ]);
+
+        // Combinar encabezados y filas
+        const csvContent = [
+          headers.join(','),
+          ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        return csvContent;
+      }),
+      catchError(error => {
+        console.error('Error al exportar reportes a CSV:', error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudieron exportar los reportes'
+        }));
+      })
+    );
   }
 
   /**

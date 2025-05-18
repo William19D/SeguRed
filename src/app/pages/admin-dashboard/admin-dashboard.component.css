@@ -1,0 +1,247 @@
+/* Importar todos los estilos del dashboard de usuarios */
+@import '../dashboard/dashboard.component.css';
+
+/* Estilos adicionales específicos para administrador */
+
+/* Hacer que los botones de admin encajen en el diseño de usuario */
+.report-actions.admin-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  justify-content: flex-end;
+}
+
+.admin-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.admin-btn i {
+  font-size: 0.8rem;
+}
+
+.admin-btn.approve {
+  background-color: #28a745;
+}
+
+.admin-btn.approve:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
+.admin-btn.deny {
+  background-color: #dc3545;
+}
+
+.admin-btn.deny:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+.admin-btn.delete {
+  background-color: #6c757d;
+}
+
+.admin-btn.delete:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Información de usuario */
+.report-user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 8px;
+  padding: 5px 0;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+.report-user-info i {
+  color: #4a76ff;
+}
+
+/* Indicador de estado */
+.report-status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+.report-status.pendiente {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.report-status.completado {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.report-status.denegado {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+/* Indicadores visuales de estado */
+.report-card.report-pending {
+  border-left: 4px solid #ffc107;
+}
+
+.report-card.report-approved {
+  border-left: 4px solid #28a745;
+}
+
+.report-card.report-denied {
+  border-left: 4px solid #dc3545;
+}
+
+/* Acciones rápidas */
+.admin-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quick-action-btn {
+  padding: 8px 12px;
+  background-color: #FBC02D;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.quick-action-btn:hover {
+  background-color: #f0b013;
+  transform: translateY(-2px);
+}
+
+.quick-action-btn i {
+  font-size: 0.9rem;
+}
+
+/* Modal de confirmación */
+.admin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #dc3545;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+.confirm-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Botones en header */
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.btn-admin {
+  padding: 12px 24px;
+  font-size: 1rem;
+  color: #000000;
+  background-color: #FBC02D;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-admin:hover {
+  background-color: #f0b013;
+  transform: translateY(-2px);
+}
+
+/* Media queries (reajustes específicos para admin) */
+@media (max-width: 768px) {
+  .admin-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .btn-admin {
+    width: 100%;
+  }
+  
+  .report-actions.admin-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .admin-btn, .view-report {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,63 @@
+<nav class="topbar" [ngClass]="{ 'hidden': isNavbarHidden }">
+  <div class="container">
+    <!-- Logo -->
+    <a class="navbar-brand" (click)="goToAdminDashboard()">
+      <img src="Logo.svg" alt="SeguRed" class="logo" onerror="this.src='Logo.svg'" />
+      <span class="admin-indicator">Admin</span>
+    </a>
+
+    <!-- Botón hamburguesa para móviles -->
+    <button class="menu-toggle" [ngClass]="{'active': isMobileMenuOpen}" 
+            (click)="toggleMobileMenu()" 
+            aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Menú de navegación -->
+    <div class="nav-container" [ngClass]="{'mobile-open': isMobileMenuOpen}">
+      <ul class="nav-menu">
+        <li><a routerLink="/admin/dashboard" routerLinkActive="active">Panel</a></li>
+        <li><a routerLink="/admin/users" routerLinkActive="active">Usuarios</a></li>
+        <li>
+          <a routerLink="/admin/approvals" routerLinkActive="active" class="approvals-link">
+            Aprobaciones
+            <span *ngIf="pendingReportsCount > 0" class="pending-badge">{{ pendingReportsCount }}</span>
+          </a>
+        </li>
+        <li><a routerLink="/dashboard" class="user-view-link">Vista Usuario</a></li>
+      </ul>
+
+      <div class="user-section">
+        <div class="user-info" (click)="toggleUserMenu()">
+          <img
+            [src]="user.profilePicture"
+            alt="Foto de perfil"
+            class="profile-picture admin-profile"
+            (error)="handleImageError($event)"
+          />
+          <div class="user-details">
+            <span class="user-name">{{ user.name }}</span>
+            <span class="user-role">Administrador</span>
+          </div>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+
+        <div class="user-dropdown" [ngClass]="{ 'open': isUserMenuOpen }">
+          <a (click)="goToProfile()"><i class="fas fa-user"></i> Mi Perfil</a>
+          <a (click)="goToSettings()"><i class="fas fa-cog"></i> Configuración</a>
+          <a (click)="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Elemento separado para el overlay móvil -->
+<div class="mobile-overlay" [ngClass]="{'active': isMobileMenuOpen}" (click)="closeMobileMenu()"></div>
+
+<!-- Mensaje de error si existe -->
+<div *ngIf="error" class="error-message">
+  {{ error }}
+</div>

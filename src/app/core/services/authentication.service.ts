@@ -76,33 +76,43 @@ export class AuthService {
     );
   }
 
-  // Método para iniciar sesión como moderador
+  // Método corregido para iniciar sesión como administrador
   loginAsModerator(email: string, password: string): Observable<any> {
-    // Construir las credenciales con el roleType de MODERADOR
+    console.log('Intentando login de administrador con:', { correo: email });
+    
+    // Usar la misma URL y formato de datos que en el login normal
     return this.http.post<any>(`${this.apiUrl}/login`, {
       correo: email,
-      contraseña: password,
-      roleType: 'ADMINISTRADOR'
+      contraseña: password
     }).pipe(
       tap(response => {
-        console.log('Administrator login response received:', response);
+        console.log('Respuesta login admin:', response);
+        // Guardar el token usando el mismo método que login normal
         if (response && response.token) {
           this.setAuthToken(response.token);
-          // Guardar rol de administrador
-          localStorage.setItem(this.userRoleKey, 'ADMINISTRADOR');
-          // Obtener información del administrador
+          
+          // Si el rol viene en la respuesta, guardarlo
+          if (response.rol) {
+            localStorage.setItem(this.userRoleKey, response.rol);
+          }
+          
+          // Obtener datos de usuario después del login
           this.getUserInfo().subscribe({
             next: (userData) => {
-              console.log('Administrator data fetched successfully');
+              console.log('Admin data fetched successfully:', userData);
+              // Si el rol no vino en la respuesta pero sí en los datos del usuario
+              if (userData && userData.rol) {
+                localStorage.setItem(this.userRoleKey, userData.rol);
+              }
             },
             error: (err) => {
-              console.error('Failed to fetch administrator data:', err);
+              console.error('Failed to fetch admin data:', err);
             }
           });
         }
       }),
       catchError(error => {
-        console.error('Administrator login error:', error);
+        console.error('Admin login error:', error);
         return throwError(() => error);
       })
     );
@@ -282,6 +292,7 @@ export class AuthService {
       })
     );
   }
+  
   resetPasswordWithCode(email: string, code: string, newPassword: string): Observable<any> {
     // Corregir la URL para que coincida con el endpoint en el backend
     return this.http.put(`${this.apiBaseUrl}/cuenta/nueva-password`, {

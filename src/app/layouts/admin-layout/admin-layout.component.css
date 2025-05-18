@@ -1,0 +1,4 @@
+.main-content {
+  min-height: calc(100vh - 140px);
+  padding-top: 70px; /* Espacio para el topbar fijo */
+}

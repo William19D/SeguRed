@@ -77,80 +77,95 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-    this.submitted = true;
-    this.errorMessage = '';
+  this.submitted = true;
+  this.errorMessage = '';
     
-    // Stop here if form is invalid
-    if (this.loginForm.invalid) {
-      return;
-    }
-
-    if (!this.recaptchaToken) {
-      this.errorMessage = "Por favor, completa el reCAPTCHA";
-      return;
-    }
-
-    // Show loading animation
-    this.loading = true;
-
-    // Verificar CAPTCHA
-    this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
-      { token: this.recaptchaToken }
-    ).pipe(
-      finalize(() => {
-        // This code will run if there's an error in the captcha verification
-        // The loading flag will be set to false if there's an error in the next subscription
-      })
-    ).subscribe({
-      next: (res: any) => {
-        if (res.success) {
-          // CAPTCHA validado, proceder con autenticación
-          // Según el tipo de login, llamamos al método correspondiente
-          const loginObservable = this.isModeratorLogin 
-            ? this.authService.loginAsModerator(this.f['email'].value, this.f['password'].value)
-            : this.authService.login(this.f['email'].value, this.f['password'].value);
-
-          loginObservable.pipe(
-            finalize(() => {
-              // This ensures loading is set to false whether login succeeds or fails
-              if (!this.authService.isAuthenticated()) {
-                this.loading = false;
-              }
-            })
-          ).subscribe({
-            next: (response) => {
-              if (this.f['rememberMe'].value) {
-                this.authService.setRememberMe(true);
-              }
-              console.log('Inicio de sesión exitoso');
-              
-              // Redirigir según tipo de usuario
-              const redirectUrl = this.isModeratorLogin ? '/moderator-dashboard' : '/dashboard';
-              this.router.navigate([redirectUrl]);
-              // Loading will be hidden after navigation
-            },
-            error: (err) => {
-              // Mensaje de error específico para moderador
-              if (this.isModeratorLogin) {
-                this.errorMessage = err.error?.error || 'Acceso denegado. Verifica tus credenciales de moderador.';
-              } else {
-                this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
-              }
-              // Loading is set to false in finalize()
-            }
-          });
-        } else {
-          this.errorMessage = 'Verificación de reCAPTCHA fallida';
-          this.loading = false;
-        }
-      },
-      error: (err) => {
-        this.errorMessage = 'Error en la verificación del reCAPTCHA';
-        this.loading = false;
-      }
-    });
+  if (this.loginForm.invalid) {
+    return;
   }
 
+  if (!this.recaptchaToken) {
+    this.errorMessage = "Por favor, completa el reCAPTCHA";
+    return;
+  }
+
+  this.loading = true;
+
+  // Verificar primero el reCAPTCHA
+  this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
+    { token: this.recaptchaToken }
+  ).subscribe({
+    next: (res: any) => {
+      if (res.success) {
+        // CAPTCHA verificado, proceder con la autenticación
+        this.processLogin();
+      } else {
+        this.errorMessage = 'Verificación de reCAPTCHA fallida';
+        this.loading = false;
+      }
+    },
+    error: (err) => {
+      this.errorMessage = 'Error en la verificación del reCAPTCHA';
+      this.loading = false;
+    }
+  });
+}
+
+// Método separado para manejar la lógica de login
+private processLogin() {
+  const email = this.f['email'].value;
+  const password = this.f['password'].value;
+  const rememberMe = this.f['rememberMe'].value;
+  
+  console.log(`Intentando login ${this.isModeratorLogin ? 'como administrador' : 'como usuario regular'}`);
+  
+  const loginObservable = this.isModeratorLogin 
+    ? this.authService.loginAsModerator(email, password)
+    : this.authService.login(email, password);
+  
+  loginObservable.subscribe({
+    next: (response) => {
+      console.log('Login exitoso, respuesta:', response);
+      
+      if (this.f['rememberMe'].value) {
+        this.authService.setRememberMe(true);
+      }
+      
+      // Si es intento de login como administrador, esperar a que se cargue el perfil completo
+      if (this.isModeratorLogin) {
+        // Esperar a que se complete getUserInfo() que ya se llama dentro de loginAsModerator
+        // y después verificar el rol usando getCurrentUser()
+        setTimeout(() => {
+          const userData = this.authService.getCurrentUser();
+          console.log('Verificando datos completos del usuario:', userData);
+          
+          if (userData && userData.rol === 'ADMINISTRADOR') {
+            console.log('Rol de administrador confirmado, redirigiendo...');
+            window.location.href = '/admin-dashboard';
+          } else {
+            console.log('No se confirmó rol de administrador:', userData?.rol);
+            this.authService.logout();
+            this.errorMessage = 'Solo el personal autorizado puede iniciar sesión como administrador.';
+            this.loading = false;
+          }
+        }, 1000); // Dar tiempo suficiente para que se complete getUserInfo
+      } else {
+        // Para login de usuario normal
+        console.log('Login de usuario normal, redirigiendo a dashboard');
+        this.router.navigate(['/dashboard']);
+      }
+    },
+    error: (err) => {
+      console.error('Error de login:', err);
+      if (this.isModeratorLogin) {
+        this.errorMessage = err.error?.error || 'Acceso denegado. Verifica tus credenciales de administrador.';
+      } else {
+        this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
+      }
+      this.loading = false;
+    }
+  });
+}
   goToRegister() {
     this.router.navigate(['/register']);
   }

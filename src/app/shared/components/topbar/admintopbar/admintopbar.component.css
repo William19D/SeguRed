@@ -1,0 +1,94 @@
+/* Importar estilos base de la topbar de usuario */
+@import '../../topbar/user/usertopbar/usertopbar.component.css';
+
+/* Estilos adicionales específicos para el AdminTopbar */
+
+/* Indicador de administrador junto al logo */
+.admin-indicator {
+  font-size: 0.65rem;
+  background-color: #FBC02D;
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Perfil de administrador con borde amarillo */
+.admin-profile {
+  border: 2px solid #FBC02D !important;
+}
+
+/* Badge para conteo de aprobaciones pendientes */
+.approvals-link {
+  position: relative;
+  padding-right: 25px !important;
+}
+
+.pending-badge {
+  position: absolute;
+  top: -5px;
+  right: 0px;
+  background-color: #f44336;
+  color: white;
+  font-size: 0.65rem;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+/* Estilo para el rol de administrador */
+.user-role {
+  font-size: 12px;
+  background-color: #FBC02D !important;
+  color: #000 !important;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-weight: 500;
+}
+
+/* Estilo específico para el enlace de vista de usuario */
+.user-view-link {
+  background-color: rgba(251, 192, 45, 0.1);
+  border-radius: 20px;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+
+.user-view-link:hover {
+  background-color: rgba(251, 192, 45, 0.2);
+}
+
+/* Adaptación responsiva */
+@media screen and (max-width: 768px) {
+  .pending-badge {
+    position: static;
+    display: inline-flex;
+    margin-left: 8px;
+  }
+  
+  .approvals-link {
+    padding-right: 15px !important;
+  }
+}
+
+/* Estilos específicos para los iconos en el dropdown */
+.user-dropdown a i {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+}
+
+/* Ajuste para el modo móvil */
+@media screen and (max-width: 480px) {
+  .admin-indicator {
+    display: none;
+  }
+}
