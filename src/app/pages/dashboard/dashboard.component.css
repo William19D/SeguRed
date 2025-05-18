@@ -1,33 +1,30 @@
 .dashboard {
-  display: grid;
-  grid-template-columns: 1fr 300px; /* Ajuste para el aside */
-  gap: 20px;
-  padding: 20px; /* Añade un poco de padding al contenedor principal */
-  font-family: 'Inter', sans-serif; /* Asumiendo que estás usando esta fuente */
-  background-color: #f7f8fa; /* Fondo similar al de la imagen */
-  min-height: 100vh; /* Para que ocupe al menos toda la altura de la pantalla */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+  background-color: #f7f8fa;
+  min-height: 100vh;
 }
 
 header {
-  grid-column: 1 / -1; /* Ocupa todo el ancho */
-  display: flex; /* Para alinear el contenido y la imagen */
-  justify-content: space-between; /* Espacio entre texto e imagen */
-  align-items: center; /* Centra verticalmente el texto y la imagen */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 30px;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
 .header-content {
-  text-align: left;
-  flex-grow: 1; /* Permite que el contenido de texto ocupe más espacio */
+  flex: 3;
 }
 
 header h1 {
-  font-size: 3rem; /* Aumenta el tamaño del texto principal */
-  font-weight: bold; /* Pone el texto principal en negrita */
+  font-size: 2.5rem;
+  font-weight: 700;
   color: #333;
   margin-bottom: 10px;
 }
@@ -37,10 +34,10 @@ header p {
   color: #777;
   line-height: 1.6;
   margin-bottom: 20px;
+  max-width: 600px;
 }
 
 header button {
-  display: inline-block;
   padding: 12px 24px;
   font-size: 1rem;
   color: #000000;
@@ -48,311 +45,577 @@ header button {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 header button:hover {
-  background-color: rgb(210, 161, 0);
+  background-color: #f0b013;
+  transform: translateY(-2px);
 }
 
 .header-image {
-  width: 250px; /* Aumenta el ancho de la imagen para hacerla más grande */
-  height: auto; /* Mantiene la proporción de la imagen */
-  margin-left: 30px; /* Aumenta el margen para separarla más del texto si es necesario */
+  flex: 1;
+  text-align: right;
 }
 
 .header-image img {
   max-width: 100%;
   height: auto;
-  object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor */
 }
 
 .reports-summary {
-  grid-column: 1 / -1; /* Ocupa todo el ancho */
   display: flex;
-  justify-content: space-around; /* Espacio entre los elementos */
+  justify-content: space-between;
   align-items: center;
   padding: 20px;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
 .reports-summary h2 {
-  display: none; /* Oculta el título "Reportes en las últimas 24 horas" */
+  font-size: 1.2rem;
+  color: #555;
 }
 
-.reports-summary .summary {
+.summary {
   display: flex;
   gap: 30px;
+}
+
+.summary span {
   font-size: 1.1rem;
   color: #555;
 }
 
-.reports-summary .summary strong {
-  font-weight: bold;
+.summary strong {
+  font-weight: 700;
   color: #333;
 }
 
 .filters {
-  grid-column: 1 / -1; /* Ocupa todo el ancho */
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
   padding: 15px 20px;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
 .filters input[type="text"] {
   flex-grow: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: 10px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  margin-right: 15px;
 }
 
-.filters .sort-by {
+.sort-by {
   display: flex;
   align-items: center;
 }
 
-.filters .sort-by label {
+.sort-by label {
   margin-right: 10px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #555;
 }
 
-.filters .sort-by select {
+.sort-by select {
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #fff;
+}
+
+.loading-container, .error-container, .no-reports-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0,0,0,0.1);
+  border-left: 4px solid #FBC02D;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #f44336;
+}
+
+.retry-button, .create-report-button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #FBC02D;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.retry-button:hover, .create-report-button:hover {
+  background-color: #f0b013;
+  transform: translateY(-2px);
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
 }
 
 .reports {
-  grid-column: 1; /* Ocupa la primera columna */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+/* Card de Reporte - Nueva estructura con mapa más grande */
 .report-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: 240px 1fr 150px; /* Aumentado de 120px a 240px */
   gap: 15px;
   background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 240px; /* Asegurar altura mínima para el contenido */
+}
+
+.report-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Mapa a la izquierda - AHORA CUADRADO Y GRANDE */
+.report-map {
+  width: 240px; /* Igual al ancho definido en grid-template-columns */
+  height: 240px; /* Altura igual al ancho para mantener cuadrado */
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 15px;
-  padding: 15px;
-  align-items: flex-start; /* Alinea los elementos verticalmente al inicio */
+  overflow: hidden;
+  min-width: 240px; /* Asegurar que no se reduzca */
+  align-self: stretch; /* Estirar para ocupar todo el alto */
+}
+
+/* Contenedor del mapa estilo Leaflet */
+.map-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+/* Personalizar controles de zoom para que ocupen menos espacio */
+.leaflet-control-zoom {
+  margin: 8px !important;
+}
+
+.leaflet-control-zoom a {
+  width: 26px !important; /* Ligeramente más grande para el mapa más grande */
+  height: 26px !important;
+  line-height: 24px !important;
+  font-size: 14px !important;
+}
+
+/* Ocultar la atribución de OpenStreetMap para ahorrar espacio */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* Personalizar el popup para mejor legibilidad en mapa más grande */
+.leaflet-popup-content {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; /* Un poco más grande para mejor legibilidad */
+  line-height: 1.4;
+  margin: 8px 12px;
+}
+
+.leaflet-popup-content strong {
+  color: #FBC02D; /* Color amarillo consistente con la app */
+  font-weight: 600;
+}
+
+.report-map img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Contenido central */
+.report-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .report-header {
-  width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+  align-items: flex-start;
+  margin-bottom: 5px;
 }
 
 .report-header h3 {
   font-size: 1.2rem;
+  font-weight: 600;
   color: #333;
-  margin-bottom: 5px;
+  margin: 0;
 }
 
-.report-header .distance {
+.distance {
   font-size: 0.9rem;
   color: #888;
+  background-color: #f0f0f0;
+  padding: 3px 8px;
+  border-radius: 12px;
 }
 
-.report-body {
-  display: flex;
-  flex-direction: column; /* Cambia la dirección a columna */
-  flex: 1;
-}
-
-.report-body .map {
-  width: 100px; /* Ancho fijo para la miniatura del mapa */
-  height: 75px; /* Altura fija para la miniatura del mapa */
-  border-radius: 4px;
-  overflow: hidden; /* Asegura que la imagen no se salga del contenedor */
-  margin-right: 15px; /* Espacio entre mapa y detalles */
-}
-
-.report-body .map img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Cubre el contenedor sin deformar la imagen */
-}
-
-.report-body .details {
-  flex-grow: 1;
-}
-
-.report-body .details p {
-  margin: 3px 0;
+.report-address {
   font-size: 0.9rem;
   color: #555;
+  margin-bottom: 8px;
 }
 
-.report-body .details strong {
-  font-weight: bold;
-  color: #333;
+.report-description {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  /* Limitar a 3 líneas con puntos suspensivos */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.report-body .details .generated-time {
+.report-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timestamp {
+  font-size: 0.85rem;
   color: #888;
-  font-size: 0.8rem;
 }
 
-.report-body .details .category {
+.category-stars {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.category {
   display: inline-block;
-  padding: 4px 8px;
+  padding: 3px 8px;
   font-size: 0.8rem;
   color: #fff;
   border-radius: 4px;
-  margin-top: 5px;
 }
 
-.report-body .details .category.mascotas {
-  background-color: #4caf50;
+.category.mascotas { background-color: #4caf50; }
+.category.seguridad { background-color: #f44336; }
+.category.comunidad { background-color: #2196f3; }
+.category.general { background-color: #9e9e9e; }
+.category.servicios { background-color: #ff9800; }
+.category.infraestructura { background-color: #607d8b; }
+.category.error { background-color: #f44336; }
+.category.medio-ambiente { background-color: #4caf50; }
+
+.stars {
+  color: #ffc107;
+  font-size: 0.9rem;
 }
 
-.report-body .details .category.seguridad {
-  background-color: #f44336;
-}
-
-.report-body .details .stars {
-  margin-top: 5px;
-}
-
-.report-body .details .stars span {
-  color: #ffca28;
-  font-size: 1rem;
-}
-
-.report-body .details .view-report {
-  display: inline-block;
+.view-report, .error-button {
   padding: 6px 12px;
-  font-size: 0.8rem;
-  color: #fff;
-  background-color: #4caf50;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  text-decoration: none;
-  margin-top: 8px;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  align-self: flex-start;
 }
 
-.report-body .details .view-report:hover {
-  background-color: #45a049;
+.view-report {
+  background-color: #4a76ff;
 }
 
+.view-report:hover {
+  background-color: #3a66ff;
+}
+
+.error-button {
+  background-color: #f44336;
+}
+
+.error-button:hover {
+  background-color: #d32f2f;
+}
+
+/* Imagen a la derecha */
 .report-image {
-  width: 100px; /* Ancho fijo para la imagen */
-  height: 75px; /* Altura fija para la imagen */
-  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  min-height: 240px; /* Igual al mapa para mantener proporción */
+  border-radius: 8px;
   overflow: hidden;
+  position: relative;
+}
+
+/* Spinner de carga de imagen */
+.image-loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(0,0,0,0.1);
+  border-left: 3px solid #FBC02D;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1;
 }
 
 .report-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
+.report-image img.loaded + .image-loading-spinner {
+  display: none;
+}
+
+.report-image img:hover {
+  transform: scale(1.05);
+}
+
+/* Estilos para las imágenes que fallan */
+.report-image img[src="imagenotfound.png"],
+.report-image img[src="assets/imagenotfound.jpg"] {
+  object-fit: contain;
+  background-color: #f5f5f5;
+  padding: 10px;
+}
+
+/* Estilos para mensajes de error en las tarjetas */
+.report-card.error {
+  border: 1px solid #ffcdd2;
+  background-color: #ffebee;
+}
+
+.report-card.error .report-header h3 {
+  color: #d32f2f;
+}
+
+/* Aside - Filtros */
 aside {
-  grid-column: 2; /* Ocupa la segunda columna */
   background-color: #fff;
+  border-radius: 12px;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 0; /* Elimina el margen superior */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: fit-content;
 }
 
 aside h4 {
   font-size: 1.1rem;
+  font-weight: 600;
   color: #333;
   margin-bottom: 15px;
+  margin-top: 0;
 }
 
 aside div {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
 }
 
 aside input[type="checkbox"] {
-  margin-right: 8px;
+  margin-right: 10px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 aside label {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #555;
+  cursor: pointer;
 }
 
-/* Estilos para pantallas más pequeñas (responsive) */
+.filter-divider {
+  border: 0;
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 15px 0;
+}
+
+/* Media Queries para Responsive */
+@media (max-width: 1024px) {
+  .report-card {
+    grid-template-columns: 200px 1fr 150px; /* Un poco más pequeño en tablets grandes */
+  }
+  
+  .report-map {
+    width: 200px;
+    height: 200px;
+    min-width: 200px;
+  }
+  
+  .report-image {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+  
+  aside {
+    order: -1;
+    margin-bottom: 20px;
+  }
+  
+  .report-card {
+    grid-template-columns: 180px 1fr 150px; /* Más pequeño en tablets */
+  }
+  
+  .report-map {
+    width: 180px;
+    height: 180px;
+    min-width: 180px;
+  }
+  
+  .report-image {
+    min-height: 180px;
+  }
+}
+
 @media (max-width: 768px) {
-  .dashboard {
-    grid-template-columns: 1fr; /* Una sola columna */
-    padding: 10px;
-  }
-
   header {
+    flex-direction: column;
     text-align: center;
-    padding: 20px;
   }
-
+  
+  .header-content {
+    margin-bottom: 20px;
+  }
+  
+  .header-image {
+    display: none;
+  }
+  
   .reports-summary {
     flex-direction: column;
-    gap: 15px;
-    padding: 15px;
+    text-align: center;
+    gap: 10px;
   }
-
+  
   .filters {
     flex-direction: column;
-    gap: 10px;
-    padding: 10px;
+    gap: 15px;
   }
-
+  
   .filters input[type="text"] {
     width: 100%;
+    margin-right: 0;
   }
-
-  .filters .sort-by {
+  
+  .sort-by {
     width: 100%;
     justify-content: space-between;
   }
-
-  .reports {
-    grid-column: 1;
-  }
-
+  
   .report-card {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "content"
+      "map"
+      "image";
   }
-
-  .report-body {
-    flex-direction: row; /* Vuelve a fila para pantallas pequeñas */
-    align-items: center;
-  }
-
-  .report-body .map {
-    margin-right: 10px;
-  }
-
-  .report-image {
+  
+  .report-map {
+    grid-area: map;
     width: 100%;
-    height: auto;
-    margin-top: 10px;
+    height: 200px; /* Altura fija en móvil */
+    min-width: auto;
   }
+  
+  .report-content {
+    grid-area: content;
+  }
+  
+  .report-image {
+    grid-area: image;
+    height: 200px;
+    min-height: auto;
+  }
+}
 
+@media (max-width: 576px) {
+  .dashboard {
+    padding: 10px;
+  }
+  
+  header {
+    padding: 20px 15px;
+  }
+  
+  header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .reports-summary,
+  .filters,
+  .report-card,
   aside {
-    grid-column: 1;
-    margin-top: 20px;
+    padding: 12px;
+  }
+  
+  .report-map {
+    height: 180px;
+  }
+  
+  .report-image {
+    height: 180px;
   }
 }

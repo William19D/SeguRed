@@ -1,3 +1,4 @@
+<div class="dashboard">
   <header>
     <div class="header-content">
       <h1>Bienvenido {{ user?.nombreCom || 'Usuario' }} a SeguRed</h1>
@@ -5,14 +6,14 @@
       <button (click)="makeReport()">Hacer un Reporte</button>
     </div>
     <div class="header-image">
-      <img src="Illustration.svg" alt="Imagen Dashboard" />
+      <img src="illustration.svg" alt="Imagen Dashboard" onerror="this.src='Illustration.svg'" />
     </div>
   </header>
 
   <section class="reports-summary">
     <h2>Reportes en las últimas 24 horas</h2>
     <div class="summary">
-      <span><strong>67</strong> Incidentes Reportados</span>
+      <span><strong>{{ reports.length || '0' }}</strong> Incidentes Reportados</span>
       <span><strong>176</strong> Miembros Activos</span>
     </div>
   </section>
@@ -23,56 +24,110 @@
       <label for="sort">Ordenar por:</label>
       <select id="sort">
         <option value="distance">Distancia</option>
+        <option value="date">Fecha</option>
+        <option value="category">Categoría</option>
       </select>
     </div>
   </section>
 
-  <section class="reports">
-    <div *ngFor="let report of reports" class="report-card">
-      <div class="report-header">
-        <h3>{{ report.title }}</h3>
-        <span class="distance">{{ report.distance }}</span>
-      </div>
-      <div class="report-body">
-        <div class="map">
-          <img [src]="report.mapUrl" alt="Ubicación del mapa" />
+  <!-- Estado de carga para reportes -->
+  <div *ngIf="reportsLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando reportes...</p>
+  </div>
+
+  <!-- Estado de error para reportes -->
+  <div *ngIf="reportsError" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>No se pudieron cargar los reportes. Por favor intente nuevamente.</p>
+    <button (click)="retryLoadReports()" class="retry-button">Reintentar</button>
+  </div>
+
+  <!-- Sin reportes disponibles -->
+  <div *ngIf="!reportsLoading && !reportsError && reports.length === 0" class="no-reports-container">
+    <p>No hay reportes disponibles en este momento.</p>
+    <button (click)="makeReport()" class="create-report-button">Crear un reporte</button>
+  </div>
+
+  <div class="main-content">
+    <section class="reports" *ngIf="!reportsLoading && !reportsError && reports.length > 0">
+      <div *ngFor="let report of reports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
+        <!-- Aquí es donde cambiamos la imagen por un mapa real -->
+        <div class="report-map">
+          <div [id]="report.mapId" class="map-container"></div>
         </div>
-        <div class="details">
-          <p><strong>Dirección:</strong> {{ report.address }}</p>
-          <p><strong>Descripción:</strong> {{ report.description }}</p>
-          <p class="generated-time">Reporte generado {{ report.generatedTime }}</p>
-          <div class="category {{ report.categoryClass }}">{{ report.category }}</div>
-          <div class="stars">
-            <span *ngFor="let star of [].constructor(report.stars)">&#9733;</span>
-            <span *ngFor="let star of [].constructor(5 - report.stars)">&#9734;</span>
+        
+        <!-- Contenido central -->
+        <div class="report-content">
+          <div class="report-header">
+            <h3>{{ report.title }}</h3>
+            <span class="distance">{{ report.distance }}</span>
           </div>
-          <button class="view-report">Visualizar</button>
+          <div class="report-address">{{ report.address }}</div>
+          <p class="report-description">{{ report.description }}</p>
+          <div class="report-footer">
+            <span class="timestamp">{{ report.generatedTime }}</span>
+            <div class="category-stars">
+              <span class="category {{ report.categoryClass }}" [title]="report.categoryDescription || ''">{{ report.category }}</span>
+              <div class="stars">
+                <span *ngFor="let star of [].constructor(report.stars)">&#9733;</span>
+                <span *ngFor="let star of [].constructor(5 - report.stars)">&#9734;</span>
+              </div>
+            </div>
+            <button *ngIf="report.id !== 'error'" class="view-report" [routerLink]="['/reporte', report.id]">Ver detalles</button>
+            <button *ngIf="report.id === 'error'" class="error-button" (click)="retryLoadReports()">Actualizar</button>
+          </div>
+        </div>
+        
+        <!-- Imagen a la derecha con spinner de carga -->
+        <div class="report-image">
+          <div class="image-loading-spinner"></div>
+          <img [src]="report.imageUrl" 
+               alt="{{ report.title }}" 
+               (load)="hideSpinner($event)"
+               (error)="handleImageError($event)"
+               class="report-img">
         </div>
       </div>
-      <div class="report-image">
-        <img [src]="report.imageUrl" alt="{{ report.title }}" />
+    </section>
+
+    <aside>
+      <h4>Solo ver:</h4>
+      <div>
+        <input type="checkbox" id="mascotas" />
+        <label for="mascotas">Mascotas</label>
       </div>
-    </div>
-  </section>
-
-  <aside>
-    <h4>Solo ver:</h4>
-    <div>
-      <input type="checkbox" id="mascotas" />
-      <label for="mascotas">Mascotas</label>
-    </div>
-    <div>
-      <input type="checkbox" id="seguridad" />
-      <label for="seguridad">Seguridad</label>
-    </div>
-    <div>
-      <input type="checkbox" id="comunidad" />
-      <label for="comunidad">Comunidad</label>
-    </div>
-    <div>
-      <input type="checkbox" id="emergencia-medica" />
-      <label for="emergencia-medica">Emergencia Médica</label>
-    </div>
-  </aside>
-
+      <div>
+        <input type="checkbox" id="seguridad" />
+        <label for="seguridad">Seguridad</label>
+      </div>
+      <div>
+        <input type="checkbox" id="comunidad" />
+        <label for="comunidad">Comunidad</label>
+      </div>
+      <div>
+        <input type="checkbox" id="emergencia-medica" />
+        <label for="emergencia-medica">Emergencia Médica</label>
+      </div>
+      <div>
+        <input type="checkbox" id="medio-ambiente" />
+        <label for="medio-ambiente">Medio Ambiente</label>
+      </div>
+      <hr class="filter-divider">
+      <h4>Estado:</h4>
+      <div>
+        <input type="checkbox" id="espera" checked />
+        <label for="espera">En espera</label>
+      </div>
+      <div>
+        <input type="checkbox" id="completado" checked />
+        <label for="completado">Completado</label>
+      </div>
+      <div>
+        <input type="checkbox" id="denegado" />
+        <label for="denegado">Denegado</label>
+      </div>
+    </aside>
+  </div>
+</div>
 <app-footer></app-footer>

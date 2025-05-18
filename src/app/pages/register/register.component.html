@@ -51,13 +51,17 @@
 
                 <!-- Dirección -->
                 <div class="form-group">
-                    <label for="address">Dirección</label>
+    <label for="address">Dirección</label>
+    
+    <!-- Contenedor de checkbox mejorado -->
                     <div class="address-container">
                         <input type="checkbox" id="useLocation" formControlName="useLocation" (change)="onUseLocationChange()">
-                        <label for="useLocation">Usar mi ubicación actual</label>
+                        <label for="useLocation" class="checkbox-label">Usar mi ubicación actual</label>
                     </div>
+                    
                     <input type="text" id="address" formControlName="address" placeholder="Ejemplo: Calle 123 # 45-67"
                         [class.is-invalid]="submitted && f['address'].errors">
+                    
                     <div *ngIf="submitted && f['address'].errors" class="invalid-feedback">
                         <div *ngIf="f['address'].errors['required']">La dirección es obligatoria</div>
                         <div *ngIf="f['address'].errors['minlength']">La dirección es demasiado corta</div>

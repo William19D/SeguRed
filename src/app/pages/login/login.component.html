@@ -12,6 +12,22 @@
 
     <!-- Sección Derecha (Formulario) -->
     <div class="login-form">
+        <!-- Selector de tipo de usuario (nuevo) -->
+        <div class="user-type-selector">
+            <button 
+                [class.active]="!isModeratorLogin" 
+                (click)="setLoginType(false)" 
+                class="user-type-btn">
+                Usuario
+            </button>
+            <button 
+                [class.active]="isModeratorLogin" 
+                (click)="setLoginType(true)" 
+                class="user-type-btn moderator-btn">
+                Moderador
+            </button>
+        </div>
+
         <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
             <div class="input-group">
                 <label for="email">Correo Electrónico</label>
@@ -54,7 +70,9 @@
             </div>
 
             <button type="submit" class="btn-green" [disabled]="loading">
-                <span *ngIf="!loading">Iniciar Sesión</span>
+                <span *ngIf="!loading">
+                    {{ isModeratorLogin ? 'Acceso Moderador' : 'Iniciar Sesión' }}
+                </span>
                 <span *ngIf="loading">Procesando...</span>
             </button>
 
@@ -67,8 +85,12 @@
                 </ngx-recaptcha2>
             </div>
 
-            <p class="register-link">
+            <!-- Adaptar el texto según tipo de login -->
+            <p class="register-link" *ngIf="!isModeratorLogin">
                 ¿No tienes cuenta? <a (click)="goToRegister()"><strong>Regístrate aquí</strong></a>
+            </p>
+            <p class="register-link" *ngIf="isModeratorLogin">
+                Solo personal autorizado puede acceder como moderador
             </p>
         </form>
     </div>

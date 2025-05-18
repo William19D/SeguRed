@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnInit } from '@angular/core';
+import { Component, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { NominatimService } from '../../core/services/nominatim.service';
 import { ReporteService } from '../../core/services/reporte.service';
 import * as L from 'leaflet';
 import { finalize } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-create-report',
@@ -16,14 +17,15 @@ import { finalize } from 'rxjs/operators';
   templateUrl: './create-report.component.html',
   styleUrl: './create-report.component.css'
 })
-export class CreateReportComponent implements OnInit, AfterViewInit {
+export class CreateReportComponent implements OnInit, AfterViewInit, OnDestroy {
   reportForm!: FormGroup;
   submitted = false;
   
-  // Cambios para múltiples archivos
+  // Variables para manejo de archivos
   selectedFiles: File[] = [];
   imagePreviews: string[] = [];
   
+  // Variables para manejo de ubicación
   useCurrentLocationValue = false;
   currentLocation: { lat: number, lng: number, address?: string } | null = null;
   isLoading = false;
@@ -33,12 +35,17 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
   map: L.Map | undefined;
   marker: L.Marker | undefined;
   showMap = false;
+  private subscriptions: Subscription[] = [];
 
-  // Máximo tamaño de archivo en bytes (10MB)
-  maxFileSize = 10 * 1024 * 1024;
-  // Máximo número de imágenes permitidas
+  // Configuración y límites
+  maxFileSize = 10 * 1024 * 1024; // 10MB
   maxImageCount = 5;
+  minImageQuality = 0.3; // Calidad mínima para compresión extrema
+  mediumImageQuality = 0.5; // Calidad media para compresión normal
+  maxImageDimension = 800; // Máximo tamaño para cualquier dimensión
+  reducedImageDimension = 400; // Tamaño reducido para imágenes problemáticas
 
+  // Categorías disponibles
   categorias = [
     { nombre: 'Seguridad', descripcion: 'Problemas relacionados con seguridad ciudadana' },
     { nombre: 'Infraestructura', descripcion: 'Problemas relacionados con infraestructura urbana' },
@@ -58,12 +65,13 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    // Check if user is authenticated
+    // Verificar autenticación
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/create-report' } });
       return;
     }
 
+    // Inicializar formulario con validadores
     this.reportForm = this.formBuilder.group({
       titulo: ['', [
         Validators.required, 
@@ -92,6 +100,17 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
     }
   }
 
+  ngOnDestroy(): void {
+    // Limpiar suscripciones para evitar memory leaks
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    
+    // Limpiar mapa si existe
+    if (this.map) {
+      this.map.remove();
+      this.map = undefined;
+    }
+  }
+
   // Getter para acceder fácilmente a los controles del formulario
   get f() {
     return this.reportForm.controls;
@@ -105,40 +124,45 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
       return;
     }
     
-    // Establecer las coordenadas iniciales a Bogotá, Colombia
-    this.map = L.map('map').setView([4.7110, -74.0721], 16);
+    try {
+      // Establecer las coordenadas iniciales a Bogotá, Colombia
+      this.map = L.map('map').setView([4.7110, -74.0721], 16);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(this.map);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(this.map);
 
-    // Crear un marcador inicial en el centro de Bogotá
-    this.marker = L.marker([4.7110, -74.0721], { draggable: true }).addTo(this.map)
-      .bindPopup('Arrastra el marcador para actualizar la ubicación de tu reporte.')
-      .openPopup();
+      // Crear un marcador inicial
+      this.marker = L.marker([4.7110, -74.0721], { draggable: true }).addTo(this.map)
+        .bindPopup('Arrastra el marcador para actualizar la ubicación de tu reporte.')
+        .openPopup();
 
-    // Cuando se arrastra el marcador, actualizar las coordenadas y la dirección
-    this.marker.on('dragend', () => {
-      const position = this.marker!.getLatLng();
-      this.currentLocation = { lat: position.lat, lng: position.lng };
-      this.reportForm.patchValue({
-        locations: [{ lat: position.lat, lng: position.lng }]
-      });
-      this.updateAddress(position.lat, position.lng);
-    });
-
-    // Al hacer clic en cualquier parte del mapa, mover el marcador allí
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
-      if (this.marker && this.map) {
-        this.marker.setLatLng(e.latlng);
-        this.currentLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+      // Cuando se arrastra el marcador, actualizar las coordenadas y la dirección
+      this.marker.on('dragend', () => {
+        const position = this.marker!.getLatLng();
+        this.currentLocation = { lat: position.lat, lng: position.lng };
         this.reportForm.patchValue({
-          locations: [{ lat: e.latlng.lat, lng: e.latlng.lng }]
+          locations: [{ lat: position.lat, lng: position.lng }]
         });
-        this.updateAddress(e.latlng.lat, e.latlng.lng);
-      }
-    });
+        this.updateAddress(position.lat, position.lng);
+      });
+
+      // Al hacer clic en cualquier parte del mapa, mover el marcador allí
+      this.map.on('click', (e: L.LeafletMouseEvent) => {
+        if (this.marker && this.map) {
+          this.marker.setLatLng(e.latlng);
+          this.currentLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+          this.reportForm.patchValue({
+            locations: [{ lat: e.latlng.lat, lng: e.latlng.lng }]
+          });
+          this.updateAddress(e.latlng.lat, e.latlng.lng);
+        }
+      });
+    } catch (error) {
+      console.error('Error al inicializar mapa:', error);
+      this.errorMessage = 'Error al inicializar el mapa. Por favor, recarga la página.';
+    }
   }
 
   toggleUseCurrentLocation() {
@@ -162,22 +186,21 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
     this.showMap = !this.showMap;
     
     if (this.showMap) {
-      // Primero, destruir el mapa existente (si hay) para evitar problemas
+      // Limpiar mapa existente si lo hay
       if (this.map) {
         this.map.remove();
         this.map = undefined;
         this.marker = undefined;
       }
       
-      // Usamos un timeout más largo para asegurar que el DOM se ha renderizado
+      // Inicializar el mapa con un timeout para asegurar que el DOM se ha renderizado
       setTimeout(() => {
-        // Intentar inicializar el mapa solo cuando el elemento del DOM exista
         const mapContainer = document.getElementById('map');
         if (mapContainer) {
           try {
             this.initMap();
             
-            // Si ya teníamos una ubicación, centrar el mapa en ella
+            // Centrar el mapa en la ubicación actual si existe
             if (this.currentLocation && this.map) {
               this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
               if (this.marker) {
@@ -191,12 +214,14 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
         } else {
           console.error('Contenedor del mapa no encontrado');
         }
-      }, 300); // Aumentado a 300ms para asegurar que el DOM esté completamente renderizado
+      }, 300);
     }
   }
 
   getCurrentLocation() {
     this.isLoading = true;
+    this.errorMessage = null;
+    
     this.locationService.getCurrentLocation()
       .then((lngLat) => {
         this.currentLocation = {
@@ -208,16 +233,16 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
           locations: [{ lat: lngLat.lat, lng: lngLat.lng }]
         });
         
+        // Centrar el mapa en la ubicación obtenida
         if (this.map && this.marker) {
           this.map.setView([lngLat.lat, lngLat.lng], 16);
           this.marker.setLatLng([lngLat.lat, lngLat.lng]);
         }
         
         this.updateAddress(lngLat.lat, lngLat.lng);
-        this.isLoading = false;
       })
       .catch((error) => {
-        console.error('Error getting location', error);
+        console.error('Error obteniendo ubicación actual:', error);
         this.errorMessage = 'No se pudo obtener tu ubicación. Por favor, selecciona manualmente en el mapa.';
         this.isLoading = false;
       });
@@ -225,7 +250,8 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
 
   private updateAddress(lat: number, lng: number): void {
     this.isLoading = true;
-    this.nominatimService.reverseGeocode(lat, lng).subscribe({
+    
+    const subscription = this.nominatimService.reverseGeocode(lat, lng).subscribe({
       next: (response) => {
         if (response && response.display_name) {
           const address = this.extractPartialAddress(response.display_name);
@@ -238,34 +264,38 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
             direccion: address
           });
         } else {
+          // Fallback con coordenadas si no hay display_name
           if (this.currentLocation) {
             this.currentLocation.address = `${lat}, ${lng}`;
           }
           this.reportForm.patchValue({
-            direccion: `${lat}, ${lng}` // Fallback en caso de error
+            direccion: `${lat}, ${lng}`
           });
         }
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error getting address', error);
+        console.error('Error obteniendo dirección:', error);
+        // Fallback con coordenadas en caso de error
         if (this.currentLocation) {
           this.currentLocation.address = `${lat}, ${lng}`;
         }
         this.reportForm.patchValue({
-          direccion: `${lat}, ${lng}` // Fallback en caso de error
+          direccion: `${lat}, ${lng}`
         });
         this.isLoading = false;
       }
     });
+    
+    this.subscriptions.push(subscription);
   }
 
   private extractPartialAddress(fullAddress: string): string {
     const parts = fullAddress.split(',');
-    return parts.slice(0, 2).join(','); // Obtener solo hasta la segunda coma
+    // Devolver una dirección más legible
+    return parts.slice(0, 3).join(',').trim();
   }
 
-  // Método mejorado para manejar múltiples archivos
   onFileChange(event: any) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -274,7 +304,7 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
     
     // Verificar si excede el límite de archivos
     if (this.selectedFiles.length + files.length > this.maxImageCount) {
-      this.errorMessage = `Puedes subir un máximo de ${this.maxImageCount} imágenes`;
+      this.errorMessage = `Solo puedes subir hasta ${this.maxImageCount} imágenes en total`;
       return;
     }
     
@@ -304,289 +334,231 @@ export class CreateReportComponent implements OnInit, AfterViewInit {
     });
   }
   
-  // Método para eliminar una imagen
   removeImage(index: number) {
-    this.selectedFiles.splice(index, 1);
-    this.imagePreviews.splice(index, 1);
+    if (index >= 0 && index < this.selectedFiles.length) {
+      this.selectedFiles.splice(index, 1);
+      this.imagePreviews.splice(index, 1);
+    }
   }
 
-// Modifica el método onSubmit() con estos cambios:
+  async onSubmit() {
+    this.submitted = true;
+    this.errorMessage = null;
 
-async onSubmit() {
-  this.submitted = true;
-  this.errorMessage = null;
+    // Validaciones iniciales
+    if (this.reportForm.invalid) {
+      if (this.f['declaration'].errors) {
+        this.errorMessage = 'Debes aceptar la declaración de veracidad';
+      } else {
+        this.errorMessage = 'Por favor completa todos los campos obligatorios';
+      }
+      this.scrollToFirstError();
+      return;
+    }
 
-  // Validaciones iniciales (mantener las que ya tienes)
-  if (this.reportForm.invalid) {
-    this.errorMessage = 'Por favor completa todos los campos obligatorios';
-    return;
-  }
+    if (!this.currentLocation) {
+      this.errorMessage = 'Debes proporcionar una ubicación para el reporte';
+      this.scrollToFirstError();
+      return;
+    }
 
-  // Otras validaciones (ubicación e imágenes)
-  if (!this.currentLocation) {
-    this.errorMessage = 'Debes proporcionar una ubicación para el reporte';
-    return;
-  }
+    if (this.selectedFiles.length === 0) {
+      this.errorMessage = 'Debes subir al menos una foto para documentar el reporte';
+      this.scrollToFirstError();
+      return;
+    }
 
-  if (this.selectedFiles.length === 0) {
-    this.errorMessage = 'Debes subir al menos una foto para documentar el reporte';
-    return;
-  }
+    this.isLoading = true;
+    this.showProgressMessage('Procesando imágenes...');
 
-  this.isLoading = true;
-
-  try {
-    // Procesar imágenes con mayor compresión para garantizar tamaño adecuado
-    const imagePromises = this.selectedFiles.map(file => this.processImageForServer(file));
-    const imageBase64Array = await Promise.all(imagePromises);
-    
-    // Obtener categoría seleccionada
-    const categoriaSeleccionada = this.reportForm.get('categoria')?.value;
-    
-    // CAMBIO IMPORTANTE: Formato correcto para las imágenes según API
-    const imagenes = imageBase64Array.map((base64, index) => {
-      // Estructura exacta que espera el backend
-      return {
-        nombre: `imagen_${index + 1}_${Date.now()}.jpg`,
-        url: base64,  // Enviamos el base64 completo
-        descripcion: `Imagen ${index + 1} del reporte: ${this.reportForm.get('titulo')?.value.substring(0, 30)}`
-      };
-    });
-    
-    // IMPORTANTE: Log para verificar estructura
-    console.log('Estructura del primer objeto imagen:', 
-                imagenes.length > 0 ? JSON.stringify(imagenes[0]).substring(0, 100) + '...' : 'No hay imágenes');
-    
-    // Estructura completa del reporte según OpenAPI
-    const reporteRequest = {
-      titulo: this.reportForm.get('titulo')?.value,
-      descripcion: this.reportForm.get('descripcion')?.value,
-      categoria: Array.isArray(categoriaSeleccionada) ? 
-                categoriaSeleccionada : 
-                [{
-                  nombre: categoriaSeleccionada.nombre,
-                  descripcion: categoriaSeleccionada.descripcion
-                }],
-      locations: {
-        latitude: this.currentLocation.lat,
-        longitude: this.currentLocation.lng,
-        name: this.currentLocation.address || `${this.currentLocation.lat}, ${this.currentLocation.lng}`
-      },
-      imagenes: imagenes
-    };
-
-    console.log('Enviando reporte, cantidad de imágenes:', imagenes.length);
-
-    // Enviar reporte con las correcciones
-    this.reporteService.createReporte(reporteRequest)
-      .pipe(finalize(() => this.isLoading = false))
-      .subscribe({
-        next: (response: any) => {
-          console.log('Reporte creado exitosamente:', response);
-          alert('Reporte enviado correctamente');
-          this.router.navigate(['/dashboard']);
-        },
-        error: (error) => {
-          console.error('Error al crear el reporte:', error);
-          this.errorMessage = error.error?.error || 
-                             error.error?.message || 
-                             'Error al crear el reporte. Por favor, inténtalo de nuevo.';
-        }
+    try {
+      // Procesar imágenes con compresión optimizada
+      const imagePromises = this.selectedFiles.map(file => this.processImageForServer(file));
+      const imageBase64Array = await Promise.all(imagePromises);
+      
+      this.showProgressMessage('Preparando envío...');
+      
+      // Obtener categoría seleccionada
+      const categoriaSeleccionada = this.reportForm.get('categoria')?.value;
+      
+      // Estructura de imágenes en formato correcto para el backend
+      const imagenes = imageBase64Array.map((base64, index) => {
+        return {
+          nombre: `reporte_img_${index + 1}_${Date.now()}.jpg`,
+          content: base64
+        };
       });
-  } catch (error) {
-    console.error('Error al procesar las imágenes:', error);
-    this.errorMessage = 'Error al procesar las imágenes. Por favor, inténtalo de nuevo.';
-    this.isLoading = false;
-  }
-}
-
-// Añade este nuevo método para procesar imágenes con optimizaciones específicas para el servidor
-processImageForServer(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    
-    reader.onload = () => {
-      const base64 = reader.result as string;
       
-      // Comprimir todas las imágenes, independientemente del tamaño
-      this.compressImageForServer(base64)
-        .then(compressed => resolve(compressed))
-        .catch(err => {
-          console.warn('Compresión fallida, usando original (con tamaño reducido):', err);
-          // Si falla la compresión, intentar reducir resolución
-          this.reduceImageSize(base64)
-            .then(reduced => resolve(reduced))
-            .catch(() => resolve(base64)); // Última opción: usar original
+      // Estructura completa del reporte
+      const reporteRequest = {
+        titulo: this.reportForm.get('titulo')?.value,
+        descripcion: this.reportForm.get('descripcion')?.value,
+        categoria: [{
+          descripcion: categoriaSeleccionada.descripcion
+        }],
+        locations: {
+          lat: this.currentLocation.lat,
+          lng: this.currentLocation.lng,
+          direccion: this.currentLocation.address || 
+                    `${this.currentLocation.lat}, ${this.currentLocation.lng}`
+        },
+        imagenes: imagenes
+      };
+
+      // Log de diagnóstico
+      console.log(`Enviando reporte: "${reporteRequest.titulo}" con ${imagenes.length} imágenes`);
+      console.log('Tamaño total de datos aproximado:', this.calculateApproximateSize(reporteRequest), 'bytes');
+
+      // Enviar reporte
+      this.showProgressMessage('Enviando reporte...');
+      this.reporteService.createReporte(reporteRequest)
+        .pipe(finalize(() => {
+          this.isLoading = false;
+          this.clearProgressMessage();
+        }))
+        .subscribe({
+          next: (response: any) => {
+            console.log('Reporte creado exitosamente:', response);
+            this.showSuccessMessage();
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']);
+            }, 1500);
+          },
+          error: (error) => {
+            console.error('Error al crear el reporte:', error);
+            
+            // Mensaje de error mejorado
+            if (error.userMessage) {
+              this.errorMessage = error.userMessage;
+            } else if (error.error?.message) {
+              this.errorMessage = `Error: ${error.error.message}`;
+            } else if (error.status === 413) {
+              this.errorMessage = 'El reporte es demasiado grande. Intenta con menos imágenes o redúcelas más.';
+            } else {
+              this.errorMessage = 'Error al crear el reporte. Por favor, inténtalo de nuevo.';
+            }
+            
+            this.scrollToFirstError();
+          }
         });
-    };
-    
-    reader.onerror = error => reject(error);
-  });
-}
-
-// Método optimizado para comprimir imágenes específicamente para el servidor
-compressImageForServer(base64: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      // Reducir resolución a máximo 800px para cualquier dimensión
-      // Esto reduce significativamente el tamaño de archivo
-      let width = img.width;
-      let height = img.height;
-      const maxDimension = 800;
-      
-      if (width > height && width > maxDimension) {
-        height = Math.round(height * maxDimension / width);
-        width = maxDimension;
-      } else if (height > maxDimension) {
-        width = Math.round(width * maxDimension / height);
-        height = maxDimension;
-      }
-      
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('No se pudo crear el contexto del canvas'));
-        return;
-      }
-      
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // Comprimir como JPEG con calidad reducida (50%)
-      resolve(canvas.toDataURL('image/jpeg', 0.5));
-    };
-    
-    img.onerror = () => {
-      reject(new Error('Error al cargar imagen para compresión'));
-    };
-    
-    img.src = base64;
-  });
-}
-
-// Método adicional para reducir aún más el tamaño si es necesario
-reduceImageSize(base64: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      // Reducir drásticamente la resolución a 400px máximo
-      let width = img.width;
-      let height = img.height;
-      const maxDimension = 400;
-      
-      if (width > height && width > maxDimension) {
-        height = Math.round(height * maxDimension / width);
-        width = maxDimension;
-      } else if (height > maxDimension) {
-        width = Math.round(width * maxDimension / height);
-        height = maxDimension;
-      }
-      
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('No se pudo crear el contexto del canvas'));
-        return;
-      }
-      
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // Comprimir como JPEG con calidad muy reducida (30%)
-      resolve(canvas.toDataURL('image/jpeg', 0.3));
-    };
-    
-    img.onerror = () => reject(new Error('Error al reducir imagen'));
-    img.src = base64;
-  });
-}
-
-  // Método para mostrar mensaje de éxito
-  private showSuccessMessage() {
-    const successAlert = document.createElement('div');
-    successAlert.className = 'alert alert-success';
-    successAlert.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 15px;';
-    successAlert.innerHTML = '<strong>¡Éxito!</strong> Tu reporte ha sido enviado correctamente.';
-    document.body.appendChild(successAlert);
-    
-    // Eliminar después de 3 segundos
-    setTimeout(() => {
-      document.body.removeChild(successAlert);
-    }, 3000);
-  }
-  
-  // Método para extraer mensajes de error
-  private getErrorMessage(error: any): string {
-    return error.error?.message || 
-           error.error?.error || 
-           'Error al crear el reporte. Por favor, inténtalo de nuevo.';
+    } catch (error) {
+      console.error('Error al procesar las imágenes:', error);
+      this.errorMessage = 'Error al procesar las imágenes. Por favor, inténtalo de nuevo.';
+      this.isLoading = false;
+      this.clearProgressMessage();
+      this.scrollToFirstError();
+    }
   }
 
-  // Método mejorado para procesar imágenes con compresión
-  processImage(file: File): Promise<string> {
+  // Método optimizado para procesar imágenes para el servidor
+  processImageForServer(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
       
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        
-        // Si la imagen es grande (>1MB), comprimir
-        if (file.size > 1024 * 1024) {
-          this.compressImage(base64)
-            .then(compressed => resolve(compressed))
-            .catch(err => {
-              console.warn('Compresión fallida, usando original:', err);
-              resolve(base64);
-            });
-        } else {
-          resolve(base64);
+      reader.onload = async () => {
+        try {
+          const base64WithPrefix = reader.result as string;
+          
+          // Estrategia de compresión adaptativa basada en tamaño
+          let finalImage;
+          
+          // Aplicar nivel de compresión basado en el tamaño del archivo
+          if (file.size > 5 * 1024 * 1024) { // > 5MB: compresión fuerte
+            finalImage = await this.compressImageForServer(base64WithPrefix, this.minImageQuality);
+          } else if (file.size > 1 * 1024 * 1024) { // > 1MB: compresión media
+            finalImage = await this.compressImageForServer(base64WithPrefix, this.mediumImageQuality);
+          } else { // < 1MB: compresión estándar
+            finalImage = await this.compressImageForServer(base64WithPrefix, this.mediumImageQuality);
+          }
+          
+          // Quitar prefijo MIME
+          const cleanBase64 = this.removeBase64Prefix(finalImage);
+          
+          // Verificar que el resultado sea válido
+          if (!cleanBase64 || cleanBase64.length < 100) {
+            throw new Error('Resultado de compresión inválido');
+          }
+          
+          resolve(cleanBase64);
+        } catch (err) {
+          console.warn('Primer intento de compresión fallido, intentando con calidad reducida...', err);
+          
+          try {
+            // Segundo intento con configuración más agresiva
+            const reducedImage = await this.reduceImageSize(reader.result as string, this.minImageQuality);
+            const cleanReduced = this.removeBase64Prefix(reducedImage);
+            resolve(cleanReduced);
+          } catch (secondErr) {
+            console.error('Error en ambos intentos de compresión:', secondErr);
+            
+            // Último recurso: usar original sin prefijo
+            const originalClean = this.removeBase64Prefix(reader.result as string);
+            resolve(originalClean);
+          }
         }
       };
       
       reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
     });
   }
 
-  // Método para comprimir imágenes grandes
-  compressImage(base64: string): Promise<string> {
+  // Método para quitar el prefijo MIME de cadenas base64
+  removeBase64Prefix(base64String: string): string {
+    if (!base64String) return '';
+    
+    // Extraer solo el contenido después del prefijo
+    if (base64String.includes(',')) {
+      return base64String.substring(base64String.indexOf(',') + 1);
+    }
+    return base64String;
+  }
+
+  // Método optimizado para compresión de imágenes
+  compressImageForServer(base64: string, quality = 0.4): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (!base64) {
+        reject(new Error('Base64 vacío'));
+        return;
+      }
+      
       const img = new Image();
+      
       img.onload = () => {
-        // Determinar el tamaño de destino (max 1200px en cualquier dimensión)
-        let width = img.width;
-        let height = img.height;
-        const maxDimension = 1200;
-        
-        if (width > height && width > maxDimension) {
-          height = Math.round(height * maxDimension / width);
-          width = maxDimension;
-        } else if (height > maxDimension) {
-          width = Math.round(width * maxDimension / height);
-          height = maxDimension;
+        try {
+          // Reducir resolución para dimensión máxima
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height && width > this.maxImageDimension) {
+            height = Math.round(height * this.maxImageDimension / width);
+            width = this.maxImageDimension;
+          } else if (height > this.maxImageDimension) {
+            width = Math.round(width * this.maxImageDimension / height);
+            height = this.maxImageDimension;
+          }
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('No se pudo crear el contexto del canvas'));
+            return;
+          }
+          
+          // Dibujar la imagen en el canvas
+          ctx.fillStyle = '#FFFFFF'; // Fondo blanco
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Comprimir como JPEG con calidad especificada
+          const compressedImage = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedImage);
+        } catch (error) {
+          reject(error);
         }
-        
-        // Crear canvas para compresión
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('No se pudo crear el contexto del canvas'));
-          return;
-        }
-        
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Comprimir como JPEG con calidad 0.7 (70%)
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
       };
       
       img.onerror = () => {
@@ -597,8 +569,174 @@ reduceImageSize(base64: string): Promise<string> {
     });
   }
 
-  // Método legacy mantenido para compatibilidad
-  fileToBase64(file: File): Promise<string> {
-    return this.processImage(file);
+  // Método para reducción extrema de tamaño de imagen
+  reduceImageSize(base64: string, quality = 0.3): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!base64) {
+        reject(new Error('Base64 vacío'));
+        return;
+      }
+      
+      const img = new Image();
+      
+      img.onload = () => {
+        try {
+          // Reducción drástica de resolución
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height && width > this.reducedImageDimension) {
+            height = Math.round(height * this.reducedImageDimension / width);
+            width = this.reducedImageDimension;
+          } else if (height > this.reducedImageDimension) {
+            width = Math.round(width * this.reducedImageDimension / height);
+            height = this.reducedImageDimension;
+          }
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('No se pudo crear el contexto del canvas'));
+            return;
+          }
+          
+          // Dibujar la imagen con fondo blanco
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Comprimir como JPEG con calidad muy reducida
+          const reducedImage = canvas.toDataURL('image/jpeg', quality);
+          resolve(reducedImage);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      img.onerror = () => {
+        reject(new Error('Error al reducir imagen'));
+      };
+      
+      img.src = base64;
+    });
+  }
+
+  // Método para mostrar mensaje de éxito
+  private showSuccessMessage() {
+    const successAlert = document.createElement('div');
+    successAlert.className = 'alert-success';
+    successAlert.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 15px 20px;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+    `;
+    
+    const icon = document.createElement('span');
+    icon.innerHTML = '✅';
+    icon.style.marginRight = '10px';
+    icon.style.fontSize = '20px';
+    
+    const message = document.createElement('span');
+    message.textContent = '¡Reporte enviado con éxito!';
+    message.style.fontWeight = '500';
+    
+    successAlert.appendChild(icon);
+    successAlert.appendChild(message);
+    document.body.appendChild(successAlert);
+    
+    // Eliminar después de 2.5 segundos
+    setTimeout(() => {
+      document.body.removeChild(successAlert);
+    }, 2500);
+  }
+  
+  // Método para mostrar mensaje de progreso
+  private showProgressMessage(text: string) {
+    // Eliminar mensaje existente si hay
+    this.clearProgressMessage();
+    
+    const progressAlert = document.createElement('div');
+    progressAlert.id = 'progress-message';
+    progressAlert.className = 'progress-alert';
+    progressAlert.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 12px 20px;
+      background-color: #2196f3;
+      color: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+    `;
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner';
+    spinner.style.cssText = `
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 16px;
+      height: 16px;
+      margin-right: 12px;
+      animation: spin 1s linear infinite;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    const message = document.createElement('span');
+    message.textContent = text;
+    
+    progressAlert.appendChild(spinner);
+    progressAlert.appendChild(message);
+    document.body.appendChild(progressAlert);
+  }
+  
+  private clearProgressMessage() {
+    const existing = document.getElementById('progress-message');
+    if (existing && existing.parentNode) {
+      existing.parentNode.removeChild(existing);
+    }
+  }
+  
+  // Método para hacer scroll al primer error
+  private scrollToFirstError() {
+    setTimeout(() => {
+      const errorElement = document.querySelector('.error-message');
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
+  
+  // Calcular tamaño aproximado del payload
+  private calculateApproximateSize(obj: any): number {
+    // Convertir a JSON para medir tamaño
+    const jsonString = JSON.stringify(obj);
+    
+    // Convertir cada caracter a bytes (aproximado)
+    return new Blob([jsonString]).size;
   }
 }

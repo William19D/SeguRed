@@ -1,35 +1,61 @@
 <nav class="topbar" [ngClass]="{ 'hidden': isNavbarHidden }">
   <div class="container">
+    <!-- Logo -->
     <a class="navbar-brand" (click)="goToDashboard()">
       <img src="Logo.svg" alt="SeguRed" class="logo" />
     </a>
 
-    <ul class="nav-menu">
-      <li><a routerLink="/" (click)="goToDashboard()">Inicio</a></li>
-      <li><a routerLink="/mis-reportes">Mis Reportes</a></li>
-      <li><a (click)="goToCreateReport()" >Crear Reporte</a></li>
-    </ul>
+    <!-- Botón hamburguesa para móviles -->
+    <button class="menu-toggle" [ngClass]="{'active': isMobileMenuOpen}" 
+            (click)="toggleMobileMenu()" 
+            aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-    <div class="user-section">
-      <button class="notification-bell" (click)="openNotifications()">
-        <img src="bell.svg" alt="Notificaciones" />
-      </button>
+    <!-- Menú de navegación -->
+    <div class="nav-container" [ngClass]="{'mobile-open': isMobileMenuOpen}">
+      <ul class="nav-menu">
+        <li><a routerLink="/" (click)="goToDashboard()">Inicio</a></li>
+        <li><a (click)="goToMyReports()">Mis Reportes</a></li>
+        <li><a (click)="goToCreateReport()">Crear Reporte</a></li>
+      </ul>
 
-      <div class="user-info" (click)="toggleUserMenu()">
-        <img
-          [src]="user.profilePicture"
-          alt="Foto de perfil"
-          class="profile-picture"
-        />
-        <span class="user-name">{{ user.name }}</span>
-        <span class="user-role">{{ user.role }}</span>
-        <span class="dropdown-arrow">▼</span>
+      <div class="user-section">
+        <button class="notification-bell" (click)="openNotifications()">
+          <img src="bell.svg" alt="Notificaciones" />
+        </button>
+
+        <div class="user-info" (click)="toggleUserMenu()">
+          <img
+            [src]="user.profilePicture"
+            alt="Foto de perfil"
+            class="profile-picture"
+            (error)="handleImageError($event)"
+          />
+          <div class="user-details">
+            <span class="user-name">{{ user.name }}</span>
+          </div>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+
+        <div class="user-dropdown" [ngClass]="{ 'open': isUserMenuOpen }">
+          <a (click)="goToProfile()">Mi Perfil</a>
+          <a (click)="logout()">Cerrar Sesión</a>
+        </div>
       </div>
+      
+      <!-- Botón para cerrar menú móvil -->
 
-      <div class="user-dropdown" [ngClass]="{ 'open': isUserMenuOpen }">
-        <a (click)="goToProfile()">Mi Perfil</a>
-        <a (click)="logout()">Cerrar Sesión</a>
-      </div>
     </div>
   </div>
 </nav>
+
+<!-- Elemento separado para el overlay móvil -->
+<div class="mobile-overlay" [ngClass]="{'active': isMobileMenuOpen}" (click)="closeMobileMenu()"></div>
+
+<!-- Mensaje de error si existe -->
+<div *ngIf="error" class="error-message">
+  {{ error }}
+</div>

@@ -70,6 +70,56 @@ h1, h2, h3 {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Selector de tipo de usuario (NUEVO) */
+.user-type-selector {
+  display: flex;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.user-type-btn {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  text-align: center;
+  outline: none;
+}
+
+.user-type-btn.active {
+  background-color: #2eaf4d;
+  color: white;
+}
+
+.user-type-btn.moderator-btn.active {
+  background-color: #5D69BE;
+  color: white;
+}
+
+.user-type-btn:first-child {
+  border-right: 1px solid #ddd;
+}
+
+.user-type-btn:hover:not(.active) {
+  background-color: #e9ecef;
+}
+
+/* Estilo condicional para el botón cuando es login de moderador */
+.isModeratorLogin button[type="submit"] {
+  background-color: #5D69BE;
+}
+
+.isModeratorLogin button[type="submit"]:hover {
+  background-color: #4D59A8;
+}
+
 .input-group {
   margin-bottom: 15px;
 }
@@ -223,6 +273,11 @@ h1, h2, h3 {
   transform-origin: center bottom;
 }
 
+/* Cambio de color para el moderador */
+.moderator-wave {
+  background: linear-gradient(to bottom, rgba(93, 105, 190, 0.7), #5D69BE);
+}
+
 .loading-text {
   margin-top: 20px;
   color: #333;
@@ -284,6 +339,10 @@ h1, h2, h3 {
     width: 85px;
     height: 85px;
   }
+  
+  .user-type-selector {
+    margin-bottom: 20px;
+  }
 }
 
 /* Responsividad para móviles */
@@ -337,6 +396,15 @@ h1, h2, h3 {
   .loading-text {
     font-size: 16px;
   }
+  
+  .user-type-selector {
+    margin-bottom: 15px;
+  }
+  
+  .user-type-btn {
+    padding: 10px 0;
+    font-size: 13px;
+  }
 }
 
 /* Responsividad para móviles pequeños */
@@ -375,5 +443,10 @@ h1, h2, h3 {
   
   .loading-text {
     font-size: 14px;
+  }
+  
+  .user-type-btn {
+    padding: 8px 0;
+    font-size: 12px;
   }
 }
