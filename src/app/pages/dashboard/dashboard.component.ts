@@ -32,7 +32,7 @@ export class DashboardComponent implements OnInit, AfterViewChecked {
   markerInstances: Map<string, L.Marker> = new Map();
   currentUserLocation: { lat: number; lng: number } | null = null;
   locationError: string | null = null;
-
+  userAddress: string | null = null;
   // Nuevas propiedades para búsqueda y filtros
   searchTerm: string = '';
   filteredReports: any[] = [];
@@ -271,24 +271,82 @@ resetFilters(): void {
   // Aplicar filtros (mostrar todos)
   this.applyFilters();
 }
-
-  // Método para obtener la ubicación actual del usuario
-  getUserLocation() {
-    this.locationService.getCurrentLocation()
-      .then(location => {
-        console.log('Ubicación obtenida:', location);
-        this.currentUserLocation = location;
-        // Si ya tenemos reportes cargados, actualizar las distancias
-        if (this.originalReports.length > 0) {
-          this.updateReportsWithDistance();
-          this.applyFilters(); // Reaplica los filtros para actualizar las distancias mostradas
-        }
-      })
-      .catch(error => {
-        console.error('Error al obtener ubicación:', error);
-        this.locationError = 'No se pudo obtener tu ubicación. Verifica los permisos del navegador.';
-      });
+// Método para formatear la dirección del usuario de forma más amigable
+private formatUserAddress(fullAddress: string): string {
+  if (!fullAddress) return 'Ubicación desconocida';
+  
+  const parts = fullAddress.split(',').map(part => part.trim());
+  
+  // Estrategia mejorada para extraer partes significativas
+  // Para direcciones latinoamericanas o españolas
+  if (parts.length >= 4) {
+    // Primer elemento suele ser calle/número
+    const street = parts[0];
+    
+    // Buscar la ciudad o municipio (suele estar en los primeros 3 segmentos)
+    let city = '';
+    for (let i = 1; i < Math.min(parts.length, 4); i++) {
+      if (parts[i] && parts[i].length > 1) {
+        city = parts[i];
+        break;
+      }
+    }
+    
+    // Tomar estado o provincia (suele estar en penúltima posición)
+    const state = parts.length > 2 ? parts[parts.length - 2] : '';
+    
+    // Construir dirección concisa
+    let formattedAddress = street;
+    if (city) formattedAddress += ', ' + city;
+    if (state && state !== city) formattedAddress += ', ' + state;
+    
+    return formattedAddress;
   }
+  
+  // Si la dirección es corta o no se pudo procesar, mostrar los primeros 2-3 segmentos
+  return parts.slice(0, 3).join(', ');
+}
+  // Método para obtener la ubicación actual del usuario
+getUserLocation() {
+  this.locationError = null;
+  this.userAddress = null;
+  console.log('Iniciando obtención de ubicación');
+  
+  this.locationService.getCurrentLocation()
+    .then(location => {
+      console.log('Ubicación obtenida:', location);
+      this.currentUserLocation = location;
+      
+      // Obtener la dirección para esta ubicación
+      this.nominatimService.reverseGeocode(location.lat, location.lng).subscribe({
+        next: (response) => {
+          console.log('Respuesta de Nominatim:', response);
+          if (response && response.display_name) {
+            // Extraer una dirección legible
+            this.userAddress = this.formatUserAddress(response.display_name);
+            console.log('Dirección formateada:', this.userAddress);
+          } else {
+            this.userAddress = 'Dirección no disponible';
+            console.log('No se encontró display_name en la respuesta');
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener la dirección del usuario:', error);
+          this.userAddress = 'No se pudo determinar la dirección';
+        }
+      });
+      
+      // Si ya tenemos reportes cargados, actualizar las distancias
+      if (this.originalReports.length > 0) {
+        this.updateReportsWithDistance();
+        this.applyFilters(); // Reaplica los filtros para actualizar las distancias mostradas
+      }
+    })
+    .catch(error => {
+      console.error('Error al obtener ubicación:', error);
+      this.locationError = 'No se pudo obtener tu ubicación. Verifica los permisos del navegador.';
+    });
+}
 
   ngAfterViewChecked() {
     // Inicializar mapas pendientes

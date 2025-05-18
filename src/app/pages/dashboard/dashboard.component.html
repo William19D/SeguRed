@@ -160,21 +160,30 @@
   
   <!-- Sección para mostrar tu ubicación actual -->
   <hr class="filter-divider">
-  <h4>Tu ubicación:</h4>
-  <div class="user-location-info">
-    <div *ngIf="currentUserLocation" class="current-location">
-      <i class="fas fa-map-pin"></i>
-      <span>Lat: {{ currentUserLocation.lat | number:'1.6-6' }}</span>
-      <span>Lng: {{ currentUserLocation.lng | number:'1.6-6' }}</span>
-    </div>
-    <div *ngIf="!currentUserLocation && !locationError" class="location-loading">
-      <div class="mini-spinner"></div>
-      <span>Obteniendo ubicación...</span>
-    </div>
-    <button (click)="getUserLocation()" class="refresh-location-btn">
-      <i class="fas fa-sync-alt"></i> Actualizar ubicación
-    </button>
+<h4>Tu ubicación:</h4>
+<div class="user-location-info">
+  <!-- Estado de carga -->
+  <div *ngIf="!currentUserLocation && !locationError" class="location-loading">
+    <div class="mini-spinner"></div>
+    <span>Obteniendo ubicación...</span>
   </div>
+  
+  <!-- Error de ubicación -->
+  <div *ngIf="locationError" class="location-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ locationError }}</span>
+  </div>
+  
+  <!-- Ubicación actual -->
+  <div *ngIf="currentUserLocation" class="current-location">
+    <i class="fas fa-map-pin"></i>
+    <span class="user-address">{{ userAddress || 'Obteniendo dirección...' }}</span>
+  </div>
+  
+  <button (click)="getUserLocation()" class="refresh-location-btn">
+    <i class="fas fa-sync-alt"></i> Actualizar ubicación
+  </button>
+</div>
 </aside>
   </div>
 </div>
