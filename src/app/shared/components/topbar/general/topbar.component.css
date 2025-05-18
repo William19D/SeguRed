@@ -3,8 +3,14 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
+body {
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Barra de navegación */
 .topbar {
   background: white;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -18,7 +24,7 @@
 }
 
 .topbar.hidden {
-  top: -100px; /* Oculta la barra al hacer scroll */
+  top: -100px;
 }
 
 /* Contenedor principal */
@@ -32,7 +38,7 @@
   padding: 0 20px;
 }
 
-/* Logo y nombre */
+/* Logo */
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -41,76 +47,142 @@
   font-weight: 700;
   font-size: 20px;
   cursor: pointer;
-  margin-right: auto; /* Asegura que el logo esté alineado a la izquierda */
+  transition: all 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.navbar-brand:hover {
+  color: #28a745;
+}
+
+.navbar-brand:hover img {
+  filter: hue-rotate(85deg) brightness(1.1) saturate(1.5);
+  transform: scale(1.05);
 }
 
 .navbar-brand img {
   width: 60px;
   height: 60px;
   margin-right: 10px;
+  transition: all 0.3s ease;
 }
 
 .navbar-brand .brand-name {
   font-size: 26px;
   font-weight: 700;
   color: #333;
+  transition: color 0.3s ease;
 }
 
-/* Menú de navegación */
+.navbar-brand:hover .brand-name {
+  color: #28a745;
+}
+
+/* Área central */
 .nav-center {
-  flex-grow: 1;
+  flex: 1;
   display: flex;
-  justify-content: center; /* Centra los labels del menú de navegación */
-}
-
-.nav-menu {
-  list-style: none;
-  display: flex;
-  gap: 40px;
+  justify-content: center;
   align-items: center;
 }
 
-.nav-menu li a {
-  text-decoration: none;
-  cursor: pointer;
-  color: #333;
-  font-size: 18px;
-  padding: 8px 12px;
-}
-
-.nav-menu li a:hover {
-  color: #28a745;
-}
-
-/* Botones de usuario */
+/* Botones de usuario escritorio */
 .user-actions {
-  display: flex; /* Asegura que los botones estén en una línea */
+  display: flex;
   align-items: center;
-  gap: 20px; /* Espaciado entre los botones */
-  justify-content: flex-end; /* Alinea los botones a la derecha */
-  margin-left: 30px; /* Separa los botones de las labels del centro */
+  gap: 15px;
 }
 
-.login-btn {
+/* Clase para ocultar en móvil */
+.desktop-only {
+  display: flex;
+}
+
+/* Estilos compartidos para ambos botones */
+.login-btn, .btn, .mobile-login-btn, .mobile-register-btn {
   text-decoration: none;
   cursor: pointer;
-  color: #28a745;
   font-size: 16px;
-  margin-right: 10px; /* Añade espacio entre "Iniciar Sesión" y "Registrarse" */
-  margin-left: 25px; /* Añade espacio entre "Iniciar Sesión" y "Registrarse" */
-
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: normal;
+  font-weight: 600;
 }
 
-.btn {
+/* Botón de inicio de sesión (texto) */
+.login-btn, .mobile-login-btn {
+  color: #28a745;
+  background-color: transparent;
+  border: 1px solid transparent;
+}
+
+.login-btn:hover, .mobile-login-btn:hover {
+  color: #218838;
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+/* Botón de registro (sólido) */
+.btn, .mobile-register-btn {
   background-color: #28a745;
   color: white;
-  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
+  position: relative;
+  overflow: hidden;
 }
 
-/* Hamburguesa */
+.btn:hover, .mobile-register-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Efecto al hacer clic */
+.btn:active, .mobile-register-btn:active {
+  background-color: #5ecc7b;
+  transform: translateY(1px);
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+/* Efecto de onda al hacer clic */
+.btn::after, .mobile-register-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.btn:active::after, .mobile-register-btn:active::after {
+  animation: ripple 0.5s ease-out;
+  opacity: 1;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0) translate(-50%, -50%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20) translate(-50%, -50%);
+    opacity: 0;
+  }
+}
+
+/* Botón hamburguesa */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -118,78 +190,236 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  padding: 10px;
+  z-index: 1001;
+  transition: all 0.3s ease;
 }
 
 .hamburger-line {
   width: 30px;
   height: 3px;
   background-color: #333;
+  transition: all 0.3s ease;
 }
 
-/* Media Queries para Responsiveness */
-@media (max-width: 768px) {
-  .hamburger {
-    display: flex; /* Muestra el ícono de hamburguesa en pantallas pequeñas */
-  }
+/* Animación a X cuando está activo */
+.hamburger.active .hamburger-line:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
 
-  .nav-center {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 80px;
-    left: 0;
-    width: 100%;
-    background: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    z-index: 999;
-    padding: 20px 0;
-  }
+.hamburger.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
 
-  .nav-center.active {
-    display: flex; /* Muestra el menú desplegable */
-  }
+.hamburger.active .hamburger-line:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
 
-  .nav-menu {
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-  }
+/* Overlay para menú móvil */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 80px);
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
+.mobile-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Menú móvil desplegable */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 999;
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.mobile-menu.active {
+  display: block;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Botones dentro del menú móvil */
+.mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.mobile-login-btn, .mobile-register-btn {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 16px;
+}
+
+/* MEDIA QUERIES */
+
+/* Pantallas grandes a medianas */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 100%;
+  }
+  
+  .navbar-brand img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .navbar-brand .brand-name {
+    font-size: 22px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 900px) {
   .user-actions {
-    flex-direction: column; /* Cambia la dirección a vertical en pantallas pequeñas */
     gap: 10px;
-    justify-content: center;
-    margin-top: 10px;
-    width: 100%;
   }
-
-  .login-btn, 
-  .btn {
-    font-size: 14px;
-    padding: 10px 16px;
-    text-align: center;
-  }
-
-  .btn {
-    width: auto; /* Ajusta el ancho dinámicamente */
+  
+  .login-btn, .btn {
+    font-size: 15px;
+    padding: 7px 14px;
   }
 }
 
+/* Móvil - CAMBIOS PRINCIPALES AQUÍ */
+@media (max-width: 768px) {
+  .container {
+    height: 70px;
+  }
+  
+  /* Mostrar hamburguesa */
+  .hamburger {
+    display: flex;
+  }
+  
+  /* Ocultar botones en la barra */
+  .desktop-only {
+    display: none;
+  }
+  
+  .mobile-overlay {
+    top: 70px;
+    height: calc(100vh - 70px);
+  }
+  
+  .mobile-menu {
+    top: 70px;
+  }
+}
+
+/* Móvil pequeño */
 @media (max-width: 480px) {
+  .container {
+    height: 60px;
+    padding: 0 15px;
+  }
+  
+  .navbar-brand img {
+    width: 40px;
+    height: 40px;
+    margin-right: 8px;
+  }
+  
   .navbar-brand .brand-name {
     font-size: 18px;
   }
+  
+  .hamburger {
+    padding: 8px;
+  }
+  
+  .hamburger-line {
+    width: 25px;
+    height: 2px;
+  }
+  
+  .mobile-overlay, .mobile-menu {
+    top: 60px;
+  }
+  
+  .mobile-login-btn, .mobile-register-btn {
+    font-size: 15px;
+    padding: 10px 16px;
+  }
+}
 
-  .nav-menu li a {
+/* Pantallas muy pequeñas */
+@media (max-width: 375px) {
+  .container {
+    padding: 0 10px;
+  }
+  
+  .navbar-brand img {
+    width: 35px;
+    height: 35px;
+    margin-right: 5px;
+  }
+  
+  .navbar-brand .brand-name {
     font-size: 16px;
   }
-
-  .user-actions {
-    gap: 5px; /* Reduce el espacio entre los botones */
-  }
-
-  .btn {
+  
+  .mobile-login-btn, .mobile-register-btn {
     font-size: 14px;
-    padding: 8px 12px;
+    padding: 10px 16px;
   }
+}
+
+/* Soporte para dispositivos de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Soporte opcional para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  body.auto-dark-mode .topbar {
+    background: #121212;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  body.auto-dark-mode .navbar-brand,
+  body.auto-dark-mode .navbar-brand .brand-name {
+    color: #e0e0e0;
+  }
+  
+  body.auto-dark-mode .hamburger-line {
+    background-color: #e0e0e0;
+  }
+  
+  body.auto-dark-mode .login-btn,
+  body.auto-dark-mode .mobile-login-btn {
+    color: #4caf50;
+  }
+  
+  body.auto-dark-mode .mobile-menu {
+    background: #121212;
+    color: #e0e0e0;
+  }
+}
+
+/* Prevenir scroll cuando el menú está abierto */
+body.no-scroll {
+  overflow: hidden;
 }
