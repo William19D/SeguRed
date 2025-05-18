@@ -1,32 +1,39 @@
-.background{
+.background {
     background-color: #f8f9fa;
-
+    min-height: 100vh;
+    width: 100%;
 }
 
 .container {
-    margin-bottom: 15%;
-    
+    padding: 5% 3%;
+    max-width: 1200px;
+    margin: 0 auto 80px auto;
     display: flex;
-    flex-direction: row; /* Cambia a fila */
+    flex-direction: row;
     align-items: center;
-    justify-content: center; /* Centra los elementos */
+    justify-content: center;
     text-align: left;
     font-family: Arial, sans-serif;
-    padding: 5%;
-    gap: 50px; /* Espaciado entre los elementos */
+    gap: 4rem;
 }
 
 .info {
-    max-width: 50%; /* Para que no ocupe demasiado espacio */
+    flex: 1;
+    max-width: 600px;
 }
+
 h2 {
     color: #4D4D4D;
-
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
 }
+
 h1 {
-    font-size: 4rem;
+    font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: bold;
     color: #4D4D4D;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
 }
 
 h1 span {
@@ -35,54 +42,126 @@ h1 span {
 
 p {
     color: #666;
-    font-size: 25px;
-    margin-bottom: 20px;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
 }
 
 .codigo-container {
+    flex: 1;
     background: #ffffff;
-    padding: 20px;
+    padding: 1.5rem;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 50%;
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
 }
 
 .codigo-inputs {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin: 15px 0;
+    gap: clamp(6px, 1vw, 12px);
+    margin: 1.5rem 0;
 }
 
 .codigo-inputs input {
-    width: 40px;
-    height: 40px;
+    width: clamp(30px, 5vw, 45px);
+    height: clamp(40px, 5vw, 50px);
     text-align: center;
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 2vw, 1.8rem);
     border: 1px solid #ccc;
     border-radius: 5px;
     outline: none;
 }
 
-/* Nueva regla para alinear el botón a la derecha */
+.codigo-inputs input:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
+}
+
 .btn-container {
     display: flex;
-    justify-content: flex-end; /* Alinea el botón a la derecha */
+    justify-content: flex-end;
 }
 
 .btn {
     background-color: #28a745;
     color: white;
-    padding: 12px 20px;
+    padding: 12px 24px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
-    width: auto; /* Evita que el botón se expanda */
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .btn:hover {
     background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Media Queries para responsividad */
+@media screen and (max-width: 992px) {
+    .container {
+        padding: 4% 5%;
+        gap: 3rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 5%;
+        gap: 2.5rem;
+        text-align: center;
+    }
+    
+    .info, .codigo-container {
+        max-width: 100%;
+    }
+    
+    h1 {
+        margin-bottom: 1rem;
+    }
+    
+    h2 {
+        text-align: center;
+        font-size: 1.3rem;
+    }
+    
+    .btn-container {
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 1.5rem;
+        margin-bottom: 60px;
+    }
+    
+    .codigo-inputs input {
+        width: calc(100% / 6 - 8px);
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 14px 10px;
+    }
+}
+
+/* Mejoras de accesibilidad para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+    .codigo-inputs input {
+        min-height: 50px;
+        min-width: 40px;
+    }
+    
+    .btn {
+        min-height: 50px;
+    }
 }
