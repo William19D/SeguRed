@@ -77,13 +77,15 @@
             </button>
 
             <!-- Captcha -->
-            <div class="captcha">
-                <ngx-recaptcha2 
-                    [siteKey]="siteKey" 
-                    (success)="onCaptchaResolved($event)" 
-                    [hl]="'es'">
-                </ngx-recaptcha2>
-            </div>
+            <!-- En la sección del captcha -->
+                <div class="captcha">
+                    <ngx-recaptcha2 
+                        #captchaElem
+                        [siteKey]="siteKey" 
+                        (success)="onCaptchaResolved($event)" 
+                        [hl]="'es'">
+                    </ngx-recaptcha2>
+                </div>
 
             <!-- Adaptar el texto según tipo de login -->
             <p class="register-link" *ngIf="!isModeratorLogin">

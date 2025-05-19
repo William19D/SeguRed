@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { NgxCaptchaModule } from 'ngx-captcha';
+import { NgxCaptchaModule, ReCaptcha2Component } from 'ngx-captcha';
 import { finalize } from 'rxjs/operators';
 
 import { TopbarComponent } from '../../shared/components/topbar/general/topbar.component';
@@ -27,6 +27,8 @@ import { AuthService } from '../../core/services/authentication.service';
 })
 export class LoginComponent implements OnInit {
   
+  // Añadir referencia al captcha
+  @ViewChild('captchaElem') captchaElem!: ReCaptcha2Component;  
   loginForm!: FormGroup;
   recaptchaToken: string | null = null;
   siteKey: string = "6LeoMP0qAAAAAKSJjU9ruPHmHCCVJK_LX1Svmhg8";
@@ -77,95 +79,86 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-  this.submitted = true;
-  this.errorMessage = '';
+    this.submitted = true;
+    this.errorMessage = '';
     
-  if (this.loginForm.invalid) {
-    return;
-  }
+    // Stop here if form is invalid
+    if (this.loginForm.invalid) {
+      return;
+    }
 
-  if (!this.recaptchaToken) {
-    this.errorMessage = "Por favor, completa el reCAPTCHA";
-    return;
-  }
+    if (!this.recaptchaToken) {
+      this.errorMessage = "Por favor, completa el reCAPTCHA";
+      return;
+    }
 
-  this.loading = true;
+    // Show loading animation
+    this.loading = true;
 
-  // Verificar primero el reCAPTCHA
-  this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
-    { token: this.recaptchaToken }
-  ).subscribe({
-    next: (res: any) => {
-      if (res.success) {
-        // CAPTCHA verificado, proceder con la autenticación
-        this.processLogin();
-      } else {
-        this.errorMessage = 'Verificación de reCAPTCHA fallida';
+    // Verificar CAPTCHA
+    this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
+      { token: this.recaptchaToken }
+    ).pipe(
+      finalize(() => {
+        // Este código se ejecutará si hay un error en la verificación del captcha
+      })
+    ).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          // CAPTCHA validado, proceder con autenticación
+          const loginObservable = this.isModeratorLogin 
+            ? this.authService.loginAsModerator(this.f['email'].value, this.f['password'].value)
+            : this.authService.login(this.f['email'].value, this.f['password'].value);
+
+          loginObservable.pipe(
+            finalize(() => {
+              if (!this.authService.isAuthenticated()) {
+                this.loading = false;
+                // Reiniciar el captcha después de un inicio de sesión fallido
+                this.resetCaptcha();
+              }
+            })
+          ).subscribe({
+            next: (response) => {
+              if (this.f['rememberMe'].value) {
+                this.authService.setRememberMe(true);
+              }
+              console.log('Inicio de sesión exitoso');
+              
+              const redirectUrl = this.isModeratorLogin ? '/moderator-dashboard' : '/dashboard';
+              this.router.navigate([redirectUrl]);
+            },
+            error: (err) => {
+              if (this.isModeratorLogin) {
+                this.errorMessage = err.error?.error || 'Acceso denegado. Verifica tus credenciales de moderador.';
+              } else {
+                this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
+              }
+              // El captcha se reiniciará en el finalize()
+            }
+          });
+        } else {
+          this.errorMessage = 'Verificación de reCAPTCHA fallida';
+          this.loading = false;
+          this.resetCaptcha();
+        }
+      },
+      error: (err) => {
+        this.errorMessage = 'Error en la verificación del reCAPTCHA';
         this.loading = false;
+        this.resetCaptcha();
       }
-    },
-    error: (err) => {
-      this.errorMessage = 'Error en la verificación del reCAPTCHA';
-      this.loading = false;
-    }
-  });
-}
+    });
+  }
 
-// Método separado para manejar la lógica de login
-private processLogin() {
-  const email = this.f['email'].value;
-  const password = this.f['password'].value;
-  const rememberMe = this.f['rememberMe'].value;
-  
-  console.log(`Intentando login ${this.isModeratorLogin ? 'como administrador' : 'como usuario regular'}`);
-  
-  const loginObservable = this.isModeratorLogin 
-    ? this.authService.loginAsModerator(email, password)
-    : this.authService.login(email, password);
-  
-  loginObservable.subscribe({
-    next: (response) => {
-      console.log('Login exitoso, respuesta:', response);
-      
-      if (this.f['rememberMe'].value) {
-        this.authService.setRememberMe(true);
-      }
-      
-      // Si es intento de login como administrador, esperar a que se cargue el perfil completo
-      if (this.isModeratorLogin) {
-        // Esperar a que se complete getUserInfo() que ya se llama dentro de loginAsModerator
-        // y después verificar el rol usando getCurrentUser()
-        setTimeout(() => {
-          const userData = this.authService.getCurrentUser();
-          console.log('Verificando datos completos del usuario:', userData);
-          
-          if (userData && userData.rol === 'ADMINISTRADOR') {
-            console.log('Rol de administrador confirmado, redirigiendo...');
-            window.location.href = '/admin-dashboard';
-          } else {
-            console.log('No se confirmó rol de administrador:', userData?.rol);
-            this.authService.logout();
-            this.errorMessage = 'Solo el personal autorizado puede iniciar sesión como administrador.';
-            this.loading = false;
-          }
-        }, 1000); // Dar tiempo suficiente para que se complete getUserInfo
-      } else {
-        // Para login de usuario normal
-        console.log('Login de usuario normal, redirigiendo a dashboard');
-        this.router.navigate(['/dashboard']);
-      }
-    },
-    error: (err) => {
-      console.error('Error de login:', err);
-      if (this.isModeratorLogin) {
-        this.errorMessage = err.error?.error || 'Acceso denegado. Verifica tus credenciales de administrador.';
-      } else {
-        this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
-      }
-      this.loading = false;
+  // Método para reiniciar el captcha
+  resetCaptcha() {
+    this.recaptchaToken = null;
+    if (this.captchaElem) {
+      this.captchaElem.resetCaptcha();
     }
-  });
-}
+  }
+
   goToRegister() {
     this.router.navigate(['/register']);
   }
