@@ -1,0 +1,57 @@
+<div class="notifications-page">
+  <div class="container">
+    <div class="header">
+      <h1>Notificaciones</h1>
+      <button class="refresh-btn" (click)="refreshNotifications()">
+        <img src="refresh-icon.svg" alt="Actualizar" />
+      </button>
+    </div>
+
+    <!-- Mensajes de estado -->
+    <div class="status-container">
+      <div class="loading-spinner" *ngIf="loading && notifications.length === 0">
+        <div class="spinner"></div>
+        <span>Cargando notificaciones...</span>
+      </div>
+
+      <div class="error-message" *ngIf="error">
+        <p>{{ error }}</p>
+        <button (click)="loadNotifications()">Reintentar</button>
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && !error && notifications.length === 0">
+        <img src="empty-notifications.svg" alt="Sin notificaciones" />
+        <h3>No tienes notificaciones</h3>
+        <p>Te notificaremos cuando haya nuevas actualizaciones</p>
+      </div>
+    </div>
+
+    <!-- Lista de notificaciones -->
+    <div class="notifications-list" *ngIf="notifications.length > 0">
+      <div class="notification-item" 
+           *ngFor="let notification of notifications"
+           [ngClass]="{'unread': !notification.leido}"
+           (click)="markAsRead(notification.id)">
+        <div class="notification-icon">
+          <img [src]="notification.icono || 'notification-icon.svg'" alt="Icono" />
+        </div>
+        <div class="notification-content">
+          <h3>{{ notification.titulo }}</h3>
+          <p>{{ notification.mensaje }}</p>
+          <span class="notification-time">{{ formatDate(notification.fechaCreacion) }}</span>
+        </div>
+      </div>
+
+      <!-- Cargador para "cargar más" -->
+      <div class="load-more" *ngIf="hasMoreNotifications">
+        <button (click)="loadMore()" [disabled]="loading">
+          <span *ngIf="!loading">Cargar más</span>
+          <div class="spinner small" *ngIf="loading"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Incluir el footer -->
+<app-footer></app-footer>

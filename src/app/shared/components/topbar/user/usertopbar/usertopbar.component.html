@@ -23,9 +23,8 @@
       </ul>
 
       <div class="user-section">
-        <button class="notification-bell" (click)="openNotifications()">
-          <img src="bell.svg" alt="Notificaciones" />
-        </button>
+        <!-- Reemplazar el botón de notificaciones existente con nuestro nuevo componente -->
+        <app-notification-badge></app-notification-badge>
 
         <div class="user-info" (click)="toggleUserMenu()">
           <img
