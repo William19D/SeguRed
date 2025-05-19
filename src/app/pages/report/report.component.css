@@ -365,4 +365,66 @@
     margin-right: 0;
     margin-bottom: 5px;
   }
+  /* Estilos para botones de reacción (like/dislike) */
+.btn-reaction {
+  background: none;
+  border: none;
+  padding: 5px 8px;
+  margin-right: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.btn-reaction i {
+  margin-right: 5px;
+}
+
+.btn-reaction:hover {
+  background-color: #f0f0f0;
+}
+
+.btn-reaction.active {
+  color: #1a73e8;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #e53935;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.btn-delete:hover {
+  background-color: #ffebee;
+}
+
+.comment-actions {
+  display: flex;
+  align-items: center;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.loading-comments {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.comment-time {
+  font-size: 12px;
+  color: #999;
+  margin-left: auto;
+}
 }

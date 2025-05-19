@@ -33,6 +33,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
   comentarioForm: FormGroup;
   comentarios: any[] = [];
   showAllComments = false;
+  commentLoading = false;
   
   // Propiedades para el mapa
   map: L.Map | null = null;
@@ -61,6 +62,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     if (this.reporteId) {
       this.cargarReporte();
       this.getUserLocation();
+      this.cargarComentarios();
     }
   }
   
@@ -89,8 +91,6 @@ export class ReportComponent implements OnInit, AfterViewInit {
             console.warn('El reporte no tiene ubicación definida');
           }
           
-          this.comentarios = this.reporte.comentarios || [];
-          
           // Verificar si el usuario actual ha dado like
           this.userLiked = this.checkUserLiked();
         }),
@@ -111,6 +111,49 @@ export class ReportComponent implements OnInit, AfterViewInit {
         })
       )
       .subscribe();
+  }
+  
+  // Método para cargar comentarios del reporte
+  cargarComentarios(): void {
+    if (!this.reporteId) return;
+    
+    this.commentLoading = true;
+    
+    this.reporteService.getComentarios(this.reporteId)
+      .pipe(
+        tap(data => {
+          // Transformar los comentarios para añadir las propiedades necesarias
+          this.comentarios = data.map(comentario => this.transformComentario(comentario));
+          console.log('Comentarios cargados:', this.comentarios);
+        }),
+        catchError(error => {
+          console.error('Error al cargar comentarios', error);
+          return of([]);
+        }),
+        finalize(() => {
+          this.commentLoading = false;
+        })
+      )
+      .subscribe();
+  }
+  
+  // Transforma los comentarios del backend para adaptarlos a nuestra UI
+  transformComentario(comentario: any): any {
+    const userId = this.authService.getCurrentUserId();
+    return {
+      id: comentario.id,
+      texto: comentario.descripcion || comentario.texto,
+      userId: comentario.idUsuario,
+      userName: comentario.nombre || comentario.userName || 'Usuario anónimo',
+      userImage: comentario.userImage || 'assets/images/default-avatar.png',
+      fecha: new Date(comentario.fechaPublicacion || comentario.fecha),
+      likes: comentario.likes || 0,
+      dislikes: comentario.dislikes || 0,
+      userLiked: comentario.usersLiked?.includes(userId) || false,
+      userDisliked: comentario.usersDisliked?.includes(userId) || false,
+      isOwner: comentario.idUsuario === userId,
+      isAdmin: this.authService.isAdministrator()
+    };
   }
   
   getUserLocation(): void {
@@ -400,23 +443,148 @@ export class ReportComponent implements OnInit, AfterViewInit {
     return this.reporte.usersLiked?.includes(userId) || false;
   }
   
+  // Dar like a un comentario
+  likeComentario(comentario: any): void {
+    if (!this.authService.isAuthenticated()) {
+      alert('Debe iniciar sesión para dar like');
+      return;
+    }
+    
+    const userId = this.authService.getCurrentUserId();
+    if (comentario.userLiked) {
+      // Ya tiene like, quitarlo
+      this.reporteService.removeComentarioLike(this.reporteId!, comentario.id, userId)
+        .subscribe({
+          next: () => {
+            comentario.userLiked = false;
+            comentario.likes = Math.max((comentario.likes || 0) - 1, 0);
+          },
+          error: (err) => {
+            console.error('Error al quitar like del comentario', err);
+          }
+        });
+    } else {
+      // Dar like (quitar dislike si lo tiene)
+      if (comentario.userDisliked) {
+        comentario.userDisliked = false;
+        comentario.dislikes = Math.max((comentario.dislikes || 0) - 1, 0);
+      }
+      
+      this.reporteService.addComentarioLike(this.reporteId!, comentario.id, userId)
+        .subscribe({
+          next: () => {
+            comentario.userLiked = true;
+            comentario.likes = (comentario.likes || 0) + 1;
+          },
+          error: (err) => {
+            console.error('Error al dar like al comentario', err);
+          }
+        });
+    }
+  }
+  
+  // Dar dislike a un comentario
+  dislikeComentario(comentario: any): void {
+    if (!this.authService.isAuthenticated()) {
+      alert('Debe iniciar sesión para dar dislike');
+      return;
+    }
+    
+    const userId = this.authService.getCurrentUserId();
+    if (comentario.userDisliked) {
+      // Ya tiene dislike, quitarlo
+      this.reporteService.removeComentarioDislike(this.reporteId!, comentario.id, userId)
+        .subscribe({
+          next: () => {
+            comentario.userDisliked = false;
+            comentario.dislikes = Math.max((comentario.dislikes || 0) - 1, 0);
+          },
+          error: (err) => {
+            console.error('Error al quitar dislike del comentario', err);
+          }
+        });
+    } else {
+      // Dar dislike (quitar like si lo tiene)
+      if (comentario.userLiked) {
+        comentario.userLiked = false;
+        comentario.likes = Math.max((comentario.likes || 0) - 1, 0);
+      }
+      
+      this.reporteService.addComentarioDislike(this.reporteId!, comentario.id, userId)
+        .subscribe({
+          next: () => {
+            comentario.userDisliked = true;
+            comentario.dislikes = (comentario.dislikes || 0) + 1;
+          },
+          error: (err) => {
+            console.error('Error al dar dislike al comentario', err);
+          }
+        });
+    }
+  }
+  
+  // Eliminar un comentario
+  eliminarComentario(comentario: any): void {
+    if (!this.authService.isAuthenticated()) return;
+    
+    // Solo el propietario o administrador puede eliminar
+    if (!comentario.isOwner && !this.authService.isAdministrator()) {
+      alert('No tienes permisos para eliminar este comentario');
+      return;
+    }
+    
+    if (confirm('¿Estás seguro de eliminar este comentario? Esta acción no se puede deshacer.')) {
+      this.reporteService.deleteComentario(this.reporteId!, comentario.id)
+        .subscribe({
+          next: () => {
+            // Eliminar el comentario de la lista
+            this.comentarios = this.comentarios.filter(c => c.id !== comentario.id);
+          },
+          error: (err) => {
+            console.error('Error al eliminar comentario', err);
+          }
+        });
+    }
+  }
+  
   enviarComentario(): void {
     if (this.comentarioForm.invalid || !this.authService.isAuthenticated()) {
       return;
     }
     
-    const comentario = {
-      texto: this.comentarioForm.value.texto,
-      userId: this.authService.getCurrentUserId(),
-      userName: this.authService.getCurrentUserName(),
-      userImage: this.authService.getCurrentUserImage() || 'assets/images/default-avatar.png',
-      fecha: new Date(),
+    const userId = this.authService.getCurrentUserId();
+    const userName = this.authService.getCurrentUserName();
+    
+    const comentarioData = {
+      idReporte: this.reporteId!,
+      idUsuario: userId,
+      nombre: userName,
+      descripcion: this.comentarioForm.value.texto,
+      anonimo: false, // Por defecto no anónimo
+      userImage: this.authService.getCurrentUserImage() || 'assets/images/default-avatar.png'
     };
     
-    this.reporteService.addComentario(this.reporteId!, comentario)
+    this.reporteService.addComentario(this.reporteId!, comentarioData)
       .subscribe({
         next: (response) => {
-          this.comentarios.unshift(comentario); // Agregar al inicio
+          // Crear un comentario con el formato que esperamos en el frontend
+          const nuevoComentario = {
+            id: response.id || `temp-${new Date().getTime()}`,
+            texto: comentarioData.descripcion,
+            userId: comentarioData.idUsuario,
+            userName: comentarioData.nombre,
+            userImage: comentarioData.userImage,
+            fecha: new Date(),
+            likes: 0,
+            dislikes: 0,
+            userLiked: false,
+            userDisliked: false,
+            isOwner: true,
+            isAdmin: this.authService.isAdministrator()
+          };
+          
+          // Agregar al inicio de la lista
+          this.comentarios.unshift(nuevoComentario);
           this.comentarioForm.reset();
         },
         error: (err) => {

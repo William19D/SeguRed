@@ -562,4 +562,64 @@ export class ReporteService {
       })
     );
   }
+  // Métodos para likes/dislikes de comentarios
+addComentarioLike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
+  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/like`;
+  const headers = this.getAuthHeaders();
+  
+  return this.http.post(url, { userId }, { headers }).pipe(
+    catchError(error => {
+      console.error('Error al dar like a comentario:', error);
+      return throwError(() => ({
+        ...error,
+        userMessage: 'No se pudo dar like al comentario'
+      }));
+    })
+  );
+}
+
+removeComentarioLike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
+  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/like/${userId}`;
+  const headers = this.getAuthHeaders();
+  
+  return this.http.delete(url, { headers }).pipe(
+    catchError(error => {
+      console.error('Error al quitar like de comentario:', error);
+      return throwError(() => ({
+        ...error,
+        userMessage: 'No se pudo quitar el like del comentario'
+      }));
+    })
+  );
+}
+
+addComentarioDislike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
+  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/dislike`;
+  const headers = this.getAuthHeaders();
+  
+  return this.http.post(url, { userId }, { headers }).pipe(
+    catchError(error => {
+      console.error('Error al dar dislike a comentario:', error);
+      return throwError(() => ({
+        ...error,
+        userMessage: 'No se pudo dar dislike al comentario'
+      }));
+    })
+  );
+}
+
+removeComentarioDislike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
+  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/dislike/${userId}`;
+  const headers = this.getAuthHeaders();
+  
+  return this.http.delete(url, { headers }).pipe(
+    catchError(error => {
+      console.error('Error al quitar dislike de comentario:', error);
+      return throwError(() => ({
+        ...error,
+        userMessage: 'No se pudo quitar el dislike del comentario'
+      }));
+    })
+  );
+}
 }
