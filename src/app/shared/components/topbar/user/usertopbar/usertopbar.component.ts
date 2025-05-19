@@ -1,13 +1,14 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../../../core/services/authentication.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../../../../core/services/authentication.service';
+import { NotificationBadgeComponent } from '../../../../components/notification-badge/notification-badge.component';
 
 @Component({
   selector: 'app-usertopbar',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, NotificationBadgeComponent],
   templateUrl: './usertopbar.component.html',
   styleUrls: ['./usertopbar.component.css']
 })
@@ -130,10 +131,6 @@ export class UsertopbarComponent implements OnInit {
     this.router.navigate(['/my-reports']);
     this.closeMobileMenu();
     this.isUserMenuOpen = false;
-  }
-
-  openNotifications() {
-    console.log('Abrir notificaciones');
   }
 
   toggleUserMenu() {

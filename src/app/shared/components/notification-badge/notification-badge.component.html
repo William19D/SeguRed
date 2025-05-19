@@ -1,0 +1,4 @@
+<button class="notification-bell" [routerLink]="['/notifications']">
+  <img src="bell.svg" alt="Notificaciones" />
+  <span class="badge" *ngIf="noLeidasCount > 0">{{ noLeidasCount }}</span>
+</button>
