@@ -8,6 +8,7 @@ import { NominatimService } from '../../core/services/nominatim.service';
 import { LocationService } from '../../core/services/location.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import * as L from 'leaflet';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -60,7 +61,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewChecked {
     private authService: AuthService,
     private reporteService: ReporteService,
     private nominatimService: NominatimService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private notificationService: NotificationService  // <-- Agregar esta línea
   ) {}
 
   ngOnInit() {
@@ -337,6 +339,19 @@ export class AdminDashboardComponent implements OnInit, AfterViewChecked {
           report.estado = 'COMPLETADO';
           this.pendingReportsCount--;
           this.completedReportsCount++;
+          
+          // Enviar notificación a usuarios cercanos
+          if (report.location && report.location.lat && report.location.lng) {
+            this.notificationService.notificarReportesCercanos(
+              reportId, 
+              report.location.lat, 
+              report.location.lng,
+              5 // distancia en km
+            ).subscribe({
+              next: (response) => console.log('Notificaciones enviadas:', response),
+              error: (err) => console.error('Error al enviar notificaciones:', err)
+            });
+          }
         }
         // Re-aplicar filtros
         this.applyFilters();
