@@ -22,6 +22,7 @@ export class NotificationsComponent implements OnInit {
   hasMoreNotifications: boolean = true;
   totalPages: number = 0;
   totalElements: number = 0;
+  markingAllAsRead: boolean = false;
 
   constructor(
     private notificationService: NotificationService,
@@ -49,6 +50,11 @@ export class NotificationsComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Método para verificar si hay notificaciones no leídas
+  hasUnreadNotifications(): boolean {
+    return this.notifications.length > 0 && this.notifications.some(notification => !notification.leido);
   }
 
   loadNotifications(loadMore: boolean = false): void {
@@ -103,6 +109,26 @@ export class NotificationsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al marcar notificación como leída:', err);
+      }
+    });
+  }
+
+  markAllAsRead(): void {
+    if (!this.userId || this.markingAllAsRead) return;
+    
+    this.markingAllAsRead = true;
+    
+    this.notificationService.marcarTodasComoLeidas(this.userId).subscribe({
+      next: () => {
+        // Actualizar el estado localmente
+        this.notifications.forEach(notification => {
+          notification.leido = true;
+        });
+        this.markingAllAsRead = false;
+      },
+      error: (err) => {
+        console.error('Error al marcar todas las notificaciones como leídas:', err);
+        this.markingAllAsRead = false;
       }
     });
   }

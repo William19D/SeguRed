@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 import { AuthService } from './authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
+  // Cambiar para usar la URL de producción en lugar de la local por defecto
   private apiUrl = 'https://seguredapi-919088633053.us-central1.run.app';
-  private apiUrlLocal = 'http://localhost:8080';
-
+  private localUrl = 'http://localhost:8080';
   constructor(
     private http: HttpClient,
     private authService: AuthService
@@ -18,14 +18,9 @@ export class NotificationService {
 
   /**
    * Obtiene notificaciones de un usuario con opciones de filtrado y paginación
-   * @param usuarioId ID del usuario
-   * @param leido Opcional - filtrar por estado de lectura
-   * @param page Número de página (empieza en 0)
-   * @param size Tamaño de página
-   * @returns Observable con lista de notificaciones
    */
   getNotificaciones(usuarioId: string, leido?: boolean, page: number = 0, size: number = 10): Observable<any> {
-    const url = `${this.apiUrlLocal}/notificaciones/usuario/${usuarioId}`;
+    const url = `${this.localUrl}/notificacion/usuario/${usuarioId}`;
     const headers = this.getAuthHeaders();
     
     let params = new HttpParams()
@@ -35,8 +30,6 @@ export class NotificationService {
     if (leido !== undefined) {
       params = params.set('leido', leido.toString());
     }
-    
-    console.log(`Obteniendo notificaciones para usuario ID: ${usuarioId}`);
     
     return this.http.get(url, { headers, params }).pipe(
       tap(response => {
@@ -63,14 +56,12 @@ export class NotificationService {
 
   /**
    * Marca una notificación como leída
-   * @param notificacionId ID de la notificación
-   * @returns Observable con la respuesta
    */
   marcarComoLeida(notificacionId: string): Observable<any> {
-    const url = `${this.apiUrlLocal}/notificaciones/${notificacionId}/leer`;
+    const url = `${this.localUrl}/notificacion/${notificacionId}/leer`;
     const headers = this.getAuthHeaders();
     
-    return this.http.put(url, {}, { headers }).pipe(
+    return this.http.patch(url, {}, { headers }).pipe(
       catchError(error => {
         console.error(`Error al marcar notificación ${notificacionId} como leída:`, error);
         return throwError(() => ({
@@ -82,15 +73,38 @@ export class NotificationService {
   }
 
   /**
-   * Obtiene el contador de notificaciones no leídas del usuario
-   * @param usuarioId ID del usuario
-   * @returns Observable con el contador
+   * Marca todas las notificaciones de un usuario como leídas
    */
-  contarNoLeidas(usuarioId: string): Observable<any> {
-    const url = `${this.apiUrlLocal}/notificaciones/usuario/${usuarioId}/no-leidas/count`;
+  marcarTodasComoLeidas(usuarioId: string): Observable<any> {
+    const url = `${this.localUrl}/notificacion/usuario/${usuarioId}/leer-todas`;
     const headers = this.getAuthHeaders();
     
-    return this.http.get(url, { headers }).pipe(
+    return this.http.patch(url, {}, { headers }).pipe(
+      catchError(error => {
+        console.error(`Error al marcar todas las notificaciones como leídas:`, error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudieron actualizar las notificaciones'
+        }));
+      })
+    );
+  }
+
+  /**
+   * Obtiene el contador de notificaciones no leídas del usuario
+   */
+  contarNoLeidas(usuarioId: string): Observable<any> {
+    const url = `${this.localUrl}/notificacion/usuario/${usuarioId}`;
+    const headers = this.getAuthHeaders();
+    const params = new HttpParams()
+      .set('leido', 'false')
+      .set('page', '0')
+      .set('size', '1');
+    
+    return this.http.get(url, { headers, params }).pipe(
+      map((response: any) => {
+        return { count: response.totalElements || 0 };
+      }),
       catchError(error => {
         console.error('Error al contar notificaciones no leídas:', error);
         return throwError(() => ({
@@ -102,42 +116,19 @@ export class NotificationService {
   }
 
   /**
-   * Obtiene reportes cercanos a la ubicación del usuario
-   * @param usuarioId ID del usuario
-   * @param radioKm Radio en kilómetros para buscar reportes cercanos
-   * @returns Observable con la lista de reportes cercanos
+   * Notificar reportes cercanos (solo admin)
    */
-  getReportesCercanos(usuarioId: string, radioKm: number = 1.0): Observable<any> {
-    const url = `${this.apiUrlLocal}/notificaciones/usuario/${usuarioId}/reportes-cercanos`;
+  notificarReportesCercanos(reporteId: string, latitud: number, longitud: number, distanciaMaximaKm: number = 5): Observable<any> {
+    const url = `${this.localUrl}/notificacion/reportes-cercanos`;
     const headers = this.getAuthHeaders();
+    const body = {
+      reporteId,
+      latitud,
+      longitud,
+      distanciaMaximaKm
+    };
     
-    let params = new HttpParams().set('radioKm', radioKm.toString());
-    
-    return this.http.get<any>(url, { headers, params }).pipe(
-      tap(response => {
-        const reportes = response.reportesCercanos || [];
-        console.log(`Reportes cercanos obtenidos: ${reportes.length}`);
-      }),
-      catchError(error => {
-        console.error('Error al obtener reportes cercanos:', error);
-        return throwError(() => ({
-          ...error,
-          userMessage: 'No se pudieron cargar los reportes cercanos'
-        }));
-      })
-    );
-  }
-
-  /**
-   * Notifica a usuarios cercanos sobre un nuevo reporte
-   * @param reporteId ID del reporte
-   * @returns Observable con la respuesta
-   */
-  notificarUsuariosCercanos(reporteId: string): Observable<any> {
-    const url = `${this.apiUrlLocal}/notificaciones/reportes/${reporteId}/notificar-usuarios-cercanos`;
-    const headers = this.getAuthHeaders();
-    
-    return this.http.post(url, {}, { headers }).pipe(
+    return this.http.post(url, body, { headers }).pipe(
       catchError(error => {
         console.error('Error al notificar usuarios cercanos:', error);
         return throwError(() => ({
@@ -149,29 +140,7 @@ export class NotificationService {
   }
 
   /**
-   * Notifica al creador sobre la aprobación de su reporte
-   * @param reporteId ID del reporte
-   * @returns Observable con la respuesta
-   */
-  notificarAprobacionReporte(reporteId: string): Observable<any> {
-    const url = `${this.apiUrlLocal}/notificaciones/reportes/${reporteId}/notificar-aprobacion`;
-    const headers = this.getAuthHeaders();
-    
-    return this.http.post(url, {}, { headers }).pipe(
-      catchError(error => {
-        console.error('Error al notificar aprobación de reporte:', error);
-        return throwError(() => ({
-          ...error,
-          userMessage: 'No se pudo enviar la notificación de aprobación'
-        }));
-      })
-    );
-  }
-
-  /**
    * Obtiene headers con autenticación
-   * @private
-   * @returns HttpHeaders con token de autenticación
    */
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getAuthToken();
@@ -182,7 +151,6 @@ export class NotificationService {
       });
     }
     
-    // Asegurar que el token tenga el formato correcto
     const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
     return new HttpHeaders({
       'Content-Type': 'application/json',
