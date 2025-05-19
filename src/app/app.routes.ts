@@ -17,6 +17,7 @@ import { EditProfileComponent } from './pages/edit-profile/edit-profile.componen
 import { MyReportsComponent } from './pages/my-reports/my-reports.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { ReportComponent } from './pages/report/report.component';
 
 export const routes: Routes = [
   // Redirección específica para la ruta raíz - DEBE ESTAR PRIMERO
@@ -42,7 +43,8 @@ export const routes: Routes = [
       { path: 'create-report', component: CreateReportComponent },
       { path: 'edit-profile', component: EditProfileComponent },
       { path: 'my-reports', component: MyReportsComponent },
-      { path: 'notifications', component: NotificationsComponent, title: 'Notificaciones' }, // AÑADIDA AQUÍ
+      { path: 'notifications', component: NotificationsComponent, title: 'Notificaciones' },
+      { path: 'report/:id', component: ReportComponent },
     ]
   },
   

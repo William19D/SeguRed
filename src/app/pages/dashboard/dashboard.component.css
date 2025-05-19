@@ -267,6 +267,7 @@ header button:hover {
 
 /* Card de Reporte - Nueva estructura con tres columnas */
 .report-card {
+  cursor: pointer;
   display: grid;
   grid-template-columns: 240px 1fr 150px; /* Mapa, contenido, acciones */
   gap: 15px;

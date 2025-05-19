@@ -571,7 +571,12 @@ loadReports() {
     }
   });
 }
-
+goToReportDetail(reportId: string): void {
+  if (!reportId) return;
+  
+  console.log(`Navegando al detalle del reporte: ${reportId}`);
+  this.router.navigate(['/report', reportId]);
+}
   prepareMapInitialization() {
     // Recopilar todos los reportes con coordenadas válidas de los reportes filtrados
     this.mapsToInitialize = this.filteredReports

@@ -79,77 +79,85 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-    this.submitted = true;
-    this.errorMessage = '';
+  this.submitted = true;
+  this.errorMessage = '';
+  
+  // Stop here if form is invalid
+  if (this.loginForm.invalid) {
+    return;
+  }
+
+  if (!this.recaptchaToken) {
+    this.errorMessage = "Por favor, completa el reCAPTCHA";
+    return;
+  }
+
+  // Show loading animation
+  this.loading = true;
+
+  // Verificar CAPTCHA
+  this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
+    { token: this.recaptchaToken }
+  ).pipe(
+    finalize(() => {
+      // Este código se ejecutará si hay un error en la verificación del captcha
+    })
+  ).subscribe({
+    next: (res: any) => {
+      if (res.success) {
+        // CAPTCHA validado, proceder con autenticación
+        const loginObservable = this.isModeratorLogin 
+          ? this.authService.loginAsModerator(this.f['email'].value, this.f['password'].value)
+          : this.authService.login(this.f['email'].value, this.f['password'].value);
+
+        loginObservable.pipe(
+  finalize(() => {
+    if (!this.authService.isAuthenticated()) {
+      this.loading = false;
+      this.resetCaptcha();
+    }
+  })
+).subscribe({
+  next: (response) => {
+    if (this.f['rememberMe'].value) {
+      this.authService.setRememberMe(true);
+    }
+    console.log('Inicio de sesión exitoso');
     
-    // Stop here if form is invalid
-    if (this.loginForm.invalid) {
-      return;
-    }
-
-    if (!this.recaptchaToken) {
-      this.errorMessage = "Por favor, completa el reCAPTCHA";
-      return;
-    }
-
-    // Show loading animation
-    this.loading = true;
-
-    // Verificar CAPTCHA
-    this.http.post('https://seguredapi-919088633053.us-central1.run.app/api/recaptcha/verify', 
-      { token: this.recaptchaToken }
-    ).pipe(
-      finalize(() => {
-        // Este código se ejecutará si hay un error en la verificación del captcha
-      })
-    ).subscribe({
-      next: (res: any) => {
-        if (res.success) {
-          // CAPTCHA validado, proceder con autenticación
-          const loginObservable = this.isModeratorLogin 
-            ? this.authService.loginAsModerator(this.f['email'].value, this.f['password'].value)
-            : this.authService.login(this.f['email'].value, this.f['password'].value);
-
-          loginObservable.pipe(
-            finalize(() => {
-              if (!this.authService.isAuthenticated()) {
-                this.loading = false;
-                // Reiniciar el captcha después de un inicio de sesión fallido
-                this.resetCaptcha();
-              }
-            })
-          ).subscribe({
-            next: (response) => {
-              if (this.f['rememberMe'].value) {
-                this.authService.setRememberMe(true);
-              }
-              console.log('Inicio de sesión exitoso');
-              
-              const redirectUrl = this.isModeratorLogin ? '/moderator-dashboard' : '/dashboard';
-              this.router.navigate([redirectUrl]);
-            },
-            error: (err) => {
-              if (this.isModeratorLogin) {
-                this.errorMessage = err.error?.error || 'Acceso denegado. Verifica tus credenciales de moderador.';
-              } else {
-                this.errorMessage = err.error?.error || 'Correo o contraseña incorrectos';
-              }
-              // El captcha se reiniciará en el finalize()
-            }
-          });
-        } else {
-          this.errorMessage = 'Verificación de reCAPTCHA fallida';
-          this.loading = false;
-          this.resetCaptcha();
-        }
-      },
-      error: (err) => {
-        this.errorMessage = 'Error en la verificación del reCAPTCHA';
+    // Añadir un retraso para asegurar que los datos del usuario se han cargado
+    setTimeout(() => {
+      // Verificar el rol del usuario después del inicio de sesión exitoso
+      const isAdmin = this.authService.isAdministrator();
+      console.log('¿Es administrador?', isAdmin);
+      console.log('Rol actual:', localStorage.getItem('user_role'));
+      
+      if (isAdmin) {
+        console.log('Redirigiendo a admin-dashboard');
+        this.router.navigate(['/admin/dashboard']); // Cambiado a '/admin/dashboard'
+      } else {
+        const redirectUrl = this.isModeratorLogin ? '/moderator-dashboard' : '/dashboard';
+        console.log('Redirigiendo a', redirectUrl);
+        this.router.navigate([redirectUrl]);
+      }
+    }, 1000); // Esperar 1 segundo
+  },
+  error: (err) => {
+    // Código de error existente
+  }
+});
+      } else {
+        this.errorMessage = 'Verificación de reCAPTCHA fallida';
         this.loading = false;
         this.resetCaptcha();
       }
-    });
-  }
+    },
+    error: (err) => {
+      this.errorMessage = 'Error en la verificación del reCAPTCHA';
+      this.loading = false;
+      this.resetCaptcha();
+    }
+  });
+}
 
   // Método para reiniciar el captcha
   resetCaptcha() {

@@ -306,4 +306,67 @@ export class AuthService {
       })
     );
   }
+
+  // ---- MÉTODOS ESPECÍFICOS PARA REPORTES ----
+
+  // Obtener el ID del usuario actual
+  getCurrentUserId(): string {
+    const user = this.getCurrentUser();
+    return user && user.id ? user.id : '';
+  }
+
+  // Obtener el nombre completo del usuario actual
+  getCurrentUserName(): string {
+    const user = this.getCurrentUser();
+    if (!user) return '';
+    
+    // Intentar diferentes combinaciones de nombres según la estructura del usuario
+    if (user.nombre && user.apellido) {
+      return `${user.nombre} ${user.apellido}`;
+    } else if (user.nombreCompleto) {
+      return user.nombreCompleto;
+    } else if (user.nombre) {
+      return user.nombre;
+    } else if (user.username) {
+      return user.username;
+    }
+    return 'Usuario';
+  }
+
+  // Obtener la URL de la imagen de perfil del usuario
+  getCurrentUserImage(): string {
+    const user = this.getCurrentUser();
+    if (!user) return '';
+    
+    // Verificar si hay imagen de perfil y devolver la URL
+    if (user.imagen) {
+      return user.imagen;
+    } else if (user.profileImage) {
+      return user.profileImage;
+    } else if (user.avatar) {
+      return user.avatar;
+    }
+    
+    // Devolver URL de imagen por defecto si no hay imagen
+    return 'assets/images/default-avatar.png';
+  }
+
+  // Verificar si el usuario es propietario del contenido
+  isOwnerOf(contentUserId: string): boolean {
+    const currentUserId = this.getCurrentUserId();
+    return currentUserId === contentUserId;
+  }
+
+  // Verificar si el usuario tiene permisos para editar un reporte
+  canEditReport(report: any): boolean {
+    // Un usuario puede editar si es propietario o administrador
+    if (!report) return false;
+    
+    // Primero verificar si es administrador
+    if (this.isAdministrator()) return true;
+    
+    // Luego verificar si es propietario
+    const userId = this.getCurrentUserId();
+    return report.userId === userId || report.autorId === userId;
+  }
 }
