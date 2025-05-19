@@ -439,7 +439,7 @@
 }
 
 .delete-button {
-  background-color: #f44336;
+  background-color: #000000;
   color: white;
   width: 36px;
   height: 36px;
@@ -450,7 +450,7 @@
 }
 
 .delete-button:hover {
-  background-color: #d32f2f;
+  background-color: #280000;
 }
 
 .appeal-message {

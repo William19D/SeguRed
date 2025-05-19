@@ -468,158 +468,89 @@ export class ReporteService {
   }
 
   /**
-   * Añade un comentario a un reporte
-   * @param reporteId ID del reporte
-   * @param comentarioData Datos del comentario
-   * @returns Observable con la respuesta
-   */
-  addComentario(reporteId: string, comentarioData: any): Observable<any> {
-    const url = `${this.apiUrl}/reportes/${reporteId}/comentarios`;
-    const headers = this.getAuthHeaders();
-    
-    console.log(`Añadiendo comentario al reporte ${reporteId}`);
-    
-    return this.http.post(url, comentarioData, { headers }).pipe(
-      tap(() => {
-        console.log('Comentario añadido con éxito');
-      }),
-      catchError(error => {
-        console.error('Error al añadir comentario:', error);
-        return throwError(() => ({
-          ...error,
-          userMessage: 'No se pudo añadir el comentario al reporte'
-        }));
-      })
-    );
-  }
+ * Añade un comentario a un reporte
+ */
+addComentario(reporteId: string, comentarioData: any): Observable<any> {
+  // Añadir "/api" al comienzo de la ruta
+  const url = `${this.apiUrl}/api/reportes/${reporteId}/comentarios`;
+  const headers = this.getAuthHeaders();
+  
+  console.log(`Añadiendo comentario al reporte ${reporteId}`);
+  
+  return this.http.post(url, comentarioData, { headers }).pipe(
+    tap(() => {
+      console.log('Comentario añadido con éxito');
+    }),
+    catchError(error => {
+      console.error('Error al añadir comentario:', error);
+      return throwError(() => ({
+        ...error,
+        userMessage: 'No se pudo añadir el comentario al reporte'
+      }));
+    })
+  );
+}
 
-  /**
-   * Obtiene los comentarios de un reporte
-   * @param reporteId ID del reporte
-   * @returns Observable con array de comentarios
-   */
-  getComentarios(reporteId: string): Observable<any[]> {
-    const url = `${this.apiUrl}/reportes/${reporteId}/comentarios`;
-    const headers = this.getAuthHeaders();
-    
-    return this.http.get<any[]>(url, { headers }).pipe(
-      tap(comentarios => {
-        console.log(`Obtenidos ${comentarios.length} comentarios para el reporte ${reporteId}`);
-      }),
-      catchError(error => {
-        console.error('Error al obtener comentarios:', error);
-        return throwError(() => ({
-          ...error,
-          userMessage: 'No se pudieron cargar los comentarios'
-        }));
-      })
-    );
-  }
+/**
+ * Obtiene los comentarios de un reporte
+ */
+getComentarios(reporteId: string): Observable<any[]> {
+  // Añadir "/api" al comienzo de la ruta
+  const url = `${this.apiUrl}/api/reportes/${reporteId}/comentarios`;
+  const headers = this.getAuthHeaders();
+  
+  return this.http.get<any[]>(url, { headers }).pipe(
+    // resto del código...
+  );
+}
 
-  /**
-   * Elimina un comentario de un reporte
-   * @param reporteId ID del reporte
-   * @param comentarioId ID del comentario
-   * @returns Observable con la respuesta
-   */
-  deleteComentario(reporteId: string, comentarioId: string): Observable<any> {
-    const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}`;
-    const headers = this.getAuthHeaders();
-    
-    console.log(`Eliminando comentario ${comentarioId} del reporte ${reporteId}`);
-    
-    return this.http.delete(url, { headers }).pipe(
-      tap(() => {
-        console.log('Comentario eliminado con éxito');
-      }),
-      catchError(error => {
-        console.error('Error al eliminar comentario:', error);
-        return throwError(() => ({
-          ...error,
-          userMessage: 'No se pudo eliminar el comentario'
-        }));
-      })
-    );
-  }
-
-  /**
-   * Verifica si un usuario ha dado like a un reporte
-   * @param reporteId ID del reporte
-   * @param userId ID del usuario
-   * @returns Observable con boolean (true si el usuario ha dado like)
-   */
-  checkUserLiked(reporteId: string, userId: string): Observable<boolean> {
-    return this.getReporteById(reporteId).pipe(
-      map(report => {
-        if (!report.usersLiked || !Array.isArray(report.usersLiked)) {
-          return false;
-        }
-        return report.usersLiked.includes(userId);
-      }),
-      catchError(error => {
-        console.error('Error al verificar like del usuario:', error);
-        return of(false);
-      })
-    );
-  }
-  // Métodos para likes/dislikes de comentarios
+// También modificar estos métodos para likes/dislikes
 addComentarioLike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
-  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/like`;
+  // Añadir "/api" al comienzo de la ruta
+  const url = `${this.apiUrl}/api/reportes/${reporteId}/comentarios/${comentarioId}/like`;
   const headers = this.getAuthHeaders();
   
   return this.http.post(url, { userId }, { headers }).pipe(
-    catchError(error => {
-      console.error('Error al dar like a comentario:', error);
-      return throwError(() => ({
-        ...error,
-        userMessage: 'No se pudo dar like al comentario'
-      }));
-    })
+    // resto del código...
   );
 }
 
 removeComentarioLike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
-  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/like/${userId}`;
+  // Añadir "/api" al comienzo de la ruta
+  const url = `${this.apiUrl}/api/reportes/${reporteId}/comentarios/${comentarioId}/like/${userId}`;
   const headers = this.getAuthHeaders();
   
   return this.http.delete(url, { headers }).pipe(
-    catchError(error => {
-      console.error('Error al quitar like de comentario:', error);
-      return throwError(() => ({
-        ...error,
-        userMessage: 'No se pudo quitar el like del comentario'
-      }));
-    })
+    // resto del código...
   );
 }
 
 addComentarioDislike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
-  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/dislike`;
+  // Añadir "/api" al comienzo de la ruta
+  const url = `${this.apiUrl}/api/reportes/${reporteId}/comentarios/${comentarioId}/dislike`;
   const headers = this.getAuthHeaders();
   
   return this.http.post(url, { userId }, { headers }).pipe(
-    catchError(error => {
-      console.error('Error al dar dislike a comentario:', error);
-      return throwError(() => ({
-        ...error,
-        userMessage: 'No se pudo dar dislike al comentario'
-      }));
-    })
+    // resto del código...
   );
 }
 
 removeComentarioDislike(reporteId: string, comentarioId: string, userId: string): Observable<any> {
-  const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}/dislike/${userId}`;
+  // Añadir "/api" al comienzo de la ruta
+  const url = `${this.apiUrl}/api/reportes/${reporteId}/comentarios/${comentarioId}/dislike/${userId}`;
   const headers = this.getAuthHeaders();
   
   return this.http.delete(url, { headers }).pipe(
-    catchError(error => {
-      console.error('Error al quitar dislike de comentario:', error);
-      return throwError(() => ({
-        ...error,
-        userMessage: 'No se pudo quitar el dislike del comentario'
-      }));
-    })
+    // resto del código...
   );
 }
-}
+
+deleteComentario(reporteId: string, comentarioId: string): Observable<any> {
+  // Añadir "/api" al comienzo de la ruta
+  const url = `${this.apiUrl}/api/reportes/${reporteId}/comentarios/${comentarioId}`;
+  const headers = this.getAuthHeaders();
+  
+  return this.http.delete(url, { headers }).pipe(
+    // resto del código...
+  );
+}}

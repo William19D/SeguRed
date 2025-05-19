@@ -7,27 +7,53 @@
       
       <!-- Sistema de estrellas/likes -->
       <div class="rating-container">
-        <div class="stars">
-          <span *ngFor="let star of starsArray" 
-                [class.star-filled]="star === 1"
-                [class.star-empty]="star === 0">
-            ★
-          </span>
-        </div>
-        <button class="like-button" [class.liked]="userLiked" (click)="toggleLike()">
-          {{ userLiked ? 'Quitar like' : 'Dar like' }}
-        </button>
-        <span class="likes-count">{{ reporte.likes || 0 }} likes</span>
+  <button class="like-button" [class.liked]="userLiked" (click)="toggleLike()">
+    {{ userLiked ? 'Quitar like' : 'Dar like' }}
+  </button>
+  <span class="likes-count">{{ reporte.likes || 0 }} likes</span>
+</div>
+    </div>
+    
+    <!-- Slider de imágenes del reporte -->
+<div class="report-image-slider" *ngIf="reporte.imagenes && reporte.imagenes.length > 0">
+  <div class="slider-container">
+    <!-- Imágenes del slider -->
+    <div class="slider-track" [style.transform]="'translateX(' + (-currentImageIndex * 100) + '%)'">
+      <div class="slider-slide" *ngFor="let imagen of reporte.imagenes; let i = index">
+        <img [src]="getImageUrl(i)" 
+             [alt]="'Imagen ' + (i+1) + ' del reporte'"
+             (error)="handleImageError($event)"
+             (load)="handleImageLoad($event)">
       </div>
     </div>
     
-    <!-- Imagen del reporte -->
-    <div class="report-image" *ngIf="reporte.imagenes && reporte.imagenes.length > 0">
-      <img #reportImg [src]="'https://seguredapi-919088633053.us-central1.run.app/api/reportes-imagenes/' + reporte.id + '/imagen/0'" 
-           alt="Imagen del reporte"
-           (error)="reportImg.src='imagenotfound.png'"
-           (load)="reportImg.classList.add('loaded')">
+    <!-- Botones de navegación -->
+    <button class="slider-nav slider-prev" 
+            (click)="prevImage()" 
+            [hidden]="currentImageIndex === 0">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slider-nav slider-next" 
+            (click)="nextImage()" 
+            [hidden]="currentImageIndex === reporte.imagenes.length - 1">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    
+    <!-- Indicadores de posición -->
+    <div class="slider-indicators">
+      <span *ngFor="let imagen of reporte.imagenes; let i = index"
+            class="indicator"
+            [class.active]="i === currentImageIndex"
+            (click)="goToImage(i)">
+      </span>
     </div>
+  </div>
+  
+  <!-- Contador de imágenes -->
+  <div class="image-counter">
+    {{currentImageIndex + 1}} / {{reporte.imagenes.length}}
+  </div>
+</div>
   </div>
   
   <!-- Sección de ubicación -->
@@ -52,113 +78,76 @@
     </div>
   </div>
   
-  <!-- Sección de comentarios -->
-  <!-- Sección de comentarios -->
-<div class="comments-section">
-  <h2>Comentarios</h2>
-  
-  <!-- Formulario para añadir comentario -->
-  <div class="comment-form" *ngIf="authService.isAuthenticated()">
-    <form [formGroup]="comentarioForm" (ngSubmit)="enviarComentario()">
-      <div class="form-group">
-        <textarea 
-          formControlName="texto"
-          placeholder="Escribe un comentario..."
-          rows="2">
-        </textarea>
-      </div>
-      <div class="comment-actions">
-        <button type="submit" class="btn-comment" [disabled]="comentarioForm.invalid">
-          Comentar
-        </button>
-      </div>
-    </form>
-  </div>
-  
-  <div class="login-prompt" *ngIf="!authService.isAuthenticated()">
-    <p>Inicia sesión para dejar un comentario</p>
-  </div>
-  
-  <!-- Loading para comentarios -->
-  <div class="loading-comments" *ngIf="commentLoading">
-    <p>Cargando comentarios...</p>
-  </div>
-  
-  <!-- Lista de comentarios -->
-  <div class="comments-list" *ngIf="!commentLoading">
-    <div class="comment" *ngFor="let comentario of (showAllComments ? comentarios : comentarios.slice(0, 2))">
-      <div class="comment-avatar">
-        <img [src]="comentario.userImage" alt="Avatar de usuario" 
-             (error)="handleAvatarError($event)">
-      </div>
-      <div class="comment-content">
-        <div class="comment-header">
-          <span class="comment-author">{{ comentario.userName }}</span>
-          <span class="comment-time">{{ getTimeElapsed(comentario.fecha) }}</span>
-        </div>
-        <div class="comment-text">{{ comentario.texto }}</div>
-        <div class="comment-footer">
-          <div class="comment-actions">
-            <!-- Botones de like/dislike -->
-            <button class="btn-reaction" 
-                   [class.active]="comentario.userLiked" 
-                   (click)="likeComentario(comentario)" 
-                   title="Me gusta">
-              <i class="fas fa-thumbs-up"></i> 
-              <span>{{ comentario.likes || 0 }}</span>
-            </button>
-            <button class="btn-reaction" 
-                   [class.active]="comentario.userDisliked" 
-                   (click)="dislikeComentario(comentario)" 
-                   title="No me gusta">
-              <i class="fas fa-thumbs-down"></i> 
-              <span>{{ comentario.dislikes || 0 }}</span>
-            </button>
-            
-            <!-- Botón para eliminar comentario (solo para propietario o admin) -->
-            <button *ngIf="comentario.isOwner || authService.isAdministrator()" 
-                    class="btn-delete" 
-                    (click)="eliminarComentario(comentario)" 
-                    title="Eliminar comentario">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Sección de comentarios (ÚNICA SECCIÓN - eliminado duplicado) -->
+  <div class="comments-section">
+    <h2>Comentarios</h2>
     
-    <!-- Botón para ver más comentarios -->
-    <div class="view-more" *ngIf="comentarios.length > 2">
-      <button class="btn-view-more" (click)="toggleComments()">
-        {{ showAllComments ? 'Ver menos' : 'Ver más...' }}
-      </button>
+    <!-- Formulario para añadir comentario -->
+    <div class="comment-form" *ngIf="authService.isAuthenticated()">
+      <form [formGroup]="comentarioForm" (ngSubmit)="enviarComentario()">
+        <div class="form-group">
+          <textarea 
+            formControlName="texto"
+            placeholder="Escribe un comentario..."
+            rows="2">
+          </textarea>
+        </div>
+        <div class="comment-actions">
+          <button type="submit" class="btn-comment" [disabled]="comentarioForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Enviando...' : 'Comentar' }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <!-- Mensaje si no hay comentarios -->
-    <div class="no-comments" *ngIf="comentarios.length === 0">
-      <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
-    </div>
-  </div>
-</div>
     
     <div class="login-prompt" *ngIf="!authService.isAuthenticated()">
       <p>Inicia sesión para dejar un comentario</p>
     </div>
     
+    <!-- Loading para comentarios -->
+    <div class="loading-comments" *ngIf="commentLoading">
+      <p>Cargando comentarios...</p>
+    </div>
+    
     <!-- Lista de comentarios -->
-    <div class="comments-list">
+    <div class="comments-list" *ngIf="!commentLoading">
       <div class="comment" *ngFor="let comentario of (showAllComments ? comentarios : comentarios.slice(0, 2))">
         <div class="comment-avatar">
-          <img #avatarImg [src]="comentario.userImage" alt="Avatar de usuario" 
-               (error)="avatarImg.src='default-profile.png'">
+          <img [src]="comentario.userImage" alt="Avatar de usuario" 
+               (error)="handleAvatarError($event)">
         </div>
         <div class="comment-content">
           <div class="comment-header">
             <span class="comment-author">{{ comentario.userName }}</span>
+            <span class="comment-time">{{ getTimeElapsed(comentario.fecha) }}</span>
           </div>
           <div class="comment-text">{{ comentario.texto }}</div>
           <div class="comment-footer">
-            <span class="comment-time">{{ getTimeElapsed(comentario.fecha) }}</span>
+            <div class="comment-actions">
+              <!-- Botones de like/dislike -->
+              <button class="btn-reaction" 
+                     [class.active]="comentario.userLiked" 
+                     (click)="likeComentario(comentario)" 
+                     title="Me gusta">
+                <i class="fas fa-thumbs-up"></i> 
+                <span>{{ comentario.likes || 0 }}</span>
+              </button>
+              <button class="btn-reaction" 
+                     [class.active]="comentario.userDisliked" 
+                     (click)="dislikeComentario(comentario)" 
+                     title="No me gusta">
+                <i class="fas fa-thumbs-down"></i> 
+                <span>{{ comentario.dislikes || 0 }}</span>
+              </button>
+              
+              <!-- Botón para eliminar comentario (solo para propietario o admin) -->
+              <button *ngIf="comentario.isOwner || authService.isAdministrator()" 
+        class="btn-delete" 
+        (click)="eliminarComentario(comentario)" 
+        title="Eliminar comentario">
+    <img src="trash.svg" alt="Eliminar comentario" class="delete-icon">
+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -176,6 +165,8 @@
       </div>
     </div>
   </div>
+</div>
+
 <!-- Loading screen -->
 <app-loadingscreen *ngIf="loading" message="Cargando reporte..."></app-loadingscreen>
 

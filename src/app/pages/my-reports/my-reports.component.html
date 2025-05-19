@@ -103,7 +103,7 @@
         <button *ngIf="report.estado !== 'Resuelto'" 
                 class="delete-button"
                 (click)="confirmDeleteReport(report)">
-          <i class="fas fa-trash"></i>
+    <img src="trash.svg" alt="Eliminar comentario" class="delete-icon">
         </button>
         
         <span *ngIf="report.estado === 'Rechazado' && !canAppeal(report)" class="appeal-message">

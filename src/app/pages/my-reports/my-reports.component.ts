@@ -413,7 +413,7 @@ export class MyReportsComponent implements OnInit, AfterViewChecked {
   }
 
   handleImageError(event: any): void {
-    event.target.src = 'assets/imagenotfound.jpg';
+    event.target.src = 'trash.svg';
     event.target.classList.add('loaded');
   }
 }

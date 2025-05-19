@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -24,6 +24,7 @@ import * as L from 'leaflet';
   templateUrl: './report.component.html',
   styleUrls: ['./report.component.css']
 })
+
 export class ReportComponent implements OnInit, AfterViewInit {
   reporteId: string | null = null;
   reporte: any = {};
@@ -34,6 +35,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
   comentarios: any[] = [];
   showAllComments = false;
   commentLoading = false;
+  isSubmitting = false; // Prevenir envíos múltiples
   
   // Propiedades para el mapa
   map: L.Map | null = null;
@@ -42,7 +44,20 @@ export class ReportComponent implements OnInit, AfterViewInit {
   userLocation: { lat: number; lng: number } | null = null;
   reportAddress: string = 'Ubicación desconocida';
   distanceText: string = 'Calculando...';
-  
+  // Iconos personalizados para marcadores
+  private reportIcon = L.icon({
+    iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0UzMTcwMCI+PHBhdGggZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDljMCA1LjI1IDcgMTMgNyAxM3M3LTcuNzUgNy0xM2MwLTMuODctMy4xMy03LTctN3ptMCA5LjVjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41czEuMTItMi41IDIuNS0yLjUgMi41IDEuMTIgMi41IDIuNS0xLjEyIDIuNS0yLjUgMi41eiIvPjwvc3ZnPg==',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
+
+  private userIcon = L.icon({
+    iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwNzVGRiI+PHBhdGggZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDljMCA1LjI1IDcgMTMgNyAxM3M3LTcuNzUgNy0xM2MwLTMuODctMy4xMy03LTctN3ptMCA5LjVjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41czEuMTItMi41IDIuNS0yLjUgMi41IDEuMTIgMi41IDIuNS0xLjEyIDIuNS0yLjUgMi41eiIvPjwvc3ZnPg==',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
   constructor(
     private route: ActivatedRoute,
     private reporteService: ReporteService,
@@ -114,39 +129,44 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
   
   // Método para cargar comentarios del reporte
-  cargarComentarios(): void {
-    if (!this.reporteId) return;
-    
-    this.commentLoading = true;
-    
-    this.reporteService.getComentarios(this.reporteId)
-      .pipe(
-        tap(data => {
-          // Transformar los comentarios para añadir las propiedades necesarias
-          this.comentarios = data.map(comentario => this.transformComentario(comentario));
-          console.log('Comentarios cargados:', this.comentarios);
-        }),
-        catchError(error => {
-          console.error('Error al cargar comentarios', error);
-          return of([]);
-        }),
-        finalize(() => {
-          this.commentLoading = false;
-        })
-      )
-      .subscribe();
-  }
+  // Método para cargar comentarios del reporte
+cargarComentarios(): void {
+  if (!this.reporteId) return;
   
-  // Transforma los comentarios del backend para adaptarlos a nuestra UI
-  transformComentario(comentario: any): any {
-    const userId = this.authService.getCurrentUserId();
-    return {
-      id: comentario.id,
-      texto: comentario.descripcion || comentario.texto,
-      userId: comentario.idUsuario,
-      userName: comentario.nombre || comentario.userName || 'Usuario anónimo',
-      userImage: comentario.userImage || 'assets/images/default-avatar.png',
-      fecha: new Date(comentario.fechaPublicacion || comentario.fecha),
+  this.commentLoading = true;
+  
+  this.reporteService.getComentarios(this.reporteId)
+    .pipe(
+      tap(data => {
+        // Transformar los comentarios para añadir las propiedades necesarias
+        // y filtrar los que tienen estado "Eliminado"
+        this.comentarios = data
+          .filter(comentario => comentario.estado !== 'Eliminado')
+          .map(comentario => this.transformComentario(comentario));
+        
+        console.log('Comentarios cargados:', this.comentarios.length);
+      }),
+      catchError(error => {
+        console.error('Error al cargar comentarios', error);
+        return of([]);
+      }),
+      finalize(() => {
+        this.commentLoading = false;
+      })
+    )
+    .subscribe();
+}
+
+// Transforma los comentarios del backend para adaptarlos a nuestra UI
+transformComentario(comentario: any): any {
+  const userId = this.authService.getCurrentUserId();
+  return {
+    id: comentario.id,
+    texto: comentario.descripcion || comentario.texto,
+    userId: comentario.idUsuario,
+    userName: comentario.nombre || comentario.userName || 'Usuario anónimo',
+    userImage: comentario.userImage || 'default-profile.png',
+    fecha: new Date(comentario.fechaPublicacion || comentario.fecha),
       likes: comentario.likes || 0,
       dislikes: comentario.dislikes || 0,
       userLiked: comentario.usersLiked?.includes(userId) || false,
@@ -229,58 +249,99 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
   
   addReportMarker(): void {
-    if (!this.map || !this.reporte.location) return;
+  if (!this.map || !this.reporte.location) return;
+  
+  try {
+    // Usar el icono rojo personalizado para el reporte
+    this.reportMarker = L.marker(
+      [this.reporte.location.lat, this.reporte.location.lng],
+      { icon: this.reportIcon }  // Usar el icono personalizado
+    ).addTo(this.map);
     
-    try {
-      // Usar el marcador estándar de Leaflet para evitar problemas de imágenes
-      this.reportMarker = L.marker(
-        [this.reporte.location.lat, this.reporte.location.lng]
-      ).addTo(this.map);
-      
-      // Popup para el marcador
-      this.reportMarker.bindPopup(`
-        <strong>${this.reporte.titulo || 'Reporte'}</strong><br>
-        ${this.reportAddress}
-      `).openPopup();
-    } catch (error) {
-      console.error('Error al añadir marcador del reporte:', error);
-    }
+    // Popup para el marcador
+    this.reportMarker.bindPopup(`
+      <strong>${this.reporte.titulo || 'Reporte'}</strong><br>
+      ${this.reportAddress}
+    `).openPopup();
+  } catch (error) {
+    console.error('Error al añadir marcador del reporte:', error);
   }
+}
   
   addUserMarker(): void {
-    if (!this.map || !this.userLocation) return;
+  if (!this.map || !this.userLocation) return;
+  
+  try {
+    // Eliminar marcador anterior si existe
+    if (this.userMarker) {
+      this.userMarker.remove();
+    }
     
-    try {
-      // Eliminar marcador anterior si existe
-      if (this.userMarker) {
-        this.userMarker.remove();
-      }
-      
-      // Usar el marcador estándar de Leaflet para evitar problemas
-      this.userMarker = L.marker(
-        [this.userLocation.lat, this.userLocation.lng]
-      ).addTo(this.map);
-      
-      // Popup para el marcador
-      this.userMarker.bindPopup('Tu ubicación actual');
-      
-      // Ajustar el zoom para mostrar ambos marcadores
-      this.fitMapToBounds();
-    } catch (error) {
-      console.error('Error al añadir marcador del usuario:', error);
+    // Usar el icono azul personalizado para la ubicación del usuario
+    this.userMarker = L.marker(
+      [this.userLocation.lat, this.userLocation.lng],
+      { icon: this.userIcon }  // Usar el icono personalizado
+    ).addTo(this.map);
+    
+    // Popup para el marcador
+    this.userMarker.bindPopup('Tu ubicación actual');
+    
+    // Ajustar el zoom para mostrar ambos marcadores
+    this.fitMapToBounds();
+  } catch (error) {
+    console.error('Error al añadir marcador del usuario:', error);
+  }
+}
+  // Variables para el control de imágenes
+currentImageIndex = 0;
+
+// Método para obtener la URL de una imagen específica
+getImageUrl(index: number): string {
+  if (!this.reporte || !this.reporte.id) return '';
+  return `https://seguredapi-919088633053.us-central1.run.app/api/reportes-imagenes/${this.reporte.id}/imagen/${index}`;
+}
+
+// Navegación del slider
+nextImage(): void {
+  if (this.reporte.imagenes && this.currentImageIndex < this.reporte.imagenes.length - 1) {
+    this.currentImageIndex++;
+  }
+}
+
+prevImage(): void {
+  if (this.currentImageIndex > 0) {
+    this.currentImageIndex--;
+  }
+}
+
+goToImage(index: number): void {
+  if (this.reporte.imagenes && index >= 0 && index < this.reporte.imagenes.length) {
+    this.currentImageIndex = index;
+  }
+}
+
+// Teclado para navegación de imágenes (opcional)
+@HostListener('window:keydown', ['$event'])
+handleKeyboardEvent(event: KeyboardEvent): void {
+  if (this.reporte?.imagenes?.length > 1) {
+    if (event.key === 'ArrowRight' || event.key === 'Right') {
+      this.nextImage();
+    } else if (event.key === 'ArrowLeft' || event.key === 'Left') {
+      this.prevImage();
     }
   }
-  
-  fitMapToBounds(): void {
-    if (!this.map || !this.reportMarker || !this.userMarker) return;
-    
-    try {
-      // Crear un grupo de capas con ambos marcadores
-      const group = new L.FeatureGroup([
-        this.reportMarker, 
-        this.userMarker
-      ]);
-      
+}
+
+fitMapToBounds(): void {
+  if (!this.map || !this.reportMarker || !this.userMarker) return;
+
+  try {
+    // Crear un grupo de capas con ambos marcadores
+    const group = new L.FeatureGroup([
+      this.reportMarker,
+      this.userMarker
+    ]);
+
       // Ajustar el mapa para mostrar todos los marcadores
       this.map.fitBounds(group.getBounds().pad(0.2));
     } catch (error) {
@@ -304,7 +365,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
               this.reportMarker.setPopupContent(`
                 <strong>${this.reporte.titulo || 'Reporte'}</strong><br>
                 ${this.reportAddress}
-                ${this.distanceText !== 'Calculando...' ? `<br><span style="color:#4285f4">A ${this.distanceText} de tu ubicación</span>` : ''}
+                ${this.distanceText !== 'Calculando...' ? `<br><span style="color:#4284f4">A ${this.distanceText} de tu ubicación</span>` : ''}
               `);
             }
           }
@@ -548,9 +609,12 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
   
   enviarComentario(): void {
-    if (this.comentarioForm.invalid || !this.authService.isAuthenticated()) {
+    if (this.comentarioForm.invalid || !this.authService.isAuthenticated() || this.isSubmitting) {
       return;
     }
+    
+    // Prevenir envíos múltiples
+    this.isSubmitting = true;
     
     const userId = this.authService.getCurrentUserId();
     const userName = this.authService.getCurrentUserName();
@@ -561,12 +625,16 @@ export class ReportComponent implements OnInit, AfterViewInit {
       nombre: userName,
       descripcion: this.comentarioForm.value.texto,
       anonimo: false, // Por defecto no anónimo
-      userImage: this.authService.getCurrentUserImage() || 'assets/images/default-avatar.png'
+      userImage: this.authService.getCurrentUserImage() || 'default-profile.png'
     };
+    
+    console.log('Enviando comentario:', comentarioData);
     
     this.reporteService.addComentario(this.reporteId!, comentarioData)
       .subscribe({
         next: (response) => {
+          console.log('Respuesta del servidor:', response);
+          
           // Crear un comentario con el formato que esperamos en el frontend
           const nuevoComentario = {
             id: response.id || `temp-${new Date().getTime()}`,
@@ -586,9 +654,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
           // Agregar al inicio de la lista
           this.comentarios.unshift(nuevoComentario);
           this.comentarioForm.reset();
+          
+          // Permitir nuevos envíos
+          this.isSubmitting = false;
         },
         error: (err) => {
           console.error('Error al enviar comentario', err);
+          alert('Ocurrió un error al enviar el comentario. Por favor intenta de nuevo.');
+          this.isSubmitting = false;
         }
       });
   }
@@ -611,13 +684,20 @@ export class ReportComponent implements OnInit, AfterViewInit {
     const diffMs = now.getTime() - commentDate.getTime();
     
     const diffMins = Math.floor(diffMs / (1000 * 60));
+    if (diffMins < 1) return `hace un momento`;
     if (diffMins < 60) return `hace ${diffMins} minutos`;
     
     const diffHours = Math.floor(diffMins / 60);
+    if (diffHours === 1) return `hace 1 hora`;
     if (diffHours < 24) return `hace ${diffHours} horas`;
     
     const diffDays = Math.floor(diffHours / 24);
-    return `hace ${diffDays} días`;
+    if (diffDays === 1) return `hace 1 día`;
+    if (diffDays < 30) return `hace ${diffDays} días`;
+    
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths === 1) return `hace 1 mes`;
+    return `hace ${diffMonths} meses`;
   }
 
   // Métodos para manejar errores de imágenes
@@ -633,6 +713,6 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
   handleAvatarError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/default-avatar.png';
+    img.src = 'default-profile.png';
   }
 }
