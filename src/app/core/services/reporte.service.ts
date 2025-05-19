@@ -414,4 +414,152 @@ export class ReporteService {
       'Authorization': bearerToken
     });
   }
+
+  /**
+   * Añade un like a un reporte
+   * @param reporteId ID del reporte
+   * @param userId ID del usuario que da like
+   * @returns Observable con la respuesta
+   */
+  addLike(reporteId: string, userId: string): Observable<any> {
+    const url = `${this.apiUrl}/reportes/${reporteId}/like`;
+    const headers = this.getAuthHeaders();
+    
+    console.log(`Añadiendo like al reporte ${reporteId} por usuario ${userId}`);
+    
+    return this.http.post(url, { userId }, { headers }).pipe(
+      tap(() => {
+        console.log('Like añadido con éxito');
+      }),
+      catchError(error => {
+        console.error('Error al añadir like:', error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudo dar like al reporte'
+        }));
+      })
+    );
+  }
+
+  /**
+   * Elimina un like de un reporte
+   * @param reporteId ID del reporte
+   * @param userId ID del usuario que quita el like
+   * @returns Observable con la respuesta
+   */
+  removeLike(reporteId: string, userId: string): Observable<any> {
+    const url = `${this.apiUrl}/reportes/${reporteId}/like/${userId}`;
+    const headers = this.getAuthHeaders();
+    
+    console.log(`Eliminando like del reporte ${reporteId} por usuario ${userId}`);
+    
+    return this.http.delete(url, { headers }).pipe(
+      tap(() => {
+        console.log('Like eliminado con éxito');
+      }),
+      catchError(error => {
+        console.error('Error al eliminar like:', error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudo quitar el like del reporte'
+        }));
+      })
+    );
+  }
+
+  /**
+   * Añade un comentario a un reporte
+   * @param reporteId ID del reporte
+   * @param comentarioData Datos del comentario
+   * @returns Observable con la respuesta
+   */
+  addComentario(reporteId: string, comentarioData: any): Observable<any> {
+    const url = `${this.apiUrl}/reportes/${reporteId}/comentarios`;
+    const headers = this.getAuthHeaders();
+    
+    console.log(`Añadiendo comentario al reporte ${reporteId}`);
+    
+    return this.http.post(url, comentarioData, { headers }).pipe(
+      tap(() => {
+        console.log('Comentario añadido con éxito');
+      }),
+      catchError(error => {
+        console.error('Error al añadir comentario:', error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudo añadir el comentario al reporte'
+        }));
+      })
+    );
+  }
+
+  /**
+   * Obtiene los comentarios de un reporte
+   * @param reporteId ID del reporte
+   * @returns Observable con array de comentarios
+   */
+  getComentarios(reporteId: string): Observable<any[]> {
+    const url = `${this.apiUrl}/reportes/${reporteId}/comentarios`;
+    const headers = this.getAuthHeaders();
+    
+    return this.http.get<any[]>(url, { headers }).pipe(
+      tap(comentarios => {
+        console.log(`Obtenidos ${comentarios.length} comentarios para el reporte ${reporteId}`);
+      }),
+      catchError(error => {
+        console.error('Error al obtener comentarios:', error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudieron cargar los comentarios'
+        }));
+      })
+    );
+  }
+
+  /**
+   * Elimina un comentario de un reporte
+   * @param reporteId ID del reporte
+   * @param comentarioId ID del comentario
+   * @returns Observable con la respuesta
+   */
+  deleteComentario(reporteId: string, comentarioId: string): Observable<any> {
+    const url = `${this.apiUrl}/reportes/${reporteId}/comentarios/${comentarioId}`;
+    const headers = this.getAuthHeaders();
+    
+    console.log(`Eliminando comentario ${comentarioId} del reporte ${reporteId}`);
+    
+    return this.http.delete(url, { headers }).pipe(
+      tap(() => {
+        console.log('Comentario eliminado con éxito');
+      }),
+      catchError(error => {
+        console.error('Error al eliminar comentario:', error);
+        return throwError(() => ({
+          ...error,
+          userMessage: 'No se pudo eliminar el comentario'
+        }));
+      })
+    );
+  }
+
+  /**
+   * Verifica si un usuario ha dado like a un reporte
+   * @param reporteId ID del reporte
+   * @param userId ID del usuario
+   * @returns Observable con boolean (true si el usuario ha dado like)
+   */
+  checkUserLiked(reporteId: string, userId: string): Observable<boolean> {
+    return this.getReporteById(reporteId).pipe(
+      map(report => {
+        if (!report.usersLiked || !Array.isArray(report.usersLiked)) {
+          return false;
+        }
+        return report.usersLiked.includes(userId);
+      }),
+      catchError(error => {
+        console.error('Error al verificar like del usuario:', error);
+        return of(false);
+      })
+    );
+  }
 }

@@ -1,1 +1,126 @@
-<p>report works!</p>
+<div class="report-container" *ngIf="!loading">
+  <!-- Información principal del reporte -->
+  <div class="report-header">
+    <div class="report-info">
+      <h1 class="report-title">{{ reporte.titulo }}</h1>
+      <p class="report-description">{{ reporte.descripcion }}</p>
+      
+      <!-- Sistema de estrellas/likes -->
+      <div class="rating-container">
+        <div class="stars">
+          <span *ngFor="let star of starsArray" 
+                [class.star-filled]="star === 1"
+                [class.star-empty]="star === 0">
+            ★
+          </span>
+        </div>
+        <button class="like-button" [class.liked]="userLiked" (click)="toggleLike()">
+          {{ userLiked ? 'Quitar like' : 'Dar like' }}
+        </button>
+        <span class="likes-count">{{ reporte.likes || 0 }} likes</span>
+      </div>
+    </div>
+    
+    <!-- Imagen del reporte -->
+    <div class="report-image" *ngIf="reporte.imagenes && reporte.imagenes.length > 0">
+      <img #reportImg [src]="'https://seguredapi-919088633053.us-central1.run.app/api/reportes-imagenes/' + reporte.id + '/imagen/0'" 
+           alt="Imagen del reporte"
+           (error)="reportImg.src='imagenotfound.png'"
+           (load)="reportImg.classList.add('loaded')">
+    </div>
+  </div>
+  
+  <!-- Sección de ubicación -->
+  <div class="location-section">
+    <h2>Ubicación del reporte</h2>
+    <div class="location-badges">
+      <span class="location-badge user" *ngIf="userLocation">
+        <i class="fas fa-map-marker-alt"></i> Tu Ubicación
+      </span>
+      <span class="location-badge report">
+        <i class="fas fa-map-pin"></i> Ubicación del Reporte
+      </span>
+      <span class="location-badge distance" *ngIf="distanceText !== 'Calculando...'">
+        <i class="fas fa-route"></i> {{ distanceText }}
+      </span>
+    </div>
+    <div class="map-container">
+      <div id="report-map"></div>
+    </div>
+    <div class="address-container" *ngIf="reportAddress !== 'Ubicación desconocida'">
+      <p class="report-address"><i class="fas fa-map-marker-alt"></i> {{ reportAddress }}</p>
+    </div>
+  </div>
+  
+  <!-- Sección de comentarios -->
+  <div class="comments-section">
+    <h2>Comentarios</h2>
+    
+    <!-- Formulario para añadir comentario -->
+    <div class="comment-form" *ngIf="authService.isAuthenticated()">
+      <form [formGroup]="comentarioForm" (ngSubmit)="enviarComentario()">
+        <div class="form-group">
+          <textarea 
+            formControlName="texto"
+            placeholder="Escribe un comentario..."
+            rows="2">
+          </textarea>
+        </div>
+        <div class="comment-actions">
+          <button type="button" class="format-btn bold" title="Negrita">B</button>
+          <button type="button" class="format-btn italic" title="Cursiva">I</button>
+          <button type="button" class="format-btn link" title="Enlace">
+            <i class="fas fa-link"></i>
+          </button>
+          <button type="submit" class="btn-comment" [disabled]="comentarioForm.invalid">
+            Comentar
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="login-prompt" *ngIf="!authService.isAuthenticated()">
+      <p>Inicia sesión para dejar un comentario</p>
+    </div>
+    
+    <!-- Lista de comentarios -->
+    <div class="comments-list">
+      <div class="comment" *ngFor="let comentario of (showAllComments ? comentarios : comentarios.slice(0, 2))">
+        <div class="comment-avatar">
+          <img #avatarImg [src]="comentario.userImage" alt="Avatar de usuario" 
+               (error)="avatarImg.src='default-profile.png'">
+        </div>
+        <div class="comment-content">
+          <div class="comment-header">
+            <span class="comment-author">{{ comentario.userName }}</span>
+          </div>
+          <div class="comment-text">{{ comentario.texto }}</div>
+          <div class="comment-footer">
+            <span class="comment-time">{{ getTimeElapsed(comentario.fecha) }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botón para ver más comentarios -->
+      <div class="view-more" *ngIf="comentarios.length > 2">
+        <button class="btn-view-more" (click)="toggleComments()">
+          {{ showAllComments ? 'Ver menos' : 'Ver más...' }}
+        </button>
+      </div>
+
+      <!-- Mensaje si no hay comentarios -->
+      <div class="no-comments" *ngIf="comentarios.length === 0">
+        <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading screen -->
+<app-loadingscreen *ngIf="loading" message="Cargando reporte..."></app-loadingscreen>
+
+<!-- Error message -->
+<div class="error-container" *ngIf="errorMessage">
+  <p class="error-message">{{ errorMessage }}</p>
+  <button class="btn-retry" (click)="cargarReporte()">Intentar nuevamente</button>
+</div>

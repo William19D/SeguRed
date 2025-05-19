@@ -66,8 +66,10 @@
       
       <!-- Lista de reportes -->
       <div *ngIf="!reportsLoading && !reportsError && filteredReports.length > 0" class="reports">
-        <div *ngFor="let report of filteredReports" class="report-card" [ngClass]="{'error': report.id === 'error'}">
-          <!-- Sección izquierda: Mapa con distancia debajo -->
+<div class="report-card" 
+     *ngFor="let report of filteredReports" 
+     (click)="goToReportDetail(report.id)"
+     style="cursor: pointer;">          <!-- Sección izquierda: Mapa con distancia debajo -->
           <div class="report-left-section">
             <div class="report-map">
               <div [id]="report.mapId" class="map-container"></div>
