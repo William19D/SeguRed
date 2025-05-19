@@ -2,9 +2,18 @@
   <div class="container">
     <div class="header">
       <h1>Notificaciones</h1>
-      <button class="refresh-btn" (click)="refreshNotifications()">
-        <img src="refresh-icon.svg" alt="Actualizar" />
-      </button>
+      <div class="header-actions">
+        <button class="mark-all-btn" 
+                *ngIf="hasUnreadNotifications()"
+                [disabled]="markingAllAsRead" 
+                (click)="markAllAsRead()">
+          <span *ngIf="!markingAllAsRead">Marcar todas como leídas</span>
+          <div class="spinner small" *ngIf="markingAllAsRead"></div>
+        </button>
+        <button class="refresh-btn" (click)="refreshNotifications()">
+          <span class="refresh-icon">↻</span>
+        </button>
+      </div>
     </div>
 
     <!-- Mensajes de estado -->
@@ -20,7 +29,7 @@
       </div>
 
       <div class="empty-state" *ngIf="!loading && !error && notifications.length === 0">
-        <img src="empty-notifications.svg" alt="Sin notificaciones" />
+        <div class="empty-icon">📭</div>
         <h3>No tienes notificaciones</h3>
         <p>Te notificaremos cuando haya nuevas actualizaciones</p>
       </div>
@@ -33,7 +42,7 @@
            [ngClass]="{'unread': !notification.leido}"
            (click)="markAsRead(notification.id)">
         <div class="notification-icon">
-          <img [src]="notification.icono || 'notification-icon.svg'" alt="Icono" />
+          <span class="icon-placeholder">📢</span>
         </div>
         <div class="notification-content">
           <h3>{{ notification.titulo }}</h3>

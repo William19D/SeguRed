@@ -26,7 +26,7 @@ export class NotificationBadgeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Obtener el ID del usuario actual
+    // Obtener el ID del usuario actual o suscribirse para conseguirlo
     const currentUser = this.authService.getCurrentUser();
     if (currentUser && currentUser.id) {
       this.userId = currentUser.id;
