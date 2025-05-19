@@ -10,7 +10,7 @@ import { AuthService } from './authentication.service';
 export class NotificationService {
   // Cambiar para usar la URL de producción en lugar de la local por defecto
   private apiUrl = 'https://seguredapi-919088633053.us-central1.run.app';
-  private localUrl = 'http://localhost:8080';
+  private localUrl = 'https://seguredapi-919088633053.us-central1.run.app';
   constructor(
     private http: HttpClient,
     private authService: AuthService
